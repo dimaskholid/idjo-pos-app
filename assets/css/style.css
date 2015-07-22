@@ -1,0 +1,62 @@
+/*allign */
+body { 
+	padding-top: 0px; 
+	font-size: 10pt;
+	margin: 5 5 5 5;
+}
+
+.jumbotron{
+	margin-bottom: 0px;
+	padding-top: 10px;
+	padding-bottom: 10px;
+}
+
+.jumbotron h3{
+	margin-top: 10.5px;
+}
+.right {
+	float: right;
+}
+.kebawah{
+	margin-bottom: 0px;
+}
+
+.keatas{
+	margin-top: 0px;
+}
+.table td, th {
+   text-align: center;   
+}
+
+input{
+	line-height: inherit;
+}
+
+.content{
+	min-height: 450px;
+}
+
+.container{
+	padding-right: 0px;
+	padding-left: 0px;
+}
+
+.control-label {
+	text-align: left;
+}
+
+/*warna*/
+.red{
+	background-color: red;
+}
+.green{
+	background-color: green;
+}
+
+.navbar{
+	border-radius: 0;
+}
+
+.panel, .panel-primary{
+	border-radius: 0;
+}
