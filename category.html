@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <title>Kategori</title>
+    <!-- Bootstrap -->
+    <link href="assets/css/bootstrap.min.css" rel="stylesheet">
+    <link href="assets/css/style.css" rel="stylesheet">
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="assets/js/html5shiv.min.js"></script>
+      <script src="assets/js/respond.min.js"></script>
+    <![endif]-->
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="assets/js/jquery.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="assets/js/bootstrap.min.js"></script>
+    <script src="assets/js/connect.js"></script>
+    <script src="assets/js/ajaxcontentloader.js"></script>
+    <script>
+    $(function() {
+
+    });
+    </script>
+</head>
+
+<body>
+    <!-- header -->
+    <div id="header"></div>
+    <!-- Navigation -->
+    <div id="navigation"></div>
+    <!-- Content -->
+    <div id="content-wrapper">
+        <div id="content-loader">
+            <script>
+            $(function() {
+                //show modal
+                $(document).on("click", "#btnTambahKategori", function() {
+
+                    //$('#tambahSatuan').modal('show');
+
+                    setTimeout(function() {
+
+                        $("#inputKategori").focus();
+                    }, 500);
+                });
+                /*------------------ Edit -----------------*/
+                $(document).on("click", "#btnEditKategori", function() {
+                    $('#mdlEditKategori').modal('show');
+                    var id = $(this).closest('tr').find('input[name=idKategori]').val();
+                    var inpKategori = $(this).closest('tr').find('input[name=hdnKategori]').val();
+                    $("#inpEditKategori").val(inpKategori);
+                    $("input[name=hdnIdKategori]").val(id);
+                });
+
+                $("#frmEditKategori").on("submit", function(e) {
+                    e.preventDefault();
+                    con.query(
+                        'UPDATE kategori SET kategori = ? Where id_kategori = ?', [$("#inpEditKategori").val(),
+                            $("input[name=hdnIdKategori]").val()
+                        ],
+                        function(err, result) {
+                            if (err) throw err;
+
+                            console.log('Changed ' + result.changedRows + ' rows');
+                        }
+                    );
+
+
+                    $("#mdlEditKategori").modal("toggle");
+                    $("#closeKategori").trigger("click");
+                    // e.stopImmediatePropagation();
+                    //$("#inpEditKategori").val("");
+                });
+
+                //Select All
+                con.query('SELECT * FROM kategori', function(err, rows) {
+                    if (err) throw err;
+
+                    console.log('Data received from Db:\n');
+                    console.log(rows);
+                    $("#tabelKategori tbody").empty();
+                    for (var i = 0; i < rows.length; i++) {
+                        console.log(rows[i].kategori + " " + rows[i].id_kategori)
+                        $("#tabelKategori tbody").append(
+                            "<tr>" +
+                            "<td>" +
+                            "<input type='hidden' name='idKategori' id='idKategori' value=" + rows[i].id_kategori + ">" +
+                            "<input type='hidden' name='hdnKategori' id='hdnKategori' value='" + rows[i].kategori + "'>" +
+                            parseInt(i + 1) + "</td>" +
+                            "<td>" + rows[i].kategori + "</td>" +
+                            "<td>" +
+                            "<button type='button' id='btnEditKategori' class = 'btn btn-link btn-xs'> " + "<span class='glyphicon glyphicon-wrench'></span>" + "</button>" +
+                            "<button type='button' id='btnDelKategori' class = 'btn btn-link btn-xs'> " + "<span class='glyphicon glyphicon-trash'></span>" + "</button>" +
+                            "</td > " +
+                            "</tr>"
+                        );
+                    };
+                });
+            });
+
+            //Insert baru
+            $("#frmInputKategori").on("submit", function(event) {
+                event.preventDefault();
+                var kat = {
+                    kategori: $("#inputKategori").val()
+                };
+                var rowCount = $('#tabelKategori tbody tr').length;
+                con.query('INSERT INTO kategori SET ?', kat, function(err, res) {
+                    if (err) throw err;
+                    console.log(res.insertId);
+                });
+
+                $("#frmInputKategori").trigger('reset');
+                $("#tabelKategori tbody").append(
+                    "<tr>" +
+                    "<td>" + parseInt(rowCount + 1) + "</td>" +
+                    "<td>" + kat['kategori'] + "</td>" +
+                    "</tr>"
+                );
+            });
+
+
+            //delete
+            $(document).on("click", "#btnDelKategori", function(e) {
+                var id = $(this).closest('tr').find('input[name=idKategori]').val();
+                var hdnKategori = $(this).closest('tr').find('input[name=hdnKategori]').val();
+
+                $.confirm({
+                    text: "Yakin untuk menghapus data " + id + " : " + hdnKategori,
+                    confirm: function(button) {
+                        con.query('DELETE FROM Kategori WHERE id_Kategori = "' + id + '"', function(err, res) {
+                            if (err) throw err;
+
+                            console.log('deleted ' + res.affectedRows + ' rows');
+                            //alert("Data berhasil dihapus");
+                        });
+                        setTimeout(function() {
+                            $.ajax({
+                                type: "GET",
+                                url: "category.html",
+                                success: function(data) {
+                                    var content = $(data).find("#content-loader");
+                                    $("#content-wrapper").fadeOut().empty().fadeIn().append(content);
+                                },
+                                error: function(data) {}
+                            });
+                        }, 200);
+                    },
+                    cancel: function(button) {},
+                    confirmButton: "Hapus",
+                    cancelButton: "Batal",
+                    post: true,
+                    confirmButtonClass: "btn-danger btn-xs",
+                    cancelButtonClass: "btn-default btn-xs"
+                });
+            });
+
+            //refresh saat close input , 
+            $(document).on("click", "#closeKategori, .closeKategori", function(e) {
+                e.stopImmediatePropagation();
+                setTimeout(function() {
+                    // alert("hai");
+                    $.ajax({
+                        type: "GET",
+                        url: "category.html",
+                        success: function(data) {
+                            var content = $(data).find("#content-loader");
+                            $("#content-wrapper").fadeOut().empty().fadeIn().append(content);
+                        },
+                        error: function(data) {}
+                    });
+                }, 200);
+            });
+            </script>
+            <div class="container content">
+                <div class="row">
+                    <div class="panel panel-primary kebawah">
+                        <div class="panel-heading">
+                            <div class="clearfix">
+                                <div class="pull-left">
+                                    <h3 class="panel-title">Kategori</h3>
+                                </div>
+                                <div class="pull-right">
+                                    <button type="button" class="btn btn-info btn-xs" data-toggle="modal" id="btnTambahKategori" data-target="#mdlTambahKategori">Tambah Kategori</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <table id="tabelKategori" class="table table-hover table-bordered table-striped keatas">
+                        <thead>
+                            <tr>
+                                <th width="70">No</th>
+                                <th>Jenis Kategori</th>
+                                <th width="100">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>1</td>
+                                <td>Dimas</td>
+                                <td>
+                                    <button type="button" class="btn btn-link btn-xs"><span class="glyphicon glyphicon-wrench"></span></button>
+                                    <button type="button" class="btn btn-link btn-xs"><span class="glyphicon glyphicon-trash"></span></button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="text-center">2</td>
+                                <td class="text-center">Malik</td>
+                                <td class="text-center">
+                                    <button type="button" class="btn btn-link btn-xs"><span class="glyphicon glyphicon-wrench"></span></button>
+                                    <button type="button" class="btn btn-link btn-xs"><span class="glyphicon glyphicon-trash"></span></button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <!-- Modal tambah Kategori -->
+            <div class="container">
+                <div class="modal fade" id="mdlTambahKategori" tabindex="-1" role="document" data-backdrop="static">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" id="close-input-unit" class="close closeKategori" data-dismiss="modal">&times;</button>
+                                <h4 class="modal-title">Input Kategori</h4>
+                            </div>
+                            <div class="modal-body">
+                                <form id="frmInputKategori" class="form-horizontal" action="">
+                                    <fieldset>
+                                        <div class="form-group">
+                                            <label for="inputKategori" class="col-lg-2 control-label">Nama</label>
+                                            <div class="col-lg-10">
+                                                <input class="form-control input-sm" id="inputKategori" placeholder="Nama Kategori" type="text">
+                                            </div>
+                                        </div>
+                                    </fieldset>
+                                </form>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="submit" form="frmInputKategori" class="btn btn-info  btn-xs">Simpan</button>
+                                <a href="#" id="closeKategori" class="btn btn-default btn-xs closeKategori" data-dismiss="modal">Tutup</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- modal edit Kategori -->
+            <div class="container">
+                <div class="modal fade" id="mdlEditKategori" tabindex="-1" role="document" data-backdrop="static">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close closeKategori" data-dismiss="modal">&times;</button>
+                                <h4 class="modal-title">Edit Kategori</h4>
+                            </div>
+                            <div class="modal-body">
+                                <form id="frmEditKategori" class="form-horizontal" action="">
+                                    <fieldset>
+                                        <div class="form-group">
+                                            <label for="inpEditKategori" class="col-lg-2 control-label">Nama</label>
+                                            <div class="col-lg-10">
+                                                <input type="hidden" name="hdnIdKategori" value="">
+                                                <input class="form-control input-sm" id="inpEditKategori" placeholder="Nama Kategori" type="text">
+                                            </div>
+                                        </div>
+                                    </fieldset>
+                                </form>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="submit" form="frmEditKategori" class="btn btn-info  btn-xs">Simpan</button>
+                                <a href="#" class="btn btn-default btn-xs batal closeKategori" data-dismiss="modal">Tutup</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- footer -->
+    <div id="footer"></div>
+    <script>
+    $("#navigation").load("navbar.html");
+    $("#footer").load("footer.html");
+    $("#header").load("header.html");
+    </script>
+    <script>
+    </script>
+</body>
+
+</html>

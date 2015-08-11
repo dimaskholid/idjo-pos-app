@@ -1,91 +1,323 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
+
+<head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
     <title>Daftar Barang</title>
-
     <!-- Bootstrap -->
     <link href="assets/css/bootstrap.min.css" rel="stylesheet">
     <link href="assets/css/style.css" rel="stylesheet">
-
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
     <!--[if lt IE 9]>
-      <script src="assets/js/html5shiv.min.js"></script>
+      <script src="assets/js/html5shiv
+.min.js"></script>
       <script src="assets/js/respond.min.js"></script>
     <![endif]-->
-  </head>
-  <body>
-    <!-- header -->
-    <div id="header"></div>
-    
-    <!-- Navigation -->
-    <div id="navigation"></div>   
-    
-    <!-- Content -->
-    <div class="container content">
-        <div class="row">          
-        
-          <div class="panel panel-primary kebawah">
-            <div class="panel-heading">
-            <div class="clearfix">
-              <div class="pull-left">
-                <h3 class="panel-title">Daftar Barang</h3>
-              </div>
-              <div class="pull-right">
-                <button type="button" class="btn btn-info btn-xs" data-toggle="modal" data-target="#tambahBarang">Tambah Barang</button>
-              </div>
-            </div>
-            </div>
-          </div>
-       
-        <table class="table table-hover table-bordered table-striped keatas">
-        <thead>
-          <tr>
-          <th width="70px">No</th>
-            <th>Nama Barang</th>
-            <th>Distributor</th>
-            <th width="100">Aksi</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>1</td>
-            <td>Dimas</td>
-            <td class="text-center">Purwoharjo </td>
-            <td class="text-center"><button type="button" class="btn btn-link btn-xs"><span class="glyphicon glyphicon-wrench"></span></button>
-            <button type="button" class="btn btn-link btn-xs"><span class="glyphicon glyphicon-trash"></span></button></td>
-          </tr>
-          <tr>
-            <td class="text-center">2</td>
-            <td class="text-center">Malik</td>
-            <td class="text-center">Purworejo</td>
-            <td class="text-center">
-            <button type="button" class="btn btn-link btn-xs"><span class="glyphicon glyphicon-wrench"></span></button>
-            <button type="button" class="btn btn-link btn-xs"><span class="glyphicon glyphicon-trash"></span></button></td>
-          </tr>
-          </tbody>
-        </table>
-
-        </div>        
-      </div>
-      
-    </div>
-    
-    <!-- footer -->
-    <div id="footer"></div>
-
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
     <script src="assets/js/jquery.min.js"></script>
     <!-- Include all compiled plugins (below), or include individual files as needed -->
     <script src="assets/js/bootstrap.min.js"></script>
+    <script src="controller/connectjs"></script>
+    <script src="assets/js/ajaxcontentloader.js"></script>
+</head>
+
+<body>
+    <!-- header -->
+    <div id="header"></div>
+    <!-- Navigation -->
+    <div id="navigation"></div>
+    <!-- Content -->
+    <div id="content-wrapper">
+        <div id="content-loader">
+            <script>
+            $(function() {
+                /*---------- Fokus input -----------*/
+                $(document).on("click", "#btnTambahBarang", function() {
+                    setTimeout(function() {
+                        $("#inputBarang").focus();
+                    }, 500);
+                });
+                $(document).on("click", "#btnEditBarang", function() {
+                    setTimeout(function() {
+                        $("#inpEditBarang").focus();
+                    }, 500);
+                });
+                /*------------ View All ----------*/
+                con.query('SELECT * FROM barang JOIN kategori ON barang.id_kategori = kategori.id_kategori', function(err, rows) {
+                    if (err) throw err;
+
+                    console.log('Data received from Db:\n');
+                    console.log(rows);
+                    $("#tabelBarang tbody").empty();
+                    for (var i = 0; i < rows.length; i++) {
+                        console.log(rows[i].barang + " " + rows[i].id_barang + " " + rows[i].kategori)
+                        $("#tabelBarang tbody").append(
+                            "<tr>" +
+                            "<td>" +
+                            "<input type='hidden' name='idBarang' id='idBarang' value=" + rows[i].id_barang + ">" +
+                            "<input type='hidden' name='hdnBarang' id='hdnBarang' value='" + rows[i].barang + "'>" +
+                            "<input type='hidden' name='idKategori' id='idKategori' value='" + rows[i].id_kategori + "'>" +
+                            parseInt(i + 1) + "</td>" +
+                            "<td>" + rows[i].barang + "</td>" +
+                            "<td>" + rows[i].kategori + "</td>" +
+                            "<td>" +
+                            "<button type='button' id='btnEditBarang' class = 'btn btn-link btn-xs'> " + "<span class='glyphicon glyphicon-wrench'></span>" + "</button>" +
+                            "<button type='button' id='btnDelBarang' class = 'btn btn-link btn-xs'> " + "<span class='glyphicon glyphicon-trash'></span>" + "</button>" +
+                            "</td > " +
+                            "</tr>"
+                        );
+                    };
+                });
+                /*----------- end view all ---------*/
+                /*----------- Select----------------*/
+                con.query('SELECT * FROM kategori', function(err, rows) {
+                    if (err) throw err;
+                    for (var i = 0; i < rows.length; i++) {
+                        $("#selectKategori, #selectEditKategori").append(
+                            "<option value='" + rows[i].id_kategori + "'>" + rows[i].kategori + "</option>"
+                        );
+                    }
+                });
+
+                /*----------- Input Baru ------------*/
+                $("#frmInputBarang").on("submit", function(event) {
+                    event.preventDefault();
+
+                    var selectTxt = $("#selectKategori option:selected").text();
+                    var brg = {
+                        barang: $("#inputBarang").val(),
+                        id_kategori: $("#selectKategori").val()
+                    };
+                    var rowCount = $('#tabelBarang tbody tr').length;
+                    con.query('INSERT INTO barang SET ?', brg, function(err, res) {
+                        if (err) throw err;
+                        console.log(res.insertId);
+                    });
+
+                    $("#frmInputBarang").trigger('reset');
+                    $("#tabelBarang tbody").append(
+                        "<tr>" +
+                        "<td>" + parseInt(rowCount + 1) + "</td>" +
+                        "<td>" + brg['barang'] + "</td>" +
+                        "<td>" + selectTxt + "</td>" +
+                        "</tr>"
+                    );
+                });
+                //refresh saat close input , 
+                $(document).on("click", "#closeBarang, .closeBarang", function(e) {
+                    e.stopImmediatePropagation();
+                    setTimeout(function() {
+                        // alert("hai");
+                        $.ajax({
+                            type: "GET",
+                            url: "item.html",
+                            success: function(data) {
+                                var content = $(data).find("#content-loader");
+                                $("#content-wrapper").fadeOut().empty().fadeIn().append(content);
+                            },
+                            error: function(data) {}
+                        });
+                    }, 200);
+                });
+                /*------------------ Edit -----------------*/
+                $(document).on("click", "#btnEditBarang", function() {
+                    $('#mdlEditBarang').modal('show');
+                    var id = $(this).closest('tr').find('input[name=idBarang]').val(),
+                        inpBarang = $(this).closest('tr').find('input[name=hdnBarang]').val(),
+                        idKategori = $(this).closest('tr').find('input[name=idKategori]').val();
+                    $("#inpEditBarang").val(inpBarang);
+                    $("input[name=hdnIdBarang]").val(id);
+                    $("#selectEditKategori").val(idKategori);
+                });
+
+                $("#frmEditBarang").on("submit", function(e) {
+                    e.preventDefault();
+                    con.query(
+                        'UPDATE barang SET barang = ?, id_kategori = ? Where id_barang = ?', [$("#inpEditBarang").val(), $("#selectEditKategori").val(),
+                            $("input[name=hdnIdBarang]").val()
+                        ],
+                        function(err, result) {
+                            if (err) throw err;
+
+                            console.log('Changed ' + result.changedRows + ' rows');
+                        }
+                    );
+                    $("#mdlEditBarang").modal("toggle");
+                    $("#closeBarang").trigger("click");
+                });
+                //delete
+                $(document).on("click", "#btnDelBarang", function(e) {
+                    var id = $(this).closest('tr').find('input[name=idBarang]').val();
+                    var hdnBrg = $(this).closest('tr').find('input[name=hdnBarang]').val();
+
+                    $.confirm({
+                        text: "Yakin untuk menghapus data " + id + " : " + hdnBrg,
+                        confirm: function(button) {
+                            con.query('DELETE FROM barang WHERE id_barang = "' + id + '"', function(err, res) {
+                                if (err) throw err;
+
+                                console.log('deleted ' + res.affectedRows + ' rows');
+                                //alert("Data berhasil dihapus");
+                            });
+                            setTimeout(function() {
+                                $.ajax({
+                                    type: "GET",
+                                    url: "item.html",
+                                    success: function(data) {
+                                        var content = $(data).find("#content-loader");
+                                        $("#content-wrapper").fadeOut().empty().fadeIn().append(content);
+                                    },
+                                    error: function(data) {}
+                                });
+                            }, 200);
+                        },
+                        cancel: function(button) {},
+                        confirmButton: "Hapus",
+                        cancelButton: "Batal",
+                        post: true,
+                        confirmButtonClass: "btn-danger btn-xs",
+                        cancelButtonClass: "btn-default btn-xs"
+                    });
+                });
+
+            });
+            </script>
+            <div class="container content">
+                <div class="row">
+                    <div class="panel panel-primary kebawah">
+                        <div class="panel-heading">
+                            <div class="clearfix">
+                                <div class="pull-left">
+                                    <h3 class="panel-title">Daftar Barang</h3>
+                                </div>
+                                <div class="pull-right">
+                                    <button type="button" class="btn btn-info btn-xs" id="btnTambahBarang" data-toggle="modal" data-target="#mdlTambahBarang">Tambah Barang</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <table id="tabelBarang" class="table table-hover table-bordered table-striped keatas">
+                        <thead>
+                            <tr>
+                                <th width="70px">No</th>
+                                <th>Nama Barang</th>
+                                <th>Kategori</th>
+                                <th width="100">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>1</td>
+                                <td>Dimas</td>
+                                <td class="text-center">Purwoharjo </td>
+                                <td class="text-center">
+                                    <button type="button" class="btn btn-link btn-xs"><span class="glyphicon glyphicon-wrench"></span></button>
+                                    <button type="button" class="btn btn-link btn-xs"><span class="glyphicon glyphicon-trash"></span></button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="text-center">2</td>
+                                <td class="text-center">Malik</td>
+                                <td class="text-center">Purworejo</td>
+                                <td class="text-center">
+                                    <button type="button" class="btn btn-link btn-xs"><span class="glyphicon glyphicon-wrench"></span></button>
+                                    <button type="button" class="btn btn-link btn-xs"><span class="glyphicon glyphicon-trash"></span></button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <!-- Modal Tambah Barang -->
+            <div class="container">
+                <div class="modal fade" id="mdlTambahBarang" tabindex="-1" role="document" data-backdrop="static">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close closeBarang" data-dismiss="modal">&times;</button>
+                                <h4 class="modal-title">Input Barang</h4>
+                            </div>
+                            <div class="modal-body">
+                                <form id="frmInputBarang" class="form-horizontal" action="">
+                                    <fieldset>
+                                        <div class="form-group">
+                                            <label for="inputBarang" class="col-lg-2 control-label">Nama</label>
+                                            <div class="col-lg-10">
+                                                <input class="form-control input-sm" id="inputBarang" placeholder="Nama Barang" type="text">
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="selectKategori" class="col-lg-2 control-label">Kategori</label>
+                                            <div class="col-lg-10">
+                                                <select name="selectKategori" id="selectKategori" class="form-control input-sm">
+                                                    <option value="">-pilih-</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </fieldset>
+                                </form>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="submit" form="frmInputBarang" class="btn btn-info  btn-xs">Simpan</button>
+                                <a href="#" id="closeDist" class="btn btn-default btn-xs closeBarang" data-dismiss="modal">Tutup</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Modal Edit Barang -->
+            <div class="container">
+                <div class="modal fade" id="mdlEditBarang" tabindex="-1" role="document" data-backdrop="static">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close closeBarang" data-dismiss="modal">&times;</button>
+                                <h4 class="modal-title">Edit Barang</h4>
+                            </div>
+                            <div class="modal-body">
+                                <form id="frmEditBarang" class="form-horizontal" action="">
+                                    <fieldset>
+                                        <div class="form-group">
+                                            <label for="editBarang" class="col-lg-2 control-label">Nama</label>
+                                            <div class="col-lg-10">
+                                                <input type="hidden" name="hdnIdBarang" value="">
+                                                <input class="form-control input-sm" id="inpEditBarang" placeholder="Nama Barang" type="text">
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="selectEditKategori" class="col-lg-2 control-label">Kategori</label>
+                                            <div class="col-lg-10">
+                                                <select name="selectEditKategori" id="selectEditKategori" class="form-control input-sm">
+                                                    <option value="">-pilih-</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </fieldset>
+                                </form>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="submit" form="frmEditBarang" class="btn btn-info  btn-xs">Simpan</button>
+                                <a href="#" id="closeBarang" class="btn btn-default btn-xs closeBarang" data-dismiss="modal">Tutup</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- end content-loader -->
+    </div>
+    <!-- end content-wrapper -->
+    <!-- footer -->
+    <div id="footer"></div>
     <script>
-    $( "#navigation" ).load( "navbar.html" );
-    $( "#footer" ).load( "footer.html" );
-    $( "#header" ).load( "header.html" );
+    $("#navigation").load("navbar.html");
+    $("#footer").load("footer.html");
+    $("#header").load("header.html");
     </script>
-  </body>
+</body>
+
 </html>

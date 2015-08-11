@@ -1,88 +1,298 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
+
+<head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
     <title>Satuan Barang</title>
-
     <!-- Bootstrap -->
     <link href="assets/css/bootstrap.min.css" rel="stylesheet">
     <link href="assets/css/style.css" rel="stylesheet">
-
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
     <!--[if lt IE 9]>
       <script src="assets/js/html5shiv.min.js"></script>
       <script src="assets/js/respond.min.js"></script>
     <![endif]-->
-  </head>
-  <body>
-    <!-- header -->
-    <div id="header"></div>
-    
-    <!-- Navigation -->
-    <div id="navigation"></div>   
-    
-    <!-- Content -->
-    <div class="container content">
-        <div class="row">          
-        
-          <div class="panel panel-primary kebawah">
-            <div class="panel-heading">
-            <div class="clearfix">
-              <div class="pull-left">
-                <h3 class="panel-title">Satuan Barang</h3>
-              </div>
-              <div class="pull-right">
-                <button type="button" class="btn btn-info btn-xs" data-toggle="modal" data-target="#tambahBarang">Tambah Satuan</button>
-              </div>
-            </div>
-            </div>
-          </div>
-       
-        <table class="table table-hover table-bordered table-striped keatas">
-        <thead>
-          <tr>
-          <th width="70">No</th>
-            <th>Nama Satuan</th>
-            <th width="100">Aksi</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>1</td>
-            <td>Dimas</td>
-            <td class="text-center"><button type="button" class="btn btn-link btn-xs"><span class="glyphicon glyphicon-wrench"></span></button>
-            <button type="button" class="btn btn-link btn-xs"><span class="glyphicon glyphicon-trash"></span></button></td>
-          </tr>
-          <tr>
-            <td class="text-center">2</td>
-            <td class="text-center">Malik</td>
-            <td class="text-center">
-            <button type="button" class="btn btn-link btn-xs"><span class="glyphicon glyphicon-wrench"></span></button>
-            <button type="button" class="btn btn-link btn-xs"><span class="glyphicon glyphicon-trash"></span></button></td>
-          </tr>
-          </tbody>
-        </table>
-
-        </div>        
-      </div>
-      
-    </div>
-    
-    <!-- footer -->
-    <div id="footer"></div>
-
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
     <script src="assets/js/jquery.min.js"></script>
     <!-- Include all compiled plugins (below), or include individual files as needed -->
     <script src="assets/js/bootstrap.min.js"></script>
+    <script src="assets/js/connect.js"></script>
+    <script src="assets/js/ajaxcontentloader.js"></script>
     <script>
-    $( "#navigation" ).load( "navbar.html" );
-    $( "#footer" ).load( "footer.html" );
-    $( "#header" ).load( "header.html" );
+    $(function() {
+
+    });
     </script>
-  </body>
+</head>
+
+<body>
+    <!-- header -->
+    <div id="header"></div>
+    <!-- Navigation -->
+    <div id="navigation"></div>
+    <!-- Content -->
+    <div id="content-wrapper">
+        <div id="content-loader">
+            <script>
+            //alert("bahaya");
+            $(function() {
+
+                //show modal
+                $(document).on("click", "#btnTambahSatuan", function() {
+
+                    //$('#tambahSatuan').modal('show');
+
+                    setTimeout(function() {
+
+                        $("#inputSatuan").focus();
+                    }, 500);
+                });
+                /*------------------ Edit -----------------*/
+                $(document).on("click", "#edit-satuan", function() {
+                    $('#editSatuan').modal('show');
+                    var id = $(this).closest('tr').find('input[name=idSatuan]').val();
+                    var nsatuan = $(this).closest('tr').find('input[name=nSatuan]').val();
+                    $("#inpEditSatuan").val(nsatuan);
+                    $("input[name=hdnIdSatuan]").val(id);
+                });
+
+                $("#frmEditSatuan").on("submit", function(e) {
+                    e.preventDefault();
+                    con.query(
+                        'UPDATE satuan SET satuan = ? Where id_satuan = ?', [$("#inpEditSatuan").val(),
+                            $("input[name=hdnIdSatuan]").val()
+                        ],
+                        function(err, result) {
+                            if (err) throw err;
+
+                            console.log('Changed ' + result.changedRows + ' rows');
+                        }
+                    );
+                    $("#editSatuan").modal("toggle");
+                    $("#closeSatuan").trigger("click");
+                });
+
+                //Select All
+                con.query('SELECT * FROM satuan', function(err, rows) {
+                    if (err) throw err;
+
+                    console.log('Data received from Db:\n');
+                    console.log(rows);
+                    $("#tabelSatuan tbody").empty();
+                    for (var i = 0; i < rows.length; i++) {
+                        console.log(rows[i].satuan + " " + rows[i].id_satuan)
+                        $("#tabelSatuan tbody").append(
+                            "<tr>" +
+                            "<td>" +
+                            "<input type='hidden' name='idSatuan' id='idSatuan' value=" + rows[i].id_satuan + ">" +
+                            "<input type='hidden' name='nSatuan' id='nSatuan' value=" + rows[i].satuan + ">" +
+                            parseInt(i + 1) + "</td>" +
+                            "<td>" + rows[i].satuan + "</td>" +
+                            "<td>" +
+                            "<button type='button' id='edit-satuan' class = 'btn btn-link btn-xs'> " + "<span class='glyphicon glyphicon-wrench'></span>" + "</button>" +
+                            "<button type='button' id='delete-satuan' class = 'btn btn-link btn-xs'> " + "<span class='glyphicon glyphicon-trash'></span>" + "</button>" +
+                            "</td > " +
+                            "</tr>"
+                            //console.log($("input[name=idSatuan]").val());
+                        );
+                        //$("body").append(rows[i].satuan + " ");
+                    };
+                });
+            });
+
+            //Insert baru
+            $("#satuan").on("submit", function(event) {
+                event.preventDefault();
+                //console.log($("#inputSatuan").va());
+                //console.log($(this).serialize());
+                var unit = {
+                    satuan: $("#inputSatuan").val()
+                };
+                var rowCount = $('#tabelSatuan tbody tr').length;
+                con.query('INSERT INTO satuan SET ?', unit, function(err, res) {
+                    if (err) throw err;
+                    console.log(res.insertId);
+                });
+
+                $("#satuan").trigger('reset');
+                $("#tabelSatuan tbody").append(
+                    "<tr>" +
+                    "<td>" + parseInt(rowCount + 1) + "</td>" +
+                    "<td>" + unit['satuan'] + "</td>" +
+                    "</tr>"
+                );
+            });
+
+
+            //delete
+            $(document).on("click", "#delete-satuan", function(e) {
+                var id = $(this).closest('tr').find('input[name=idSatuan]').val();
+                var nsatuan = $(this).closest('tr').find('input[name=nSatuan]').val();
+
+                $.confirm({
+                    text: "Yakin untuk menghapus data " + id + " : " + nsatuan,
+                    confirm: function(button) {
+                        con.query('DELETE FROM satuan WHERE id_satuan = "' + id + '"', function(err, res) {
+                            if (err) throw err;
+
+                            console.log('deleted ' + res.affectedRows + ' rows');
+                            //alert("Data berhasil dihapus");
+                        });
+                        setTimeout(function() {
+                            $.ajax({
+                                type: "GET",
+                                url: "unit.html",
+                                success: function(data) {
+                                    var content = $(data).find("#content-loader");
+                                    $("#content-wrapper").fadeOut().empty().fadeIn().append(content);
+                                },
+                                error: function(data) {}
+                            });
+                        }, 200);
+                    },
+                    cancel: function(button) {},
+                    confirmButton: "Hapus",
+                    cancelButton: "Batal",
+                    post: true,
+                    confirmButtonClass: "btn-danger btn-xs",
+                    cancelButtonClass: "btn-default btn-xs"
+                });
+            });
+
+            //refresh saat close input modal #close-input-unit, 
+            $(document).on("click", "#closeSatuan, .closeSatuan", function(e) {
+                e.stopImmediatePropagation();
+                setTimeout(function() {
+                    // alert("hai");
+                    $.ajax({
+                        type: "GET",
+                        url: "unit.html",
+                        success: function(data) {
+                            var content = $(data).find("#content-loader");
+                            $("#content-wrapper").fadeOut().empty().fadeIn().append(content);
+                        },
+                        error: function(data) {}
+                    });
+                }, 200);
+            });
+            </script>
+            <div class="container content">
+                <div class="row">
+                    <div class="panel panel-primary kebawah">
+                        <div class="panel-heading">
+                            <div class="clearfix">
+                                <div class="pull-left">
+                                    <h3 class="panel-title">Satuan Barang</h3>
+                                </div>
+                                <div class="pull-right">
+                                    <button type="button" class="btn btn-info btn-xs" data-toggle="modal" id="btnTambahSatuan" data-target="#tambahSatuan">Tambah Satuan</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <table id="tabelSatuan" class="table table-hover table-bordered table-striped keatas">
+                        <thead>
+                            <tr>
+                                <th width="70">No</th>
+                                <th>Nama Satuan</th>
+                                <th width="100">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>1</td>
+                                <td>Dimas</td>
+                                <td>
+                                    <button type="button" class="btn btn-link btn-xs"><span class="glyphicon glyphicon-wrench"></span></button>
+                                    <button type="button" class="btn btn-link btn-xs"><span class="glyphicon glyphicon-trash"></span></button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="text-center">2</td>
+                                <td class="text-center">Malik</td>
+                                <td class="text-center">
+                                    <button type="button" class="btn btn-link btn-xs"><span class="glyphicon glyphicon-wrench"></span></button>
+                                    <button type="button" class="btn btn-link btn-xs"><span class="glyphicon glyphicon-trash"></span></button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <!-- Modal tambah satuan -->
+            <div class="container">
+                <div class="modal fade" id="tambahSatuan" tabindex="-1" role="document" data-backdrop="static">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" id="close-input-unit" class="close closeSatuan" data-dismiss="modal">&times;</button>
+                                <h4 class="modal-title">Input Satuan</h4>
+                            </div>
+                            <div class="modal-body">
+                                <form id="satuan" class="form-horizontal" action="">
+                                    <fieldset>
+                                        <div class="form-group">
+                                            <label for="inputSatuan" class="col-lg-2 control-label">Nama</label>
+                                            <div class="col-lg-10">
+                                                <input class="form-control input-sm" id="inputSatuan" placeholder="Satuan" type="text">
+                                            </div>
+                                        </div>
+                                    </fieldset>
+                                </form>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="submit" form="satuan" class="btn btn-info  btn-xs">Simpan</button>
+                                <a href="#" class="btn btn-default btn-xs closeSatuan" data-dismiss="modal">Batal</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- modal edit satuan -->
+            <div class="container">
+                <div class="modal fade" id="editSatuan" tabindex="-1" role="document" data-backdrop="static">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" id="close-edit-unit" class="close closeSatuan" data-dismiss="modal">&times;</button>
+                                <h4 class="modal-title">Edit Satuan</h4>
+                            </div>
+                            <div class="modal-body">
+                                <form id="frmEditSatuan" class="form-horizontal" action="">
+                                    <fieldset>
+                                        <div class="form-group">
+                                            <label for="inpEditSatuan" class="col-lg-2 control-label">Nama</label>
+                                            <div class="col-lg-10">
+                                                <input type="hidden" name="hdnIdSatuan" value="">
+                                                <input class="form-control input-sm" id="inpEditSatuan" placeholder="Satuan" type="text">
+                                            </div>
+                                        </div>
+                                    </fieldset>
+                                </form>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="submit" form="frmEditSatuan" id="sbmtEditSatuan" class="btn btn-info  btn-xs">Simpan</button>
+                                <a href="#" id="closeSatuan" class="btn btn-default btn-xs closeSatuan" data-dismiss="modal">Tutup</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- footer -->
+    <div id="footer"></div>
+    <script>
+    $("#navigation").load("navbar.html");
+    $("#footer").load("footer.html");
+    $("#header").load("header.html");
+    </script>
+    <script>
+    </script>
+</body>
+
 </html>

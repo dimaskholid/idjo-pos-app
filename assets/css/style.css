@@ -1,62 +1,90 @@
 /*allign */
-body { 
-	padding-top: 0px; 
-	font-size: 10pt;
-	margin: 5 5 5 5;
+
+body {
+    padding-top: 0px;
+    font-size: 10pt;
+    margin: 5 5 5 5;
 }
 
-.jumbotron{
-	margin-bottom: 0px;
-	padding-top: 10px;
-	padding-bottom: 10px;
+.jumbotron {
+    margin-bottom: 0px;
+    padding-top: 10px;
+    padding-bottom: 10px;
 }
 
-.jumbotron h3{
-	margin-top: 10.5px;
+.jumbotron h3 {
+    margin-top: 10.5px;
 }
+
 .right {
-	float: right;
-}
-.kebawah{
-	margin-bottom: 0px;
+    float: right;
 }
 
-.keatas{
-	margin-top: 0px;
-}
-.table td, th {
-   text-align: center;   
+.kebawah {
+    margin-bottom: 0px;
 }
 
-input{
-	line-height: inherit;
+.keatas {
+    margin-top: 0px;
 }
 
-.content{
-	min-height: 450px;
+.table td,
+.table th {
+    text-align: center;
 }
 
-.container{
-	padding-right: 0px;
-	padding-left: 0px;
+input {
+    line-height: inherit;
+}
+
+.content {
+    min-height: 450px;
+}
+
+.container {
+    padding-right: 0px;
+    padding-left: 0px;
 }
 
 .control-label {
-	text-align: left;
+    text-align: left;
 }
 
-/*warna*/
-.red{
-	background-color: red;
-}
-.green{
-	background-color: green;
+
+/* -------- Warna ------------*/
+
+.red {
+    background-color: red;
 }
 
-.navbar{
-	border-radius: 0;
+.green {
+    background-color: green;
 }
 
-.panel, .panel-primary{
-	border-radius: 0;
+
+/* -------- Navbar ------------*/
+
+.navbar {
+    border-radius: 0;
+}
+
+.panel,
+.panel-primary {
+    border-radius: 0;
+}
+
+
+/* -------- Modal ------------*/
+
+.modal-dialog {
+    position: absolute;
+    top: 25% !important;
+    bottom: 25% !important;
+    left: 25% !important;
+    right: 25% !important;
+}
+
+.footer {
+    margin-top: 10px;
+    margin-bottom: 10px;
 }

@@ -1,156 +1,328 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
+
+<head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
-    <title>Pengguna</title>
-
+    <title>Daftar Pengguna</title>
     <!-- Bootstrap -->
     <link href="assets/css/bootstrap.min.css" rel="stylesheet">
     <link href="assets/css/style.css" rel="stylesheet">
-
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
     <!--[if lt IE 9]>
-      <script src="assets/js/html5shiv.min.js"></script>
+      <script src="assets/js/html5shiv
+.min.js"></script>
       <script src="assets/js/respond.min.js"></script>
     <![endif]-->
-  </head>
-  <body>
-  <!-- header -->
-    <div id="header"></div>
-    
-    <!-- Navigation -->
-    <div id="navigation"></div>   
-
-      <!-- Content Area -->
-      <div class="container content">
-        <div class="row">          
-        
-          <div class="panel panel-primary kebawah">
-            <div class="panel-heading">
-            <div class="clearfix">
-              <div class="pull-left">
-                <h3 class="panel-title">Daftar Pengguna</h3>
-              </div>
-              <div class="pull-right">
-                <button type="button" class="btn btn-info btn-xs" data-toggle="modal" data-target="#tambahPengguna">Tambah Pengguna</button>
-              </div>
-            </div>
-            </div>
-          </div>
-       
-        <table class="table table-hover table-bordered table-striped keatas">
-        <thead>
-          <tr>
-            <th width="70px">No</th>
-            <th >Nama</th>
-            <th>Alamat</th>
-            <th>Username</th>
-            <th>Usergroup</th>
-            <th width="100">Aksi</th>
-          </tr>
-          </thead>
-          <tbody>
-          <tr>
-            <td class="text-center">1</td>
-            <td class="text-center">Dimas</td>
-            <td class="text-center">Purwoharjo </td>
-            <td class="text-center">dimask</td>
-            <td class="text-center">Admin</td>
-            <td class="text-center"><button type="button" class="btn btn-link btn-xs"><span class="glyphicon glyphicon-wrench"></span></button>
-            <button type="button" class="btn btn-link btn-xs"><span class="glyphicon glyphicon-trash"></span></button></td>
-          </tr>
-          <tr>
-            <td class="text-center">2</td>
-            <td class="text-center">Malik</td>
-            <td class="text-center">Purworejo</td>
-            <td class="text-center">malik</td>
-            <td class="text-center">Pegawai</td>
-            <td class="text-center">
-            <button type="button" class="btn btn-link btn-xs"><span class="glyphicon glyphicon-wrench"></span></button>
-            <button type="button" class="btn btn-link btn-xs"><span class="glyphicon glyphicon-trash"></span></button></td>
-          </tr>
-          </tbody>
-        </table>
-
-        </div>        
-      </div>
-
-      <!-- Modal Tambah Pengguna -->      
-      <div class="container">
-        <div class="modal fade" id="tambahPengguna" tabindex="-1" role="document" data-backdrop="static">
-          <div class="modal-dialog">
-            <div class="modal-content">
-              <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal">&times;</button>
-                <h4 class="modal-title">Input Informasi Pengguna</h4>
-              </div>
-              <div class="modal-body">
-                <form class="form-horizontal">
-                  <fieldset>
-                    <div class="form-group">
-                      <label for="inputName" class="col-lg-2 control-label">Nama</label>
-                      <div class="col-lg-10">
-                        <input class="form-control input-sm" id="inputName" placeholder="Nama" type="text">
-                      </div>
-                    </div>
-                    <div class="form-group">
-                      <label for="inputUserName" class="col-lg-2 control-label">Username</label>
-                      <div class="col-lg-10">
-                        <input class="form-control input-sm" id="inputUserName" placeholder="Username" type="text">
-                      </div>
-                    </div>
-                    <div class="form-group">
-                      <label for="inputPassword" class="col-lg-2 control-label">Password</label>
-                      <div class="col-lg-10">
-                        <input class="form-control input-sm" id="inputPassword" placeholder="Password" type="password">         
-                      </div>
-                    </div>
-                      <div class="form-group">
-                      <label for="inputRePassword" class="col-lg-2 control-label">Ulang Password</label>
-                      <div class="col-lg-10">
-                        <input class="form-control input-sm" id="inputRePassword" placeholder="Password" type="password">         
-                      </div>
-                    </div>
-                    <div class="form-group">
-                      <label for="select" class="col-lg-2 control-label">Group</label>
-                      <div class="col-lg-10">
-                        <select class="form-control input-sm" id="select">
-                          <option>- Pilih -</option>
-                          <option>Admin</option>
-                          <option>Karyawan</option>
-                          <option>Pemilik</option>
-                        </select>                        
-                      </div>
-                    </div>
-                  </fieldset>
-                </form>              
-              </div>
-              <div class="modal-footer">
-                <a href="#" class="btn btn-info  btn-xs">Simpan</a>
-                <a href="#" class="btn btn-default btn-xs" data-dismiss="modal">Batal</a>                
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Footer -->
-      <div id="footer">
-        
-      </div>
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
     <script src="assets/js/jquery.min.js"></script>
     <!-- Include all compiled plugins (below), or include individual files as needed -->
     <script src="assets/js/bootstrap.min.js"></script>
+    <script src="controller/connectjs"></script>
+    <script src="assets/js/ajaxcontentloader.js"></script>
+    <script src="assets/js/jquery.validate.min.js"></script>
+    <script src="assets/js/validate.js"></script>
+</head>
+
+<body>
+    <!-- header -->
+    <div id="header"></div>
+    <!-- Navigation -->
+    <div id="navigation"></div>
+    <!-- Content Area -->
+    <div id="content-wrapper">
+        <div id="content-loader">
+            <script>
+            $(function() {
+                /*------------ View All ----------*/
+                con.query('SELECT * FROM pengguna JOIN grup_pengguna ON grup_pengguna.id_grup = pengguna.id_grup', function(err, rows) {
+                    if (err) throw err;
+
+                    console.log('Data received from Db:\n');
+                    console.log(rows);
+                    $("#tabelPengguna tbody").empty();
+                    for (var i = 0; i < rows.length; i++) {
+                        console.log(rows[i].nama + " " + rows[i].id_pengguna + " " + rows[i].grup_pengguna)
+                        $("#tabelPengguna tbody").append(
+                            "<tr>" +
+                            "<td>" +
+                            "<input type='hidden' name='idBarang' id='idBarang' value=" + rows[i].id_barang + ">" +
+                            "<input type='hidden' name='hdnBarang' id='hdnBarang' value='" + rows[i].barang + "'>" +
+                            "<input type='hidden' name='idKategori' id='idKategori' value='" + rows[i].id_kategori + "'>" +
+                            parseInt(i + 1) + "</td>" +
+                            "<td>" + rows[i].nama + "</td>" +
+                            "<td>" + rows[i].username + "</td>" +
+                            "<td>" + rows[i].grup_pengguna + "</td>" +
+                            "<td>" +
+                            "<button type='button' id='btnEditPengguna' class = 'btn btn-link btn-xs'> " + "<span class='glyphicon glyphicon-wrench'></span>" + "</button>" +
+                            "<button type='button' id='btnDelPengguna' class = 'btn btn-link btn-xs'> " + "<span class='glyphicon glyphicon-trash'></span>" + "</button>" +
+                            "</td > " +
+                            "</tr>"
+                        );
+                    };
+                });
+                /*----------- end view all ---------*/
+                /*---------- Fokus input -----------*/
+                $(document).on("click", "#btnTambahPengguna", function() {
+                    //var halo = md5('halo');
+                    //$("#inputNama").val(halo);
+                    setTimeout(function() {
+                        $("#inputNama").focus();
+                    }, 500);
+                });
+                $(document).on("click", "#btnEditPengguna", function() {
+                    setTimeout(function() {
+                        $("#inpEditBarang").focus();
+                    }, 500);
+                });
+                /*----------- Select----------------*/
+                con.query('SELECT * FROM grup_pengguna', function(err, rows) {
+                    if (err) throw err;
+                    for (var i = 0; i < rows.length; i++) {
+                        $("#selectGrup, #selectEditGrup").append(
+                            "<option value='" + rows[i].id_grup + "'>" + rows[i].grup_pengguna + "</option>"
+                        );
+                    }
+                });
+                /*---------------- Input Pengguna Baru -------------------
+                $("#frmInputPengguna").on("submit", function(event) {
+                    event.preventDefault();
+                    var pass = md5($("#inputPassword").val());
+                    var selectTxt = $("#selectGrup option:selected").text();
+                    var pgn = {
+                        nama: $("#inputNama").val(),
+                        username: $("#inputUsername").val(),
+                        password: pass,
+                        id_grup: $("#selectGrup").val()
+                    };
+                    var rowCount = $('#tabelBarang tbody tr').length;
+                    con.query('INSERT INTO pengguna SET ?', pgn, function(err, res) {
+                        if (err) throw err;
+                        console.log(res.insertId);
+                    });
+                    $("#frmInputBarang").trigger('reset');
+                    $("#tabelPengguna tbody").append(
+                        "<tr>" +
+                        "<td>" + parseInt(rowCount + 1) + "</td>" +
+                        "<td>" + pgn['nama'] + "</td>" +
+                        "<td>" + pgn['username'] + "</td>" +
+                        "<td>" + selectTxt + "</td>" +
+                        "<td>" +
+                        "<button type='button' class='btn btn-link btn-xs'> " + "<span class='glyphicon glyphicon-wrench'></span>" + "</button>" +
+                        "<button type='button' class='btn btn-link btn-xs'> " + "<span class='glyphicon glyphicon-trash'></span>" + "</button>" +
+                        "</td > " +
+                        "</tr>"
+                    );
+                });
+                */
+
+                /*--------------- reload ------------------*/
+                $(document).on("click", "#closePgn, .closePgn", function(e) {
+                    e.stopImmediatePropagation();
+                    setTimeout(function() {
+                        // alert("hai");
+                        $.ajax({
+                            type: "GET",
+                            url: "user.html",
+                            success: function(data) {
+                                var content = $(data).find("#content-loader");
+                                $("#content-wrapper").fadeOut().empty().fadeIn().append(content);
+                            },
+                            error: function(data) {}
+                        });
+                    }, 200);
+                });
+                /*--------------- Validasi ------------------*/
+                $("#frmInputPengguna").validate({
+                    rules: {
+                        inputNama: "required",
+                        inputUsername: {
+                            required: true,
+                            minlength: 3
+                        },
+                        inputPassword: {
+                            required: true,
+                            minlength: 5
+                        },
+                        confirmPassword: {
+                            required: true,
+                            minlength: 5,
+                            equalTo: "#inputPassword"
+                        },
+                        selectGrup: {
+                            required: true
+                        }
+                    },
+                    messages: {
+                        inputNama: "Tolong ketikkan Nama Pengguna",
+                        inputUsername: {
+                            required: "Tolong masukkan username",
+                            minlength: "Minimal 3 huruf"
+                        },
+                        inputPassword: {
+                            required: "Tolong masukkan password",
+                            minlength: "Minimal 5 huruf"
+                        },
+                        confirmPassword: {
+                            required: "Ulangi password",
+                            minlength: "Minimal 5 huruf",
+                            equalTo: "Password harus sama"
+                        },
+                        selectGrup: {
+                            required: "Pilih Grup Pengguna"
+                        }
+                    },
+                    submitHandler: function(event, validator) {
+                        alert("validasi sukses");
+                        /*event.preventDefault();
+                        var pass = md5($("#inputPassword").val());
+                        var selectTxt = $("#selectGrup option:selected").text();
+                        var pgn = {
+                            nama: $("#inputNama").val(),
+                            username: $("#inputUsername").val(),
+                            password: pass,
+                            id_grup: $("#selectGrup").val()
+                        };
+                        var rowCount = $('#tabelBarang tbody tr').length;
+                        con.query('INSERT INTO pengguna SET ?', pgn, function(err, res) {
+                            if (err) throw err;
+                            console.log(res.insertId);
+                        });
+                        $("#frmInputBarang").trigger('reset');
+                        $("#tabelPengguna tbody").append(
+                            "<tr>" +
+                            "<td>" + parseInt(rowCount + 1) + "</td>" +
+                            "<td>" + pgn['nama'] + "</td>" +
+                            "<td>" + pgn['username'] + "</td>" +
+                            "<td>" + selectTxt + "</td>" +
+                            "<td>" +
+                            "<button type='button' class='btn btn-link btn-xs'> " + "<span class='glyphicon glyphicon-wrench'></span>" + "</button>" +
+                            "<button type='button' class='btn btn-link btn-xs'> " + "<span class='glyphicon glyphicon-trash'></span>" + "</button>" +
+                            "</td > " +
+                            "</tr>"
+                        );*/
+                    }
+                });
+
+            });
+            </script>
+            <div class="container content">
+                <div class="row">
+                    <div class="panel panel-primary kebawah">
+                        <div class="panel-heading">
+                            <div class="clearfix">
+                                <div class="pull-left">
+                                    <h3 class="panel-title">Daftar Pengguna</h3>
+                                </div>
+                                <div class="pull-right">
+                                    <button type="button" id="btnTambahPengguna" class="btn btn-info btn-xs" data-toggle="modal" data-target="#mdlTambahPengguna">Tambah Pengguna</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <table id="tabelPengguna" class="table table-hover table-bordered table-striped keatas">
+                        <thead>
+                            <tr>
+                                <th width="70px">No</th>
+                                <th>Nama</th>
+                                <th>Username</th>
+                                <th>Usergroup</th>
+                                <th width="100">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="text-center">1</td>
+                                <td class="text-center">Dimas</td>
+                                <td class="text-center">dimask</td>
+                                <td class="text-center">Admin</td>
+                                <td class="text-center">
+                                    <button type="button" class="btn btn-link btn-xs"><span class="glyphicon glyphicon-wrench"></span></button>
+                                    <button type="button" class="btn btn-link btn-xs"><span class="glyphicon glyphicon-trash"></span></button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="text-center">2</td>
+                                <td class="text-center">Malik</td>
+                                <td class="text-center">malik</td>
+                                <td class="text-center">Pegawai</td>
+                                <td class="text-center">
+                                    <button type="button" class="btn btn-link btn-xs"><span class="glyphicon glyphicon-wrench"></span></button>
+                                    <button type="button" class="btn btn-link btn-xs"><span class="glyphicon glyphicon-trash"></span></button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <!-- Modal Tambah Pengguna -->
+            <div class="container">
+                <div class="modal fade" id="mdlTambahPengguna" tabindex="-1" role="document" data-backdrop="static">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close closePgn" data-dismiss="modal">&times;</button>
+                                <h4 class="modal-title">Input Informasi Pengguna</h4>
+                            </div>
+                            <div class="modal-body">
+                                <form class="form-horizontal" id="frmInputPengguna">
+                                    <fieldset>
+                                        <div class="form-group">
+                                            <label for="inputNama" class="col-lg-2 control-label">Nama</label>
+                                            <div class="col-lg-10">
+                                                <input class="form-control input-sm" name="inputNama" id="inputNama" placeholder="Nama" type="text">
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="inputUsername" class="col-lg-2 control-label">Username</label>
+                                            <div class="col-lg-10">
+                                                <input class="form-control input-sm" id="inputUsername" name="inputUsername" placeholder="Username" type="text">
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="inputPassword" class="col-lg-2 control-label">Password</label>
+                                            <div class="col-lg-10">
+                                                <input class="form-control input-sm" id="inputPassword" name="inputPassword" placeholder="Password" type="text">
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="confirmPassword" class="col-lg-2 control-label">Ulang Password</label>
+                                            <div class="col-lg-10">
+                                                <input class="form-control input-sm" id="confirmPassword" name="confirmPassword" placeholder="Password" type="text">
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="select" class="col-lg-2 control-label">Group</label>
+                                            <div class="col-lg-10">
+                                                <select class="form-control input-sm" name="selectGrup" id="selectGrup">
+                                                    <option value="">- Pilih -</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </fieldset>
+                                </form>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="submit" form="frmInputPengguna" class="btn btn-info  btn-xs">Simpan</button>
+                                <a href="#" id="closePgn" class="btn btn-default btn-xs closePgn" data-dismiss="modal">Tutup</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Footer -->
+    <div id="footer"></div>
     <script>
-    $( "#navigation" ).load( "navbar.html" );
-    $( "#footer" ).load( "footer.html" );
-    $( "#header" ).load( "header.html" );
+    /*$("#header").load("header.html");
+                                                                                                        $("#navigation").load("navbar.html");
+                                                                                                        $("#footer").load("footer.html");
+                                                                                                        */
     </script>
-    </script>
-  </body>
+</body>
+
 </html>

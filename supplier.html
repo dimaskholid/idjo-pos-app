@@ -1,94 +1,288 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
+
+<head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
-    <title>Supplier</title>
-
+    <title>Satuan Barang</title>
     <!-- Bootstrap -->
     <link href="assets/css/bootstrap.min.css" rel="stylesheet">
     <link href="assets/css/style.css" rel="stylesheet">
-
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
     <!--[if lt IE 9]>
       <script src="assets/js/html5shiv.min.js"></script>
       <script src="assets/js/respond.min.js"></script>
     <![endif]-->
-  </head>
-  <body>
-    <!-- header -->
-    <div id="header"></div>
-    
-    <!-- Navigation -->
-    <div id="navigation"></div>   
-    
-    <!-- Content -->
-    <div class="container content">
-        <div class="row">          
-        
-          <div class="panel panel-primary kebawah">
-            <div class="panel-heading">
-            <div class="clearfix">
-              <div class="pull-left">
-                <h3 class="panel-title">Daftar Distributor</h3>
-              </div>
-              <div class="pull-right">
-                <button type="button" class="btn btn-info btn-xs" data-toggle="modal" data-target="#tambahPengguna">Tambah Supplier/Distributor</button>
-              </div>
-            </div>
-            </div>
-          </div>
-       
-        <table class="table table-hover table-bordered table-striped keatas">
-        <thead>
-          <tr>
-          <th width="70px">No</th>
-            <th >Nama Distributor</th>
-            <th >Alamat</th>
-            <th>Telpon</th>
-            <th width="100">Aksi</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>1</td>
-            <td>Dimas</td>
-            <td class="text-center">Purwoharjo </td>
-            <td class="text-center">0892-773738393</td>
-            <td class="text-center"><button type="button" class="btn btn-link btn-xs"><span class="glyphicon glyphicon-wrench"></span></button>
-            <button type="button" class="btn btn-link btn-xs"><span class="glyphicon glyphicon-trash"></span></button></td>
-          </tr>
-          <tr>
-            <td class="text-center">2</td>
-            <td class="text-center">Malik</td>
-            <td class="text-center">Purworejo</td>
-            <td class="text-center">0897-67589</td>
-            <td class="text-center">
-            <button type="button" class="btn btn-link btn-xs"><span class="glyphicon glyphicon-wrench"></span></button>
-            <button type="button" class="btn btn-link btn-xs"><span class="glyphicon glyphicon-trash"></span></button></td>
-          </tr>
-          </tbody>
-        </table>
-
-        </div>        
-      </div>
-      
-    </div>
-    
-    <!-- footer -->
-    <div id="footer"></div>
-
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
     <script src="assets/js/jquery.min.js"></script>
     <!-- Include all compiled plugins (below), or include individual files as needed -->
     <script src="assets/js/bootstrap.min.js"></script>
+    <script src="assets/js/connect.js"></script>
+    <script src="assets/js/ajaxcontentloader.js"></script>
     <script>
-    $( "#navigation" ).load( "navbar.html" );
-    $( "#footer" ).load( "footer.html" );
-    $( "#header" ).load( "header.html" );
+    $(function() {
+
+    });
     </script>
-  </body>
+</head>
+
+<body>
+    <!-- header -->
+    <div id="header"></div>
+    <!-- Navigation -->
+    <div id="navigation"></div>
+    <!-- Content -->
+    <div id="content-wrapper">
+        <div id="content-loader">
+            <script>
+            $(function() {
+                /*------------------ Shhow Modal -----------------*/
+                $(document).on("click", "#btnTambahDistributor", function() {
+
+                    setTimeout(function() {
+
+                        $("#inputDistributor").focus();
+                    }, 500);
+                });
+                /*------------------ Edit -----------------*/
+                $(document).on("click", "#btnEditDistributor", function() {
+                    $('#mdlEditDistributor').modal('show');
+                    var id = $(this).closest('tr').find('input[name=idDistributor]').val();
+                    var inpDistributor = $(this).closest('tr').find('input[name=hdnDistributor]').val();
+                    $("#inpEditDistributor").val(inpDistributor);
+                    $("input[name=hdnIdDistributor]").val(id);
+                });
+
+                $("#frmEditDistributor").on("submit", function(e) {
+                    e.preventDefault();
+                    con.query(
+                        'UPDATE distributor SET distributor = ? Where id_distributor = ?', [$("#inpEditDistributor").val(),
+                            $("input[name=hdnIdDistributor]").val()
+                        ],
+                        function(err, result) {
+                            if (err) throw err;
+
+                            console.log('Changed ' + result.changedRows + ' rows');
+                        }
+                    );
+                    $("#mdlEditDistributor").modal("toggle");
+                    $("#closeDist").trigger("click");
+                });
+
+                //Select All
+                con.query('SELECT * FROM distributor', function(err, rows) {
+                    if (err) throw err;
+
+                    console.log('Data received from Db:\n');
+                    console.log(rows);
+                    $("#tabelDistributor tbody").empty();
+                    for (var i = 0; i < rows.length; i++) {
+                        console.log(rows[i].distributor + " " + rows[i].id_distributor)
+                        $("#tabelDistributor tbody").append(
+                            "<tr>" +
+                            "<td>" +
+                            "<input type='hidden' name='idDistributor' id='idDistributor' value=" + rows[i].id_distributor + ">" +
+                            "<input type='hidden' name='hdnDistributor' id='hdnDistributor' value='" + rows[i].distributor + "'>" +
+                            parseInt(i + 1) + "</td>" +
+                            "<td>" + rows[i].distributor + "</td>" +
+                            "<td>" +
+                            "<button type='button' id='btnEditDistributor' class = 'btn btn-link btn-xs'> " + "<span class='glyphicon glyphicon-wrench'></span>" + "</button>" +
+                            "<button type='button' id='btnDeldistributor' class = 'btn btn-link btn-xs'> " + "<span class='glyphicon glyphicon-trash'></span>" + "</button>" +
+                            "</td > " +
+                            "</tr>"
+                        );
+                    };
+                });
+
+                //Insert baru
+                $("#frmInputDistributor").on("submit", function(event) {
+                    event.preventDefault();
+                    var dist = {
+                        distributor: $("#inputDistributor").val()
+                    };
+                    var rowCount = $('#tabelDistributor tbody tr').length;
+                    con.query('INSERT INTO distributor SET ?', dist, function(err, res) {
+                        if (err) throw err;
+                        console.log(res.insertId);
+                    });
+
+                    $("#frmInputDistributor").trigger('reset');
+                    $("#tabelDistributor tbody").append(
+                        "<tr>" +
+                        "<td>" + parseInt(rowCount + 1) + "</td>" +
+                        "<td>" + dist['distributor'] + "</td>" +
+                        "</tr>"
+                    );
+                });
+
+                //delete
+                $(document).on("click", "#btnDeldistributor", function(e) {
+                    var id = $(this).closest('tr').find('input[name=idDistributor]').val();
+                    var hdnDist = $(this).closest('tr').find('input[name=hdnDistributor]').val();
+
+                    $.confirm({
+                        text: "Yakin untuk menghapus data " + id + " : " + hdnDist,
+                        confirm: function(button) {
+                            con.query('DELETE FROM distributor WHERE id_distributor = "' + id + '"', function(err, res) {
+                                if (err) throw err;
+
+                                console.log('deleted ' + res.affectedRows + ' rows');
+                                //alert("Data berhasil dihapus");
+                            });
+                            setTimeout(function() {
+                                $.ajax({
+                                    type: "GET",
+                                    url: "supplier.html",
+                                    success: function(data) {
+                                        var content = $(data).find("#content-loader");
+                                        $("#content-wrapper").fadeOut().empty().fadeIn().append(content);
+                                    },
+                                    error: function(data) {}
+                                });
+                            }, 200);
+                        },
+                        cancel: function(button) {},
+                        confirmButton: "Hapus",
+                        cancelButton: "Batal",
+                        post: true,
+                        confirmButtonClass: "btn-danger btn-xs",
+                        cancelButtonClass: "btn-default btn-xs"
+                    });
+                });
+                //refresh saat close , 
+                $(document).on("click", "#closeDist, .closeDist", function(e) {
+                    e.stopImmediatePropagation();
+                    setTimeout(function() {
+                        // alert("hai");
+                        $.ajax({
+                            type: "GET",
+                            url: "supplier.html",
+                            success: function(data) {
+                                var content = $(data).find("#content-loader");
+                                $("#content-wrapper").fadeOut().empty().fadeIn().append(content);
+                            },
+                            error: function(data) {}
+                        });
+                    }, 200);
+                });
+            });
+            </script>
+            <div class="container content">
+                <div class="row">
+                    <div class="panel panel-primary kebawah">
+                        <div class="panel-heading">
+                            <div class="clearfix">
+                                <div class="pull-left">
+                                    <h3 class="panel-title">Distributor</h3>
+                                </div>
+                                <div class="pull-right">
+                                    <button type="button" class="btn btn-info btn-xs" data-toggle="modal" id="btnTambahDistributor" data-target="#mdlTambahDistributor">Tambah Distributor</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <table id="tabelDistributor" class="table table-hover table-bordered table-striped keatas">
+                        <thead>
+                            <tr>
+                                <th width="70">No</th>
+                                <th>Nama Satuan</th>
+                                <th width="100">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>1</td>
+                                <td>Dimas</td>
+                                <td>
+                                    <button type="button" class="btn btn-link btn-xs"><span class="glyphicon glyphicon-wrench"></span></button>
+                                    <button type="button" class="btn btn-link btn-xs"><span class="glyphicon glyphicon-trash"></span></button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="text-center">2</td>
+                                <td class="text-center">Malik</td>
+                                <td class="text-center">
+                                    <button type="button" class="btn btn-link btn-xs"><span class="glyphicon glyphicon-wrench"></span></button>
+                                    <button type="button" class="btn btn-link btn-xs"><span class="glyphicon glyphicon-trash"></span></button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <!-- Modal tambah Distributor -->
+            <div class="container">
+                <div class="modal fade" id="mdlTambahDistributor" tabindex="-1" role="document" data-backdrop="static">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" id="close-input-unit" class="close closeDist" data-dismiss="modal">&times;</button>
+                                <h4 class="modal-title">Input Distributor</h4>
+                            </div>
+                            <div class="modal-body">
+                                <form id="frmInputDistributor" class="form-horizontal" action="">
+                                    <fieldset>
+                                        <div class="form-group">
+                                            <label for="inputDistributor" class="col-lg-2 control-label">Nama</label>
+                                            <div class="col-lg-10">
+                                                <input class="form-control input-sm" id="inputDistributor" placeholder="Nama Distributor" type="text">
+                                            </div>
+                                        </div>
+                                    </fieldset>
+                                </form>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="submit" form="frmInputDistributor" class="btn btn-info  btn-xs">Simpan</button>
+                                <a href="#" id="closeDist" class="btn btn-default btn-xs closeDist" data-dismiss="modal">Tutup</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- modal edit Distributor -->
+            <div class="container">
+                <div class="modal fade" id="mdlEditDistributor" tabindex="-1" role="document" data-backdrop="static">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close closeDist" data-dismiss="modal">&times;</button>
+                                <h4 class="modal-title">Edit Distributor</h4>
+                            </div>
+                            <div class="modal-body">
+                                <form id="frmEditDistributor" class="form-horizontal" action="">
+                                    <fieldset>
+                                        <div class="form-group">
+                                            <label for="inpEditDistributor" class="col-lg-2 control-label">Nama</label>
+                                            <div class="col-lg-10">
+                                                <input type="hidden" name="hdnIdDistributor" value="">
+                                                <input class="form-control input-sm" id="inpEditDistributor" placeholder="Nama Distributor" type="text">
+                                            </div>
+                                        </div>
+                                    </fieldset>
+                                </form>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="submit" form="frmEditDistributor" class="btn btn-info  btn-xs">Simpan</button>
+                                <a href="#" class="btn btn-default btn-xs batal closeDist" data-dismiss="modal">Tutup</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- footer -->
+    <div id="footer"></div>
+    <script>
+    $("#navigation").load("navbar.html");
+    $("#footer").load("footer.html");
+    $("#header").load("header.html");
+    </script>
+    <script>
+    </script>
+</body>
+
 </html>
