@@ -49,9 +49,11 @@
                         $("#tabelPengguna tbody").append(
                             "<tr>" +
                             "<td>" +
-                            "<input type='hidden' name='idBarang' id='idBarang' value=" + rows[i].id_barang + ">" +
-                            "<input type='hidden' name='hdnBarang' id='hdnBarang' value='" + rows[i].barang + "'>" +
-                            "<input type='hidden' name='idKategori' id='idKategori' value='" + rows[i].id_kategori + "'>" +
+                            "<input type='hidden' name='idPengguna' id='idPengguna' value=" + rows[i].id_pengguna + ">" +
+                            "<input type='hidden' name='hdnNama' id='hdnNama' value='" + rows[i].nama + "'>" +
+                            "<input type='hidden' name='hdnUsername' id='hdnUsername' value='" + rows[i].username + "'>" +
+                            "<input type='hidden' name='hdnPass' id='hdnPass' value='" + rows[i].password + "'>" +
+                            "<input type='hidden' name='idGrup' id='idGrup' value='" + rows[i].id_grup + "'>" +
                             parseInt(i + 1) + "</td>" +
                             "<td>" + rows[i].nama + "</td>" +
                             "<td>" + rows[i].username + "</td>" +
@@ -75,9 +77,10 @@
                 });
                 $(document).on("click", "#btnEditPengguna", function() {
                     setTimeout(function() {
-                        $("#inpEditBarang").focus();
+                        $("#editNama").focus();
                     }, 500);
                 });
+
                 /*----------- Select----------------*/
                 con.query('SELECT * FROM grup_pengguna', function(err, rows) {
                     if (err) throw err;
@@ -87,37 +90,143 @@
                         );
                     }
                 });
-                /*---------------- Input Pengguna Baru -------------------
-                $("#frmInputPengguna").on("submit", function(event) {
-                    event.preventDefault();
-                    var pass = md5($("#inputPassword").val());
-                    var selectTxt = $("#selectGrup option:selected").text();
-                    var pgn = {
-                        nama: $("#inputNama").val(),
-                        username: $("#inputUsername").val(),
-                        password: pass,
-                        id_grup: $("#selectGrup").val()
-                    };
-                    var rowCount = $('#tabelBarang tbody tr').length;
-                    con.query('INSERT INTO pengguna SET ?', pgn, function(err, res) {
-                        if (err) throw err;
-                        console.log(res.insertId);
-                    });
-                    $("#frmInputBarang").trigger('reset');
-                    $("#tabelPengguna tbody").append(
-                        "<tr>" +
-                        "<td>" + parseInt(rowCount + 1) + "</td>" +
-                        "<td>" + pgn['nama'] + "</td>" +
-                        "<td>" + pgn['username'] + "</td>" +
-                        "<td>" + selectTxt + "</td>" +
-                        "<td>" +
-                        "<button type='button' class='btn btn-link btn-xs'> " + "<span class='glyphicon glyphicon-wrench'></span>" + "</button>" +
-                        "<button type='button' class='btn btn-link btn-xs'> " + "<span class='glyphicon glyphicon-trash'></span>" + "</button>" +
-                        "</td > " +
-                        "</tr>"
-                    );
+
+                /*--------------- Edit ---------------*/
+                $(document).on("click", "#btnEditPengguna", function() {
+                    $('#mdlEditPengguna').modal('show');
+                    var id = $(this).closest('tr').find('input[name=idPengguna]').val(),
+                        inpNama = $(this).closest('tr').find('input[name=hdnNama]').val(),
+                        inpUsn = $(this).closest('tr').find('#hdnUsername').val(),
+                        inpPass = $(this).closest('tr').find('#hdnPass').val(),
+                        idGrup = $(this).closest('tr').find('input[name=idGrup]').val();
+                    $("#editNama").val(inpNama);
+                    $("#hdnIdPengguna").val(id); //cek
+                    $("#editUsername").val(inpUsn);
+                    $("#passHidden").val(inpPass);
+                    $("#selectEditGrup").val(idGrup);
+                    $("#errLabel").hide();
                 });
-                */
+                /*--------------- Validasi Edit ------------------*/
+                $("#frmEditPengguna").validate({
+                    rules: {
+                        editNama: "required",
+                        editUsername: {
+                            required: true,
+                            minlength: 3
+                        },
+                        passLama: {
+                            required: true,
+                            minlength: 5,
+                            checkPassword: true
+                        },
+                        passBaru: {
+                            required: true,
+                            minlength: 5
+                        },
+                        confirmPassword: {
+                            required: true,
+                            minlength: 5,
+                            equalTo: "#passBaru"
+                        },
+                        selectEditGrup: {
+                            required: true
+                        }
+                    },
+                    messages: {
+                        editNama: "Isi Nama Pengguna",
+                        editUsername: {
+                            required: "Masukkan username",
+                            minlength: "Minimal 3 huruf"
+                        },
+                        passLama: {
+                            required: "Masukkan Password Lama Anda",
+                            minlength: "Minimal 5 karakter"
+                        },
+                        passBaru: {
+                            required: "Masukkan password",
+                            minlength: "Minimal 5 karakter"
+                        },
+                        confirmPassword: {
+                            required: "Ulangi password",
+                            minlength: "Minimal 5 karakter",
+                            equalTo: "Password harus sama"
+                        },
+                        selectEditGrup: {
+                            required: "Pilih Grup Pengguna"
+                        }
+                    },
+                    submitHandler: function(form) {
+
+                        con.query(
+                            'UPDATE pengguna SET nama = ?, username=?,password=?, id_grup = ? Where id_pengguna = ?', [$("#editNama").val(), $("#editUsername").val(), md5($("#passBaru").val()), $("#selectEditGrup").val(),
+                                $("#hdnIdPengguna").val()
+                            ],
+                            function(err, result) {
+                                if (err) throw err;
+
+                                console.log('Changed ' + result.changedRows + ' rows');
+                            }
+                        );
+                        $("#mdlEditPengguna").modal("toggle");
+                        $("#closePgn").trigger("click");
+                    }
+                });
+                /*------------- validasi password ---------------*/
+                jQuery.validator.addMethod("checkPassword", function() {
+                    return md5($("#passLama").val()) == $("#passHidden").val();
+                }, jQuery.validator.format("Password Salah"));
+                /*------------- validasi username ---------------
+                jQuery.validator.addMethod("checkUsername", function() {
+                    //SELECT * FROM pengguna WHERE username LIKE 'dimas' 
+                    var usern = $("#inputUsername").on("change").val();
+                    var jumlahUser = true;
+                    con.query("SELECT * FROM pengguna WHERE username LIKE '" +
+                        usern + "'",
+                        function(err, res) {
+                            if (err) throw err;
+                            jumlah = res.length;
+
+                        });
+                    if (jumlah == 0) jumlahUser == true;
+                    return jumlahUser;
+
+                }, jQuery.validator.format("Username Sudah ada"));*/
+
+                /*--------------- delete ---------------*/
+                $(document).on("click", "#btnDelPengguna", function(e) {
+                    var id = $(this).closest('tr').find('input[name=idPengguna]').val();
+                    var hdnPgn = $(this).closest('tr').find('input[name=hdnNama]').val();
+
+                    $.confirm({
+                        text: "Yakin untuk menghapus data " + id + " : " + hdnPgn,
+                        confirm: function(button) {
+                            con.query('DELETE FROM pengguna WHERE id_pengguna = "' + id + '"', function(err, res) {
+                                if (err) throw err;
+
+                                console.log('deleted ' + res.affectedRows + ' rows');
+                                //alert("Data berhasil dihapus");
+                            });
+                            setTimeout(function() {
+                                $.ajax({
+                                    type: "GET",
+                                    url: "user.html",
+                                    success: function(data) {
+                                        var content = $(data).find("#content-loader");
+                                        $("#content-wrapper").fadeOut().empty().fadeIn().append(content);
+                                        Example.show("Data berhasil Dihapus");
+                                    },
+                                    error: function(data) {}
+                                });
+                            }, 200);
+                        },
+                        cancel: function(button) {},
+                        confirmButton: "Hapus",
+                        cancelButton: "Batal",
+                        post: true,
+                        confirmButtonClass: "btn-danger btn-xs",
+                        cancelButtonClass: "btn-default btn-xs"
+                    });
+                });
 
                 /*--------------- reload ------------------*/
                 $(document).on("click", "#closePgn, .closePgn", function(e) {
@@ -135,7 +244,8 @@
                         });
                     }, 200);
                 });
-                /*--------------- Validasi ------------------*/
+
+                /*--------------- Validasi Input ------------------*/
                 $("#frmInputPengguna").validate({
                     rules: {
                         inputNama: "required",
@@ -175,18 +285,18 @@
                             required: "Pilih Grup Pengguna"
                         }
                     },
-                    submitHandler: function(event, validator) {
-                        alert("validasi sukses");
-                        /*event.preventDefault();
-                        var pass = md5($("#inputPassword").val());
-                        var selectTxt = $("#selectGrup option:selected").text();
-                        var pgn = {
-                            nama: $("#inputNama").val(),
-                            username: $("#inputUsername").val(),
-                            password: pass,
-                            id_grup: $("#selectGrup").val()
-                        };
-                        var rowCount = $('#tabelBarang tbody tr').length;
+                    submitHandler: function(form) {
+                        //alert("validasi sukses");
+                        //event.preventDefault();
+                        var pass = md5($("#inputPassword").val()),
+                            selectTxt = $("#selectGrup option:selected").text(),
+                            pgn = {
+                                nama: $("#inputNama").val(),
+                                username: $("#inputUsername").val(),
+                                password: pass,
+                                id_grup: $("#selectGrup").val()
+                            };
+                        var rowCount = $('#tabelPengguna tbody tr').length;
                         con.query('INSERT INTO pengguna SET ?', pgn, function(err, res) {
                             if (err) throw err;
                             console.log(res.insertId);
@@ -203,7 +313,8 @@
                             "<button type='button' class='btn btn-link btn-xs'> " + "<span class='glyphicon glyphicon-trash'></span>" + "</button>" +
                             "</td > " +
                             "</tr>"
-                        );*/
+                        );
+                        //Example.show("Berhasil");
                     }
                 });
 
@@ -313,15 +424,79 @@
                     </div>
                 </div>
             </div>
+            <!-- Modal Edit Pengguna -->
+            <div class="container">
+                <div class="modal fade" id="mdlEditPengguna" tabindex="-1" role="document" data-backdrop="static">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close closePgn" data-dismiss="modal">&times;</button>
+                                <h4 class="modal-title">Edit Informasi Pengguna</h4>
+                            </div>
+                            <div class="modal-body">
+                                <form class="form-horizontal" id="frmEditPengguna">
+                                    <fieldset>
+                                        <div class="form-group">
+                                            <label for="editNama" class="col-lg-2 control-label">Nama</label>
+                                            <div class="col-lg-10">
+                                                <input type="hidden" id="hdnIdPengguna" value="">
+                                                <input class="form-control input-sm" name="editNama" id="editNama" placeholder="Nama" type="text">
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="editUsername" class="col-lg-2 control-label">Username</label>
+                                            <div class="col-lg-10">
+                                                <input class="form-control input-sm" id="editUsername" name="editUsername" placeholder="Username" type="text">
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="passLama" class="col-lg-2 control-label">Password Lama</label>
+                                            <div class="col-lg-10">
+                                                <input id="passHidden" name="passHidden" type="hidden">
+                                                <input class="form-control input-sm" id="passLama" name="passLama" placeholder="Password Lama" type="password">
+                                                <label for="" class="control-label" id="errLabel">eror</label>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="passBaru" class="col-lg-2 control-label">Password Baru</label>
+                                            <div class="col-lg-10">
+                                                <input class="form-control input-sm" id="passBaru" name="passBaru" placeholder="Password Baru" type="password">
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="confirmPassword" class="col-lg-2 control-label">Ulang Password</label>
+                                            <div class="col-lg-10">
+                                                <input class="form-control input-sm" id="confirmPassword" name="confirmPassword" placeholder="Ulang Password" type="password">
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="select" class="col-lg-2 control-label">Group</label>
+                                            <div class="col-lg-10">
+                                                <select class="form-control input-sm" name="selectEditGrup" id="selectEditGrup">
+                                                    <option value="">- Pilih -</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </fieldset>
+                                </form>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="submit" form="frmEditPengguna" class="btn btn-info  btn-xs">Simpan</button>
+                                <a href="#" class="btn btn-default btn-xs closePgn" data-dismiss="modal">Tutup</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
     <!-- Footer -->
     <div id="footer"></div>
     <script>
     /*$("#header").load("header.html");
-                                                                                                        $("#navigation").load("navbar.html");
-                                                                                                        $("#footer").load("footer.html");
-                                                                                                        */
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                $("#navigation").load("navbar.html");
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                $("#footer").load("footer.html");
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                */
     </script>
 </body>
 

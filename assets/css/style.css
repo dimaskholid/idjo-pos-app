@@ -24,6 +24,11 @@ body {
     margin-bottom: 0px;
 }
 
+.kiri {
+    text-align: left;
+    ;
+}
+
 .keatas {
     margin-top: 0px;
 }
@@ -78,13 +83,13 @@ input {
 
 .modal-dialog {
     position: absolute;
-    top: 25% !important;
+    top: 10% !important;
     bottom: 25% !important;
     left: 25% !important;
     right: 25% !important;
 }
 
-.footer {
-    margin-top: 10px;
+footer {
+    margin-top: 25px;
     margin-bottom: 10px;
 }

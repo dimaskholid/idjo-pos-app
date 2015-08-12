@@ -24,7 +24,15 @@
     <script src="assets/js/jquery.confirm.min.js"></script>
     <script src="assets/js/ajaxcontentloader.js"></script>
     <script src="assets/js/jquery.validate.min.js"></script>
-    <script src="assets/js/validate.js"></script>
+    <script src="assets/js/example.js"></script>
+    <!-- Add Jquery UI main JS and CSS files -->
+    <link rel="stylesheet" type="text/css" href="assets/css/jqueryui/themes/base/jquery-ui.min.css">
+    <script type="text/javascript" src="assets/js/jqueryui/jquery.ui.core.min.js"></script>
+    <script type="text/javascript" src="assets/js/jqueryui/jquery.ui.widget.min.js"></script>
+    <script type="text/javascript" src="assets/js/jqueryui/jquery.ui.datepicker.min.js"></script>
+    <script type="text/javascript" src="assets/js/jqueryui/jquery.ui.position.min.js"></script>
+    <script type="text/javascript" src="assets/js/jqueryui/jquery.ui.menu.min.js"></script>
+    <script type="text/javascript" src="assets/js/jqueryui/jquery.ui.autocomplete.min.js"></script>
     <script>
     //maximize window
     onload = function() {
@@ -37,7 +45,11 @@
 
 <body>
     <!-- header -->
-    <div id="header"></div>
+    <div id="header">
+        <div class="alert alert-dismissible alert-info" style="display: none;">
+            <span class="notif"></span>
+        </div>
+    </div>
     <!-- Navigation -->
     <div id="navigation"></div>
     <!-- content -->

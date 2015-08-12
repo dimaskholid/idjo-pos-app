@@ -30,6 +30,11 @@
     <!-- Content -->
     <div id="content-wrapper">
         <div id="content-loader">
+            <script>
+            $(function() {
+
+            });
+            </script>
             <div class="container content">
                 <div class="row">
                     <div class="panel panel-primary kebawah">
@@ -39,12 +44,12 @@
                                     <h3 class="panel-title">Daftar Barang Jual</h3>
                                 </div>
                                 <div class="pull-right">
-                                    <button type="button" class="btn btn-info btn-xs" data-toggle="modal" data-target="#tambahPengguna">Tambah Barang Jual</button>
+                                    <button type="button" class="btn btn-info btn-xs" data-toggle="modal" data-target="#mdlTambahBarangJual">Tambah Barang Jual</button>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <table class="table table-hover table-bordered table-striped keatas">
+                    <table id="tabelBarangJual" class="table table-hover table-bordered table-striped keatas">
                         <thead>
                             <tr>
                                 <th width="70px">No</th>

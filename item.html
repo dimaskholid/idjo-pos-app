@@ -104,6 +104,10 @@
                         "<td>" + parseInt(rowCount + 1) + "</td>" +
                         "<td>" + brg['barang'] + "</td>" +
                         "<td>" + selectTxt + "</td>" +
+                        "<td>" +
+                        "<button type='button' class='btn btn-link btn-xs'> " + "<span class='glyphicon glyphicon-wrench'></span>" + "</button>" +
+                        "<button type='button' class='btn btn-link btn-xs'> " + "<span class='glyphicon glyphicon-trash'></span>" + "</button>" +
+                        "</td > " +
                         "</tr>"
                     );
                 });
@@ -123,6 +127,8 @@
                         });
                     }, 200);
                 });
+
+
                 /*------------------ Edit -----------------*/
                 $(document).on("click", "#btnEditBarang", function() {
                     $('#mdlEditBarang').modal('show');
@@ -133,23 +139,36 @@
                     $("input[name=hdnIdBarang]").val(id);
                     $("#selectEditKategori").val(idKategori);
                 });
-
-                $("#frmEditBarang").on("submit", function(e) {
-                    e.preventDefault();
-                    con.query(
-                        'UPDATE barang SET barang = ?, id_kategori = ? Where id_barang = ?', [$("#inpEditBarang").val(), $("#selectEditKategori").val(),
-                            $("input[name=hdnIdBarang]").val()
-                        ],
-                        function(err, result) {
-                            if (err) throw err;
-
-                            console.log('Changed ' + result.changedRows + ' rows');
+                /*--------------- Validasi Edit ------------------*/
+                $("#frmEditBarang").validate({
+                    rules: {
+                        inpEditBarang: "required",
+                        selectEditKategori: {
+                            required: true
                         }
-                    );
-                    $("#mdlEditBarang").modal("toggle");
-                    $("#closeBarang").trigger("click");
+                    },
+                    messages: {
+                        inpEditBarang: "Masukkan nama barang",
+                        selectEditKategori: {
+                            required: "Pilih Kategori"
+                        }
+                    },
+                    submitHandler: function(form) {
+                        con.query(
+                            'UPDATE barang SET barang = ?, id_kategori = ? Where id_barang = ?', [$("#inpEditBarang").val(), $("#selectEditKategori").val(),
+                                $("input[name=hdnIdBarang]").val()
+                            ],
+                            function(err, result) {
+                                if (err) throw err;
+                                console.log('Changed ' + result.changedRows + ' rows');
+                            }
+                        );
+                        $("#mdlEditBarang").modal("toggle");
+                        $("#closeBarang").trigger("click");
+                    }
                 });
-                //delete
+
+                /*--------------- delete ---------------*/
                 $(document).on("click", "#btnDelBarang", function(e) {
                     var id = $(this).closest('tr').find('input[name=idBarang]').val();
                     var hdnBrg = $(this).closest('tr').find('input[name=hdnBarang]').val();
@@ -282,10 +301,10 @@
                                 <form id="frmEditBarang" class="form-horizontal" action="">
                                     <fieldset>
                                         <div class="form-group">
-                                            <label for="editBarang" class="col-lg-2 control-label">Nama</label>
+                                            <label for="inpEditBarang" class="col-lg-2 control-label">Nama</label>
                                             <div class="col-lg-10">
                                                 <input type="hidden" name="hdnIdBarang" value="">
-                                                <input class="form-control input-sm" id="inpEditBarang" placeholder="Nama Barang" type="text">
+                                                <input class="form-control input-sm" id="inpEditBarang" name="inpEditBarang" placeholder="Nama Barang" type="text">
                                             </div>
                                         </div>
                                         <div class="form-group">
