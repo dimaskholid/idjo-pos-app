@@ -17,10 +17,19 @@
       <script src="assets/js/respond.min.js"></script>
     <![endif]-->
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="assets/js/connect.js"></script>
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
     <script src="assets/js/jquery.min.js"></script>
     <!-- Include all compiled plugins (below), or include individual files as needed -->
     <script src="assets/js/bootstrap.min.js"></script>
+    <script src="assets/js/jquery.confirm.min.js"></script>
     <script src="assets/js/ajaxcontentloader.js"></script>
+    <script src="assets/js/jquery.validate.min.js"></script>
+    <!-- Add Jquery UI main JS and CSS files -->
+    <link rel="stylesheet" href="assets/js/autocomplete/jquery-ui.css">
+    <!-- <script src="assets/js/autocomplete/jquery.js"></script> -->
+    <script src="assets/js/autocomplete/jquery-ui.js"></script>
+    <link rel="stylesheet" href="assets/css/style.css">
 </head>
 
 <body>
@@ -33,6 +42,66 @@
         <div id="content-loader">
             <script>
             $(function() {
+                //taruh di sellingitem.html
+                if (localStorage['purchasing'] == 0) {
+                    setTimeout(function() {
+                        $.ajax({
+                            type: "GET",
+                            url: "purchasing.html",
+                            success: function(data) {
+                                var content = $(data).find("#content-loader");
+                                $("#content-wrapper").fadeOut().empty().fadeIn().append(content);
+                            },
+                            error: function(data) {}
+                        });
+                    }, 200);
+                    localStorage['purchasing'] = 1;
+                };
+
+
+                con.query("SELECT id_barang AS id , barang AS label FROM barang", function(err, rows) {
+                    if (err) throw err;
+                    localStorage['jarr'] = JSON.stringify(rows);
+                });
+                var arr = $.parseJSON(localStorage['jarr']);
+
+                $(document).on("keydown", "#inputNamaBarang", function() {
+                    $("#selectSatuan").find('option:not(:first)').remove();
+                    $("#inputNamaBarang").autocomplete({
+                        source: arr,
+                        select: function(event, ui) {
+                            $("#inputNamaBarang").val(ui.item.label);
+                            $("#hdnInputIdBarang").val(ui.item.id);
+                            console.log("id barang " + $("#hdnInputIdBarang").val());
+                            //return false;
+
+                            var sql = "SELECT barang_jual.id_barang, barang, satuan FROM barang_jual " +
+                                "JOIN barang ON barang_jual.id_barang = barang.id_barang " +
+                                "JOIN satuan ON barang_jual.id_satuan = satuan.id_satuan " +
+                                "WHERE barang_jual.id_barang = '" + $("#hdnInputIdBarang").val() + "'";
+                            con.query(sql, function(err, res) {
+                                if (err) throw err;
+                                for (var i = 0; i < res.length; i++) {
+                                    console.log("res : " + res[i].satuan);
+                                    $("#selectSatuan").append(
+                                        "<option value='" + res[i].id_satuan + "'>" + res[i].satuan + "</option>"
+                                    );
+                                }
+                            });
+                        }
+                    }).data("ui-autocomplete")._renderItem = function(ul, item) {
+                        return $("<li>")
+                            .data("ui-autocomplete-item", item)
+                            .append("<a>" + item.label + "</a>")
+                            .appendTo(ul);
+                    };
+                });
+
+
+            });
+            </script>
+            <script>
+            $(function() {
                 /*----------- Select -----------*/
                 con.query('SELECT * FROM distributor', function(err, rows) {
                     if (err) throw err;
@@ -42,13 +111,19 @@
                         );
                     }
                 });
-                con.query('SELECT * FROM satuan', function(err, rows) {
+                /*con.query('SELECT * FROM satuan', function(err, rows) {
                     if (err) throw err;
                     for (var i = 0; i < rows.length; i++) {
                         $("#selectSatuan").append(
                             "<option value='" + rows[i].id_satuan + "'>" + rows[i].satuan + "</option>"
                         );
                     }
+                });*/
+                /*---------- Fokus input -----------*/
+                $(document).on("click", "#btnTambahPembelian", function() {
+                    setTimeout(function() {
+                        $("#inputNamaBarang").focus();
+                    }, 500);
                 });
 
 
@@ -89,9 +164,9 @@
                         <tbody>
                             <tr class="info">
                                 <td align="center "><strong>1</strong></td>
-                                <td colspan="0 "><strong>2014-03-19 15:05:54</strong></td>
-                                <td colspan="3 "><strong>Rp. 675.936</strong></td>
-                                <td align="center ">
+                                <td><strong>2014-03-19 15:05:54</strong></td>
+                                <td colspan="3"><strong>Rp. 675.936</strong></td>
+                                <td align="center">
                                     <button type="button" class="btn btn-primary btn-xs "><span class="glyphicon glyphicon-trash "></span></button>
                                 </td>
                             </tr>
@@ -126,24 +201,35 @@
                             </div>
                             <div class="modal-body">
                                 <form class="form-horizontal" id="frmInputPembelian">
-                                    <table id="tabelPengguna" class="table table-condensed table-hover table-striped keatas">
+                                    <table id="tabelPengguna" class="table table-condensed table-hover ">
                                         <thead>
                                         </thead>
                                         <tbody>
                                             <tr>
-                                                <td class="text-center">Tanggal Beli</td>
                                                 <td class="text-center">
-                                                    <input class="form-control input-sm" name="tglBeli" id="tglBeli" placeholder="Tanggal" type="text">
+                                                    <label for="inputNamaBarang" class="control-label">Nama Barang</label>
+                                                </td>
+                                                <td class="text-center">
+                                                    <input class="form-control input-sm" name="inputNamaBarang" id="inputNamaBarang" placeholder="Nama Barang" type="text" autocomplete="off">
+                                                    <input name="hdnInputIdBarang" id="hdnInputIdBarang" type="hidden">
+                                                    <label style="display: none;" id="inputNamaBarang-error-duplicate">Data Sudah Ada</label>
                                                 </td>
                                             </tr>
                                             <tr>
-                                                <td class="text-center">Nama Barang</td>
                                                 <td class="text-center">
-                                                    <input class="form-control input-sm" name="inputNamaBarang" id="inputNamaBarang" placeholder="Nama Barang" type="text">
+                                                    <label for="selectSatuan" class="control-label">Satuan</label>
+                                                </td>
+                                                <td class="text-center">
+                                                    <select name="selectSatuan" id="selectSatuan" class="form-control input-sm">
+                                                        <option value="">-pilih-</option>
+                                                    </select>
+                                                    <label style="display: none;" id="selectDistributor-error-duplicate">Data Sudah Ada</label>
                                                 </td>
                                             </tr>
                                             <tr>
-                                                <td class="text-center">Distributor</td>
+                                                <td class="text-center">
+                                                    <label for="selectDistributor" class="control-label">Distributor</label>
+                                                </td>
                                                 <td class="text-center">
                                                     <select name="selectDistributor" id="selectDistributor" class="form-control input-sm">
                                                         <option value="">-pilih-</option>
@@ -151,74 +237,27 @@
                                                 </td>
                                             </tr>
                                             <tr>
-                                                <td class="text-center">Satuan</td>
                                                 <td class="text-center">
-                                                    <select name="selectSatuan" id="selectSatuan" class="form-control input-sm">
-                                                        <option value="">-pilih-</option>
-                                                    </select>
+                                                    <label for="inputQTY" class="control-label">QTY</label>
                                                 </td>
-                                            </tr>
-                                            <tr>
-                                                <td class="text-center">QTY</td>
                                                 <td class="text-center">
                                                     <input class="form-control input-sm" name="inputQTY" id="inputQTY" placeholder="Jumlah Barang" type="text">
                                                 </td>
                                             </tr>
                                             <tr>
-                                                <td class="text-center">Harga /satuan</td>
+                                                <td class="text-center">
+                                                    <label for="inputHarga" class="control-label">Harga Satuan</label>
+                                                </td>
                                                 <td class="text-center">
                                                     <input class="form-control input-sm" name="inputHarga" id="inputHarga" placeholder="Harga" type="text">
                                                 </td>
                                             </tr>
-                                            <tr>
-                                                <td class="text-center" colspan="2">
-                                                    <button type="submit" form="frmInputPembelian" class="btn btn-info  btn-xs">Simpan</button>
-                                                </td>
-                                            </tr>
                                         </tbody>
-                                    </table>
-                                </form>
-                                <form class="form-horizontal" id="frmSimpanPembelian">
-                                    <table id="" class="table table-condensed table-hover table-striped keatas">
-                                        <thead>
-                                            <tr>
-                                                <th>Nama Barang</th>
-                                                <th>Satuan</th>
-                                                <th>QTY</th>
-                                                <th>Harga (Rp)</th>
-                                                <th>Jumlah (Rp)</th>
-                                                <th>Aksi</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody class="pembelian">
-                                            <tr>
-                                                <td>1</td>
-                                                <td>2</td>
-                                                <td>3</td>
-                                                <td>4</td>
-                                                <td>5</td>
-                                                <td>6</td>
-                                            </tr>
-                                            <tr>
-                                                <td>1</td>
-                                                <td>2</td>
-                                                <td>3</td>
-                                                <td>4</td>
-                                                <td>5</td>
-                                                <td>6</td>
-                                            </tr>
-                                        </tbody>
-                                        <tfoot>
-                                            <tr>
-                                                <td colspan="4">Total</td>
-                                                <td colspan="2"><strong>0</strong></td>
-                                            </tr>
-                                        </tfoot>
                                     </table>
                                 </form>
                             </div>
                             <div class="modal-footer">
-                                <button type="submit" form="frmSimpanPembelian" class="btn btn-info  btn-xs">Simpan</button>
+                                <button type="submit" form="frmInputPembelian" class="btn btn-info  btn-xs">Simpan</button>
                                 <a href="#" id="closePmb" class="btn btn-default btn-xs closePmb" data-dismiss="modal">Tutup</a>
                             </div>
                         </div>
@@ -228,7 +267,7 @@
         </div>
     </div>
     <!-- footer -->
-    <div id="footer "></div>
+    <div id="footer"></div>
     <script>
     $("#navigation ").load("navbar.html ");
     $("#footer ").load("footer.html ");

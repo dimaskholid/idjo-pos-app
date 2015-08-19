@@ -97,26 +97,55 @@
                     };
                 });
 
-                //Insert baru
-                $("#frmInputDistributor").on("submit", function(event) {
-                    event.preventDefault();
-                    var dist = {
-                        distributor: $("#inputDistributor").val()
-                    };
-                    var rowCount = $('#tabelDistributor tbody tr').length;
-                    con.query('INSERT INTO distributor SET ?', dist, function(err, res) {
-                        if (err) throw err;
-                        console.log(res.insertId);
-                    });
-
-                    $("#frmInputDistributor").trigger('reset');
-                    $("#tabelDistributor tbody").append(
-                        "<tr>" +
-                        "<td>" + parseInt(rowCount + 1) + "</td>" +
-                        "<td>" + dist['distributor'] + "</td>" +
-                        "</tr>"
-                    );
+                //*------------ Insert baru ------------------*//
+                $(document).on("keyup", "#inputDistributor", function() {
+                    if ($(this).val() == "") {
+                        $("#inputDistributor-error-duplicate").hide();
+                    }
                 });
+                $("#frmInputDistributor").validate({
+                    rules: {
+                        inputDistributor: "required"
+                    },
+                    messages: {
+                        inputDistributor: "Isi Nama Distributor"
+                    },
+                    submitHandler: function(form) {
+
+                        var dist = {
+                            distributor: $("#inputDistributor").val()
+                        };
+                        con.query("SELECT COUNT(*) AS co FROM distributor WHERE distributor = '" + dist['distributor'] + "'", function(err, res) {
+                            if (err) throw err;
+                            cekDistributor(res);
+                            console.log(res.insertId);
+                        });
+
+                        cekDistributor = function(res) {
+                            if (res[0].co == 0) {
+                                $("#inputDistributor-error-duplicate").hide();
+                                var rowCount = $('#tabelDistributor tbody tr').length;
+                                con.query('INSERT INTO distributor SET ?', dist, function(err, res) {
+                                    if (err) throw err;
+                                    console.log(res.insertId);
+                                });
+
+                                $("#frmInputDistributor").trigger('reset');
+                                $("#tabelDistributor tbody").append(
+                                    "<tr>" +
+                                    "<td>" + parseInt(rowCount + 1) + "</td>" +
+                                    "<td>" + dist['distributor'] + "</td>" +
+                                    "</tr>"
+                                );
+
+                            } else {
+                                $("#inputDistributor-error-duplicate").show();
+                            }
+                        }
+
+                    }
+                });
+
 
                 //delete
                 $(document).on("click", "#btnDeldistributor", function(e) {
@@ -188,7 +217,7 @@
                         <thead>
                             <tr>
                                 <th width="70">No</th>
-                                <th>Nama Satuan</th>
+                                <th>Nama Distributor</th>
                                 <th width="100">Aksi</th>
                             </tr>
                         </thead>
@@ -228,7 +257,8 @@
                                         <div class="form-group">
                                             <label for="inputDistributor" class="col-lg-2 control-label">Nama</label>
                                             <div class="col-lg-10">
-                                                <input class="form-control input-sm" id="inputDistributor" placeholder="Nama Distributor" type="text">
+                                                <input class="form-control input-sm" name="inputDistributor" id="inputDistributor" placeholder="Nama Distributor" type="text">
+                                                <label style="display: none;" id="inputDistributor-error-duplicate">Data Sudah Ada</label>
                                             </div>
                                         </div>
                                     </fieldset>

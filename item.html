@@ -47,7 +47,7 @@
                     }, 500);
                 });
                 /*------------ View All ----------*/
-                con.query('SELECT * FROM barang JOIN kategori ON barang.id_kategori = kategori.id_kategori', function(err, rows) {
+                con.query('SELECT * FROM barang JOIN kategori ON barang.id_kategori = kategori.id_kategori ORDER BY id_barang ASC', function(err, rows) {
                     if (err) throw err;
 
                     console.log('Data received from Db:\n');
@@ -84,34 +84,68 @@
                 });
 
                 /*----------- Input Baru ------------*/
-                $("#frmInputBarang").on("submit", function(event) {
-                    event.preventDefault();
-
-                    var selectTxt = $("#selectKategori option:selected").text();
-                    var brg = {
-                        barang: $("#inputBarang").val(),
-                        id_kategori: $("#selectKategori").val()
-                    };
-                    var rowCount = $('#tabelBarang tbody tr').length;
-                    con.query('INSERT INTO barang SET ?', brg, function(err, res) {
-                        if (err) throw err;
-                        console.log(res.insertId);
-                    });
-
-                    $("#frmInputBarang").trigger('reset');
-                    $("#tabelBarang tbody").append(
-                        "<tr>" +
-                        "<td>" + parseInt(rowCount + 1) + "</td>" +
-                        "<td>" + brg['barang'] + "</td>" +
-                        "<td>" + selectTxt + "</td>" +
-                        "<td>" +
-                        "<button type='button' class='btn btn-link btn-xs'> " + "<span class='glyphicon glyphicon-wrench'></span>" + "</button>" +
-                        "<button type='button' class='btn btn-link btn-xs'> " + "<span class='glyphicon glyphicon-trash'></span>" + "</button>" +
-                        "</td > " +
-                        "</tr>"
-                    );
+                $(document).on("keyup", "#inputBarang", function() {
+                    if ($(this).val() == "") {
+                        $("#inputDistributor-error-duplicate").hide();
+                    }
                 });
-                //refresh saat close input , 
+                $("#frmInputBarang").validate({
+                    rules: {
+                        inputBarang: "required",
+                        selectKategori: {
+                            required: true
+                        }
+                    },
+                    messages: {
+                        inputBarang: "Isi Nama Barang",
+                        selectKategori: {
+                            required: "Pilih Kategori"
+                        }
+                    },
+                    submitHandler: function(form) {
+
+                        var selectTxt = $("#selectKategori option:selected").text();
+                        var brg = {
+                            barang: $("#inputBarang").val(),
+                            id_kategori: $("#selectKategori").val()
+                        };
+                        con.query("SELECT COUNT(*) AS co FROM barang WHERE barang = '" + brg['barang'] + "'", function(err, res) {
+                            if (err) throw err;
+                            cekBarang(res);
+                            console.log(res.insertId);
+                        });
+
+                        cekBarang = function(res) {
+                            if (res[0].co == 0) {
+                                $("#inputDistributor-error-duplicate").hide();
+                                var rowCount = $('#tabelBarang tbody tr').length;
+                                con.query('INSERT INTO barang SET ?', brg, function(err, res) {
+                                    if (err) throw err;
+                                    console.log(res.insertId);
+                                });
+                                /*-----------reload sellingitem------------*/
+                                localStorage['sellingitem'] = 0;
+                                $("#frmInputBarang").trigger('reset');
+                                $("#tabelBarang tbody").append(
+                                    "<tr>" +
+                                    "<td>" + parseInt(rowCount + 1) + "</td>" +
+                                    "<td>" + brg['barang'] + "</td>" +
+                                    "<td>" + selectTxt + "</td>" +
+                                    "<td>" +
+                                    "<button type='button' class='btn btn-link btn-xs'> " + "<span class='glyphicon glyphicon-wrench'></span>" + "</button>" +
+                                    "<button type='button' class='btn btn-link btn-xs'> " + "<span class='glyphicon glyphicon-trash'></span>" + "</button>" +
+                                    "</td > " +
+                                    "</tr>"
+                                );
+
+                            } else {
+                                $("#inputDistributor-error-duplicate").show();
+                            }
+                        }
+
+                    }
+                });
+                /*------------------ reload --------------*/
                 $(document).on("click", "#closeBarang, .closeBarang", function(e) {
                     e.stopImmediatePropagation();
                     setTimeout(function() {
@@ -163,6 +197,8 @@
                                 console.log('Changed ' + result.changedRows + ' rows');
                             }
                         );
+                        /*-----------reload sellingitem------------*/
+                        localStorage['sellingitem'] = 0;
                         $("#mdlEditBarang").modal("toggle");
                         $("#closeBarang").trigger("click");
                     }
@@ -174,9 +210,9 @@
                     var hdnBrg = $(this).closest('tr').find('input[name=hdnBarang]').val();
 
                     $.confirm({
-                        text: "Yakin untuk menghapus data " + id + " : " + hdnBrg,
+                        text: "Hapus data " + id + " : " + hdnBrg,
                         confirm: function(button) {
-                            con.query('DELETE FROM barang WHERE id_barang = "' + id + '"', function(err, res) {
+                            con.query('DELETE barang, barang_jual FROM barang LEFT JOIN barang_jual ON barang.id_barang = barang_jual.id_barang WHERE barang.id_barang = "' + id + '"', function(err, res) {
                                 if (err) throw err;
 
                                 console.log('deleted ' + res.affectedRows + ' rows');
@@ -266,7 +302,8 @@
                                         <div class="form-group">
                                             <label for="inputBarang" class="col-lg-2 control-label">Nama</label>
                                             <div class="col-lg-10">
-                                                <input class="form-control input-sm" id="inputBarang" placeholder="Nama Barang" type="text">
+                                                <input class="form-control input-sm" name="inputBarang" id="inputBarang" placeholder="Nama Barang" type="text">
+                                                <label style="display: none;" id="inputDistributor-error-duplicate">Data Sudah Ada</label>
                                             </div>
                                         </div>
                                         <div class="form-group">

@@ -93,3 +93,37 @@ footer {
     margin-top: 25px;
     margin-bottom: 10px;
 }
+
+
+/*----- UI AutoComplete https://gist.github.com/daz/2168334 ------*/
+
+.ui-autocomplete {
+    z-index: 5000;
+}
+
+
+/* ------------- */
+
+.table-fixed thead {
+    width: 97%;
+}
+
+.table-fixed tbody {
+    height: 100%;
+    overflow-y: auto;
+    width: 100%;
+}
+
+.table-fixed thead,
+.table-fixed tbody,
+.table-fixed tr,
+.table-fixed td,
+.table-fixed th {
+    display: block;
+}
+
+.table-fixed tbody td,
+.table-fixed thead > tr> th {
+    float: left;
+    border-bottom-width: 0;
+}
