@@ -39,17 +39,15 @@
         <div id="content-loader">
             <script>
             $(function() {
-                //show modal
-                $(document).on("click", "#btnTambahKategori", function() {
-
-                    //$('#tambahSatuan').modal('show');
-
-                    setTimeout(function() {
-
-                        $("#inputKategori").focus();
-                    }, 500);
-                });
+                /*---------- fokus input -----------*/
+                focusInput("#btnTambahKategori", "#inputKategori");
+                focusInput("#btnEditKategori", "#inpEditKategori");
                 /*------------------ Edit -----------------*/
+                $(document).on("keyup", "#inpEditKategori", function() {
+                    if ($(this).val() == "") {
+                        $("#inpEditKategori-error-duplicate").hide();
+                    }
+                });
                 $(document).on("click", "#btnEditKategori", function() {
                     $('#mdlEditKategori').modal('show');
                     var id = $(this).closest('tr').find('input[name=idKategori]').val();
@@ -58,27 +56,43 @@
                     $("input[name=hdnIdKategori]").val(id);
                 });
 
-                $("#frmEditKategori").on("submit", function(e) {
-                    e.preventDefault();
-                    con.query(
-                        'UPDATE kategori SET kategori = ? Where id_kategori = ?', [$("#inpEditKategori").val(),
-                            $("input[name=hdnIdKategori]").val()
-                        ],
-                        function(err, result) {
+                $("#frmEditKategori").validate({
+                    rules: {
+                        inpEditKategori: "required"
+                    },
+                    messages: {
+                        inpEditKategori: "Isi Kategori"
+                    },
+                    submitHandler: function(form) {
+                        con.query("SELECT COUNT(*) AS co FROM kategori WHERE kategori = '" + $("#inpEditKategori").val() + "'", function(err, res) {
                             if (err) throw err;
+                            cekEditKategori(res);
+                        });
 
-                            console.log('Changed ' + result.changedRows + ' rows');
+                        cekEditKategori = function(res) {
+                            if (res[0].co == 0) {
+                                $("#inpEditDistributor-error-duplicate").hide();
+                                con.query(
+                                    'UPDATE kategori SET kategori = ? Where id_kategori = ?', [$("#inpEditKategori").val(),
+                                        $("input[name=hdnIdKategori]").val()
+                                    ],
+                                    function(err, result) {
+                                        if (err) throw err;
+                                        console.log('Changed ' + result.changedRows + ' rows');
+                                    }
+                                );
+                                $("#mdlEditKategori").modal("toggle");
+                                $("#closeKategori").trigger("click");
+                                notifEdit();
+                            } else {
+                                $("#inpEditKategori-error-duplicate").show();
+                            }
                         }
-                    );
 
-
-                    $("#mdlEditKategori").modal("toggle");
-                    $("#closeKategori").trigger("click");
-                    // e.stopImmediatePropagation();
-                    //$("#inpEditKategori").val("");
+                    }
                 });
 
-                //Select All
+                /*--------------- view all --------------*/
                 con.query('SELECT * FROM kategori', function(err, rows) {
                     if (err) throw err;
 
@@ -104,45 +118,67 @@
                 });
             });
 
-            //Insert baru
-            $("#frmInputKategori").on("submit", function(event) {
-                event.preventDefault();
-                var kat = {
-                    kategori: $("#inputKategori").val()
-                };
-                var rowCount = $('#tabelKategori tbody tr').length;
-                con.query('INSERT INTO kategori SET ?', kat, function(err, res) {
-                    if (err) throw err;
-                    console.log(res.insertId);
-                });
+            /*--------------- Insert baru --------------*/
+            $(document).on("keyup", "#inputKategori", function() {
+                if ($(this).val() == "") {
+                    $("#inputKategori-error-duplicate").hide();
+                }
+            });
+            $("#frmInputKategori").validate({
+                rules: {
+                    inputKategori: "required"
+                },
+                messages: {
+                    inputKategori: "Isi Kategori"
+                },
+                submitHandler: function(form) {
+                    var kat = {
+                        kategori: $("#inputKategori").val()
+                    };
+                    con.query("SELECT COUNT(*) AS co FROM kategori WHERE kategori = '" + kat['kategori'] + "'", function(err, res) {
+                        if (err) throw err;
+                        cekKategori(res);
+                    });
 
-                $("#frmInputKategori").trigger('reset');
-                $("#tabelKategori tbody").append(
-                    "<tr>" +
-                    "<td>" + parseInt(rowCount + 1) + "</td>" +
-                    "<td>" + kat['kategori'] + "</td>" +
-                    "<td>" +
-                    "<button type='button' class='btn btn-link btn-xs'> " + "<span class='glyphicon glyphicon-wrench'></span>" + "</button>" +
-                    "<button type='button' class='btn btn-link btn-xs'> " + "<span class='glyphicon glyphicon-trash'></span>" + "</button>" +
-                    "</td > " +
-                    "</tr>"
-                );
+                    cekKategori = function(res) {
+                        if (res[0].co == 0) {
+                            $("#inputKategori-error-duplicate").hide();
+                            var rowCount = $('#tabelKategori tbody tr').length;
+                            con.query('INSERT INTO kategori SET ?', kat, function(err, res) {
+                                if (err) throw err;
+                                console.log(res.insertId);
+                            });
+
+                            $("#frmInputKategori").trigger('reset');
+                            $("#tabelKategori tbody").append(
+                                "<tr>" +
+                                "<td>" + parseInt(rowCount + 1) + "</td>" +
+                                "<td>" + kat['kategori'] + "</td>" +
+                                "<td>" +
+                                "<button type='button' class='btn btn-link btn-xs'> " + "<span class='glyphicon glyphicon-wrench'></span>" + "</button>" +
+                                "<button type='button' class='btn btn-link btn-xs'> " + "<span class='glyphicon glyphicon-trash'></span>" + "</button>" +
+                                "</td > " +
+                                "</tr>"
+                            );
+                            notifInput();
+                        } else {
+                            $("#inputKategori-error-duplicate").show();
+                        }
+                    }
+
+                }
             });
 
-
-            //delete
+            /*-------------- delete -----------------*/
             $(document).on("click", "#btnDelKategori", function(e) {
                 var id = $(this).closest('tr').find('input[name=idKategori]').val();
                 var hdnKategori = $(this).closest('tr').find('input[name=hdnKategori]').val();
-
                 $.confirm({
                     text: "Yakin untuk menghapus data " + id + " : " + hdnKategori,
                     confirm: function(button) {
                         con.query('DELETE FROM Kategori WHERE id_Kategori = "' + id + '"', function(err, res) {
                             if (err) throw err;
-
                             console.log('deleted ' + res.affectedRows + ' rows');
-                            //alert("Data berhasil dihapus");
                         });
                         setTimeout(function() {
                             $.ajax({
@@ -155,6 +191,7 @@
                                 error: function(data) {}
                             });
                         }, 200);
+                        notifDelete();
                     },
                     cancel: function(button) {},
                     confirmButton: "Hapus",
@@ -165,11 +202,10 @@
                 });
             });
 
-            //refresh saat close input , 
+            /*---------------- reload -------------------*/
             $(document).on("click", "#closeKategori, .closeKategori", function(e) {
                 e.stopImmediatePropagation();
                 setTimeout(function() {
-                    // alert("hai");
                     $.ajax({
                         type: "GET",
                         url: "category.html",
@@ -240,7 +276,8 @@
                                         <div class="form-group">
                                             <label for="inputKategori" class="col-lg-2 control-label">Nama</label>
                                             <div class="col-lg-10">
-                                                <input class="form-control input-sm" id="inputKategori" placeholder="Nama Kategori" type="text">
+                                                <input class="form-control input-sm" name="inputKategori" id="inputKategori" placeholder="Nama Kategori" type="text">
+                                                <label style="display: none;" id="inputKategori-error-duplicate">Data Sudah Ada</label>
                                             </div>
                                         </div>
                                     </fieldset>
@@ -270,7 +307,8 @@
                                             <label for="inpEditKategori" class="col-lg-2 control-label">Nama</label>
                                             <div class="col-lg-10">
                                                 <input type="hidden" name="hdnIdKategori" value="">
-                                                <input class="form-control input-sm" id="inpEditKategori" placeholder="Nama Kategori" type="text">
+                                                <input class="form-control input-sm" id="inpEditKategori" name="inpEditKategori" placeholder="Nama Kategori" type="text">
+                                                <label style="display: none;" id="inpEditKategori-error-duplicate">Data Sudah Ada</label>
                                             </div>
                                         </div>
                                     </fieldset>
