@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+        <title>Panel Kasir</title>
+        <!-- Bootstrap -->
+        <link href="assets/css/bootstrap.min.css" rel="stylesheet">
+        <link href="assets/css/style.css" rel="stylesheet">
+        <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+        <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+        <!--[if lt IE 9]>
+          <script src="assets/js/html5shiv.min.js"></script>
+          <script src="assets/js/respond.min.js"></script>
+        <![endif]-->
+        <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+        <script src="assets/js/connect.js"></script>
+        <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+        <script src="assets/js/jquery.min.js"></script>
+        <!-- Include all compiled plugins (below), or include individual files as needed -->
+        <script src="assets/js/bootstrap.min.js"></script>
+        <script src="assets/js/jquery.confirm.min.js"></script>
+        <script src="assets/js/ajaxcontentloader.js"></script>
+        <script src="assets/js/jquery.validate.min.js"></script>
+        <!-- Add Jquery UI main JS and CSS files -->
+        <link rel="stylesheet" href="assets/js/autocomplete/jquery-ui.css">
+        <!-- <script src="assets/js/autocomplete/jquery.js"></script> -->
+        <script src="assets/js/autocomplete/jquery-ui.js"></script>
+        <link rel="stylesheet" href="assets/css/style.css">
+
+
+    </head>
+
+    <body>
+        <!-- header -->
+        <div id="header"></div>
+        <!-- Navigation -->
+        <div id="navigation"></div>
+        <!-- content -->
+        <div id="content-wrapper">
+            <div id="content-loader">
+                <script type="text/javascript">
+                    $(function () {
+                        $(document).on("submit", "#form-input-produk", function (e) {
+                            e.preventDefault();
+                            var input_id_barang_jual = $("#input_id_barang_jual").val();
+                            var input_nama_barang = $("#input_nama_barang").val();
+                            var input_harga_barang = $("#input_harga_barang").val();
+                            var input_qty_barang = $("#input_qty_barang").val();
+                            var jumlah = parseInt(input_harga_barang * input_qty_barang);
+                            var input_status = $("#input_status").val();
+                            var dt_total = parseInt($("#dt_total").val()) + jumlah;
+
+                            if (input_status == "t") {
+                                var count = $("#tabel-daftar-belanja").find(".tr_" + input_id_barang_jual).length;
+
+                                if (count > 0) {
+                                    var add_harga_barang = $("#tabel-daftar-belanja").find(".tr_" + input_id_barang_jual).find("#dt_harga_barang").val();
+                                    var add_qty_barang = $("#tabel-daftar-belanja").find(".tr_" + input_id_barang_jual).find("#dt_qty_barang").val();
+                                    var add_jumlah = $("#tabel-daftar-belanja").find(".tr_" + input_id_barang_jual).find("#dt_jumlah").val();
+
+                                    input_qty_barang = parseInt(input_qty_barang) + parseInt(add_qty_barang);
+                                    jumlah = parseInt(jumlah) + parseInt(add_jumlah);
+
+                                    $("#tabel-daftar-belanja").find(".tr_" + input_id_barang_jual).remove();
+                                }
+
+                                $("#tabel-daftar-belanja").children("tbody").append('\
+                        <tr class="tr_' + input_id_barang_jual + '">\
+                                <td class="kiri ">' + input_nama_barang + ' <input type="hidden" name="dt_id_barang_jual" id="dt_id_barang_jual" value="' + input_id_barang_jual + '" /></td>\
+                                <td width="10% " align="right ">Rp. ' + input_harga_barang + ' <input type="hidden" name="dt_harga_barang" id="dt_harga_barang" value="' + input_harga_barang + '" /></td>\
+                                <td width="10% " align="left ">' + input_qty_barang + ' <input type="hidden" name="dt_qty_barang" id="dt_qty_barang" value="' + input_qty_barang + '" /></td>\
+                                <td width="20% " align="right ">Rp. ' + jumlah + ' <input type="hidden" name="dt_jumlah" id="dt_jumlah" value="' + jumlah + '" /></td>\
+                                <td width="10% " align="right "><button class="btn btn-primary btn-xs " type="button" id="delete"><span class="glyphicon glyphicon-trash "></span></button></td>\
+                            </tr>\
+                    ');
+
+                                $("#total").empty().append(dt_total);
+                                $("#dt_total").val(dt_total);
+
+                                $("#input_id_barang_jual").val("");
+                                $("#input_nama_barang").val("").focus();
+                                $("#input_harga_barang").val("");
+                                $("#input_qty_barang").val("");
+                                $("#input_status").val("f");
+                                $("#input_nama_barang").focus();
+
+                            } else {
+                                $("#bayar").trigger("click");
+
+                            }
+
+
+                        });
+
+                        $(document).on("click", "#btn_input_bayar", function (e) {
+                            setTimeout(function () {
+                                var total = $("#dt_total").val();
+                                $("#final_total_bayar").val(total);
+                                $("#final_bayar").val("").focus();
+                                $("#final_kembalian").val("");
+                            }, 500)
+                        });
+
+                        $(document).on("keyup", "#final_bayar", function (e) {
+                            var total = parseInt($("#dt_total").val());
+                            var bayar = parseInt($(this).val());
+                            var kembalian = bayar - total;
+                            $("#final_kembalian").val(kembalian);
+                        });
+
+                        $(document).on("keydown", "#final_bayar", function (e) {
+                            // Allow: backspace, delete, tab, escape, enter and .
+                            if ($.inArray(e.keyCode, [46, 8, 9, 27, 13, 110, 190]) !== -1 ||
+                                    // Allow: Ctrl+A
+                                            (e.keyCode == 65 && e.ctrlKey === true) ||
+                                            // Allow: Ctrl+C
+                                                    (e.keyCode == 67 && e.ctrlKey === true) ||
+                                                    // Allow: Ctrl+X
+                                                            (e.keyCode == 88 && e.ctrlKey === true) ||
+                                                            // Allow: home, end, left, right
+                                                                    (e.keyCode >= 35 && e.keyCode <= 39)) {
+                                                        // let it happen, don't do anything
+                                                        return;
+                                                    }
+                                                    // Ensure that it is a number and stop the keypress
+                                                    if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105)) {
+                                                        e.preventDefault();
+                                                    }
+                                                });
+
+                                        $(document).on("submit", "#frm_final_bayar", function (e) {
+                                            e.preventDefault();
+                                            var total = parseInt($("#final_total_bayar").val());
+                                            var bayar = $("#final_bayar").val();
+                                            var kembalian = $("#final_kembalian").val();
+                                            if (bayar == "") {
+                                                alert("Kolom bayar masih kosong");
+                                                $("#final_bayar").focus();
+                                            } else if (kembalian < 0) {
+                                                alert("Jumlah uang yang dibayarkan masih kurang");
+                                                $("#final_bayar").focus();
+                                            } else {
+                                                $("#form-daftar-belanja").submit();
+                                            }
+                                        });
+
+                                        $(document).on("click", "#bayar", function (e) {
+                                            var dt_total = $("#dt_total").val();
+                                            if (dt_total > 0) {
+                                                $("#btn_input_bayar").trigger("click");
+                                            } else {
+                                                alert("Daftar belanja masih kosong");
+                                                $("#input_nama_barang").focus();
+                                            }
+                                        })
+
+                                        $(document).on("submit", "#form-daftar-belanja", function (e) {
+                                            e.preventDefault();
+
+                                            var data = $(this).serializeArray();
+                                            var count = data.length;
+                                            var loop = (count - 1) / 4;
+                                            var j = 1;
+
+                                            con.query("SHOW TABLE STATUS LIKE 'transaksi'", function (err, rows) {
+                                                if (err)
+                                                    throw err;
+                                                getNext(rows);
+                                            });
+
+                                            function getNext(data) {
+                                                var id_transaksi = data[0].Auto_increment;
+                                                var id_pengguna = "1";
+                                                var total_transaksi = parseInt($("#final_total_bayar").val());
+                                                var bayar = $("#final_bayar").val();
+                                                var kembalian = $("#final_kembalian").val();
+
+                                                con.query("INSERT INTO transaksi (id_transaksi, id_pengguna, total_transaksi, bayar, kembalian) VALUES('" + id_transaksi + "', '" + id_pengguna + "', '" + total_transaksi + "', '" + bayar + "', '" + kembalian + "')", function (err, rows) {
+                                                    if (err)
+                                                        throw err;
+                                                    insertTransaksiDetail(id_transaksi);
+                                                });
+                                            }
+
+                                            function insertTransaksiDetail(id_transaksi) {
+                                                for (var i = 0; i < (count - 1); i++) {
+                                                    if (j == 1) {
+                                                        var id_barang_jual = data[i].value;
+                                                        j++;
+                                                    } else if (j == 2) {
+                                                        var harga_satuan = data[i].value;
+                                                        j++;
+                                                    } else if (j == 3) {
+                                                        var qty = data[i].value;
+                                                        j++;
+                                                    } else if (j == 4) {
+                                                        var jumlah = data[i].value;
+                                                        j = 1;
+                                                        con.query("INSERT INTO transaksi_detail (id_transaksi, id_barang_jual, qty, harga_satuan, jumlah) VALUES('" + id_transaksi + "', '" + id_barang_jual + "', '" + qty + "', '" + harga_satuan + "', '" + jumlah + "')", function (err, rows) {
+                                                            if (err)
+                                                                throw err;
+
+                                                        });
+                                                    }
+                                                }
+                                                finishInsertTransaksiDetail();
+                                            }
+
+                                            function finishInsertTransaksiDetail() {
+                                                alert("Transaksi berhasil");
+                                                $("#closePmb").trigger("click");
+                                                $("#cancel").trigger("click");
+                                                setTimeout(function(){
+                                                    $("#input_nama_barang").focus();
+                                                }, 500)
+                                            }
+
+
+
+                                            //alert(loop);
+                                            //alert(JSON.stringify(data))
+                                            console.log(data);
+                                        });
+
+                                        $(document).on("click", "#delete", function () {
+                                            var jumlah = parseInt($(this).parents("tr").find("#dt_jumlah").val());
+                                            var dt_total = parseInt($("#dt_total").val()) - jumlah;
+                                            $("#total").empty().append(dt_total);
+                                            $("#dt_total").val(dt_total);
+                                            $(this).parents("tr").remove();
+                                            $("#input_nama_barang").focus();
+                                        })
+
+                                        con.query("SELECT id_barang_jual AS id , barang AS label, barang_jual.harga AS harga, satuan.satuan FROM barang JOIN barang_jual ON barang.id_barang = barang_jual.id_barang JOIN satuan ON barang_jual.id_satuan=satuan.id_satuan", function (err, rows) {
+                                            if (err)
+                                                throw err;
+                                            getData(JSON.stringify(rows));
+                                        });
+
+                                        function getData(data) {
+                                            localStorage['jarr'] = data;
+                                        }
+                                        var arr = $.parseJSON(localStorage['jarr']);
+
+                                        $(document).on("keydown", "#input_nama_barang", function () {
+                                            $("#input_nama_barang").autocomplete({
+                                                source: arr,
+                                                select: function (event, ui) {
+                                                    $("#input_nama_barang").val(ui.item.label);
+                                                    $("#input_id_barang_jual").val(ui.item.id);
+                                                    $("#input_harga_barang").val(ui.item.harga);
+                                                    $("#input_qty_barang").val(1).select();
+                                                    $("#input_status").val("t");
+
+                                                }
+                                            }).data("ui-autocomplete")._renderItem = function (ul, item) {
+                                                return $("<li>")
+                                                        .data("ui-autocomplete-item", item)
+                                                        .append("<a>" + item.label + " - " + item.satuan + "</a>")
+                                                        .appendTo(ul);
+                                            };
+                                        });
+
+                                        $(document).on("click", "#cancel", function () {
+                                            $("#tabel-daftar-belanja").children("tbody").empty();
+
+                                            $("#total").empty().append(0);
+                                            $("#dt_total").val(0);
+
+                                            $("#input_id_barang_jual").val("");
+                                            $("#input_nama_barang").val("").focus();
+                                            $("#input_harga_barang").val("");
+                                            $("#input_qty_barang").val("");
+                                            $("#input_status").val("f");
+                                            $("#input_nama_barang").focus();
+                                        })
+                                    })
+                </script>
+                <div class="container content">
+                    <div class="row" style="width: 70%; float: left;">
+                        <div class="panel panel-primary kebawah">
+                            <div class="panel-heading">
+                                <div class="clearfix">
+                                    <div class="pull-left">
+                                        <h3 class="panel-title">Daftar Belanja</h3>
+                                    </div>
+                                    <div class="pull-right" style="position: absolute; top: -1000px;">
+                                        <button type="button" class="btn btn-info btn-xs" id="btn_input_bayar" data-toggle="modal" data-target="#input_bayar">Input Bayar</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <form name="form-daftar-belanja" id="form-daftar-belanja" action="fda" method="POST" enctype="multipart/form-data">
+                            <table id="tabel-daftar-belanja" class="table table-hover table-bordered table-striped keatas">
+                                <thead>
+                                    <tr class="info">
+                                        <th class="center">Nama Barang</th>
+                                        <th>Harga</th>
+                                        <th>QTY</th>
+                                        <th>Jumlah</th>
+                                        <th width="100"></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <td colspan="3" style="text-align: right; font-size: 20px;"> Total Rp. <span id="total">0</span><input type="hidden" name="dt_total" id="dt_total" value="0" /></td>
+                                        <td colspan="2">
+                                            <button type="button" class="btn btn-info btn-sm" id="bayar">Bayar</button>
+                                            <button type="button" class="btn btn-sm red" id="cancel">Batal</button>
+                                        </td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </form>
+                    </div>
+
+                    <div class="row" style="width: 30%; float: right;">
+                        <div class="panel panel-primary kebawah">
+                            <div class="panel-heading">
+                                <div class="clearfix">
+                                    <div class="pull-left">
+                                        <h3 class="panel-title">Input Produk</h3>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <form id="form-input-produk" name="form-input-produk" class="form-horizontal" style="padding: 10px 15px;">
+                            <fieldset>
+                                <div class="form-group">
+                                    <label for="inputEmail3" class="col-sm-5 control-label">Nama Barang</label>
+                                    <div class="col-sm-7">
+                                        <input type="text" class="form-control input-sm" id="input_nama_barang" autofocus="" name="input_nama_barang" value="">
+                                        <input type="hidden" name="input_id_barang_jual" id="input_id_barang_jual" value="" />
+                                        <input type="hidden" name="input_status" id="input_status" value="f" />
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="inputPassword3" class="col-sm-5 control-label">Harga Barang</label>
+                                    <div class="col-sm-7">
+                                        <input type="text" class="form-control input-sm" id="input_harga_barang" readonly="" value="">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="inputPassword3" class="col-sm-5 control-label">QTY. Barang</label>
+                                    <div class="col-sm-7">
+                                        <input type="text" class="form-control input-sm" id="input_qty_barang" value="">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="col-sm-offset-2 col-sm-10">
+                                        <button type="submit" class="btn btn-info btn-sm">Masukkan ke Daftar Belanja</button>
+                                    </div>
+                                </div>
+                            </fieldset>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Modal  -->
+                <div class="container">
+                    <div class="modal fade" id="input_bayar" tabindex="-1" role="document" data-backdrop="static">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <button type="button" class="close closePgn" data-dismiss="modal">&times;</button>
+                                    <h4 class="modal-title">Pembayaran</h4>
+                                </div>
+
+                                <div class="modal-body">
+                                    <form class="form-horizontal" id="frm_final_bayar" name="frm_final_bayar">
+                                        <table id="tabelPengguna" class="table table-condensed table-hover ">
+                                            <thead>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td class="text-center">
+                                                        <label for="inputNamaBarang" class="control-label">Total Tagihan</label>
+                                                    </td>
+                                                    <td class="text-center">
+                                                        <input class="form-control input-sm" name="final_total_bayar" id="final_total_bayar" type="text" readonly="">
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="text-center">
+                                                        <label for="selectSatuan" class="control-label">Bayar</label>
+                                                    </td>
+                                                    <td class="text-center">
+                                                        <input class="form-control input-sm" name="final_bayar" id="final_bayar" placeholder="Uang yang dibayarkan" type="number" autocomplete="off">
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="text-center">
+                                                        <label for="selectDistributor" class="control-label">Kembalian</label>
+                                                    </td>
+                                                    <td class="text-center">
+                                                        <input class="form-control input-sm" name="final_kembalian" id="final_kembalian" placeholder="Kembalian" type="number" readonly="">
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </form>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="submit" form="frm_final_bayar" class="btn btn-info  btn-xs">Bayar</button>
+                                    <a href="#" id="closePmb" class="btn btn-default btn-xs closePmb" data-dismiss="modal">Batal</a>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+        <!-- footer -->
+        <div id="footer"></div>
+        <script>
+                    $("#navigation").load("navbar.html");
+                    $("#footer").load("footer.html");
+                    $("#header").load("header.html");
+        </script>
+    </body>
+
+</html>

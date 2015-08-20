@@ -1,278 +1,283 @@
 <!DOCTYPE html>
 <html lang="en">
 
-<head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
-    <title>Pembelian</title>
-    <!-- Bootstrap -->
-    <link href="assets/css/bootstrap.min.css" rel="stylesheet">
-    <link href="assets/css/style.css" rel="stylesheet">
-    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
-    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
-    <!--[if lt IE 9]>
-      <script src="assets/js/html5shiv.min.js"></script>
-      <script src="assets/js/respond.min.js"></script>
-    <![endif]-->
-    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
-    <script src="assets/js/connect.js"></script>
-    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
-    <script src="assets/js/jquery.min.js"></script>
-    <!-- Include all compiled plugins (below), or include individual files as needed -->
-    <script src="assets/js/bootstrap.min.js"></script>
-    <script src="assets/js/jquery.confirm.min.js"></script>
-    <script src="assets/js/ajaxcontentloader.js"></script>
-    <script src="assets/js/jquery.validate.min.js"></script>
-    <!-- Add Jquery UI main JS and CSS files -->
-    <link rel="stylesheet" href="assets/js/autocomplete/jquery-ui.css">
-    <!-- <script src="assets/js/autocomplete/jquery.js"></script> -->
-    <script src="assets/js/autocomplete/jquery-ui.js"></script>
-    <link rel="stylesheet" href="assets/css/style.css">
-</head>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+        <title>Pembelian</title>
+        <!-- Bootstrap -->
+        <link href="assets/css/bootstrap.min.css" rel="stylesheet">
+        <link href="assets/css/style.css" rel="stylesheet">
+        <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+        <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+        <!--[if lt IE 9]>
+          <script src="assets/js/html5shiv.min.js"></script>
+          <script src="assets/js/respond.min.js"></script>
+        <![endif]-->
+        <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+        <script src="assets/js/connect.js"></script>
+        <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+        <script src="assets/js/jquery.min.js"></script>
+        <!-- Include all compiled plugins (below), or include individual files as needed -->
+        <script src="assets/js/bootstrap.min.js"></script>
+        <script src="assets/js/jquery.confirm.min.js"></script>
+        <script src="assets/js/ajaxcontentloader.js"></script>
+        <script src="assets/js/jquery.validate.min.js"></script>
+        <!-- Add Jquery UI main JS and CSS files -->
+        <link rel="stylesheet" href="assets/js/autocomplete/jquery-ui.css">
+        <!-- <script src="assets/js/autocomplete/jquery.js"></script> -->
+        <script src="assets/js/autocomplete/jquery-ui.js"></script>
+        <link rel="stylesheet" href="assets/css/style.css">
+    </head>
 
-<body>
-    <!-- header -->
-    <div id="header"></div>
-    <!-- Navigation -->
-    <div id="navigation"></div>
-    <!-- content -->
-    <div id="content-wrapper">
-        <div id="content-loader">
-            <script>
-            $(function() {
-                //taruh di sellingitem.html
-                if (localStorage['purchasing'] == 0) {
-                    setTimeout(function() {
-                        $.ajax({
-                            type: "GET",
-                            url: "purchasing.html",
-                            success: function(data) {
-                                var content = $(data).find("#content-loader");
-                                $("#content-wrapper").fadeOut().empty().fadeIn().append(content);
-                            },
-                            error: function(data) {}
-                        });
-                    }, 200);
-                    localStorage['purchasing'] = 1;
-                };
-
-
-                con.query("SELECT id_barang AS id , barang AS label FROM barang", function(err, rows) {
-                    if (err) throw err;
-                    localStorage['jarr'] = JSON.stringify(rows);
-                });
-                var arr = $.parseJSON(localStorage['jarr']);
-
-                $(document).on("keydown", "#inputNamaBarang", function() {
-                    $("#selectSatuan").find('option:not(:first)').remove();
-                    $("#inputNamaBarang").autocomplete({
-                        source: arr,
-                        select: function(event, ui) {
-                            $("#inputNamaBarang").val(ui.item.label);
-                            $("#hdnInputIdBarang").val(ui.item.id);
-                            console.log("id barang " + $("#hdnInputIdBarang").val());
-                            //return false;
-
-                            var sql = "SELECT barang_jual.id_barang, barang, satuan FROM barang_jual " +
-                                "JOIN barang ON barang_jual.id_barang = barang.id_barang " +
-                                "JOIN satuan ON barang_jual.id_satuan = satuan.id_satuan " +
-                                "WHERE barang_jual.id_barang = '" + $("#hdnInputIdBarang").val() + "'";
-                            con.query(sql, function(err, res) {
-                                if (err) throw err;
-                                for (var i = 0; i < res.length; i++) {
-                                    console.log("res : " + res[i].satuan);
-                                    $("#selectSatuan").append(
-                                        "<option value='" + res[i].id_satuan + "'>" + res[i].satuan + "</option>"
-                                    );
-                                }
-                            });
+    <body>
+        <!-- header -->
+        <div id="header"></div>
+        <!-- Navigation -->
+        <div id="navigation"></div>
+        <!-- content -->
+        <div id="content-wrapper">
+            <div id="content-loader">
+                <script>
+                    $(function () {
+                        //taruh di sellingitem.html
+                        if (localStorage['purchasing'] == 0) {
+                            setTimeout(function () {
+                                $.ajax({
+                                    type: "GET",
+                                    url: "purchasing.html",
+                                    success: function (data) {
+                                        var content = $(data).find("#content-loader");
+                                        $("#content-wrapper").fadeOut().empty().fadeIn().append(content);
+                                    },
+                                    error: function (data) {
+                                    }
+                                });
+                            }, 200);
+                            localStorage['purchasing'] = 1;
                         }
-                    }).data("ui-autocomplete")._renderItem = function(ul, item) {
-                        return $("<li>")
-                            .data("ui-autocomplete-item", item)
-                            .append("<a>" + item.label + "</a>")
-                            .appendTo(ul);
-                    };
-                });
+                        ;
 
 
-            });
-            </script>
-            <script>
-            $(function() {
-                /*----------- Select -----------*/
-                con.query('SELECT * FROM distributor', function(err, rows) {
-                    if (err) throw err;
-                    for (var i = 0; i < rows.length; i++) {
-                        $("#selectDistributor").append(
-                            "<option value='" + rows[i].id_distributor + "'>" + rows[i].distributor + "</option>"
-                        );
-                    }
-                });
-                /*con.query('SELECT * FROM satuan', function(err, rows) {
-                    if (err) throw err;
-                    for (var i = 0; i < rows.length; i++) {
-                        $("#selectSatuan").append(
-                            "<option value='" + rows[i].id_satuan + "'>" + rows[i].satuan + "</option>"
-                        );
-                    }
-                });*/
-                /*---------- Fokus input -----------*/
-                $(document).on("click", "#btnTambahPembelian", function() {
-                    setTimeout(function() {
-                        $("#inputNamaBarang").focus();
-                    }, 500);
-                });
+                        con.query("SELECT id_barang AS id , barang AS label FROM barang", function (err, rows) {
+                            if (err)
+                                throw err;
+                            localStorage['jarr'] = JSON.stringify(rows);
+                        });
+                        var arr = $.parseJSON(localStorage['jarr']);
+                        
+                        $(document).on("keydown", "#inputNamaBarang", function () {
+                            $("#selectSatuan").find('option:not(:first)').remove();
+                            $("#inputNamaBarang").autocomplete({
+                                source: arr,
+                                select: function (event, ui) {
+                                    $("#inputNamaBarang").val(ui.item.label);
+                                    $("#hdnInputIdBarang").val(ui.item.id);
+                                    console.log("id barang " + $("#hdnInputIdBarang").val());
+                                    //return false;
+
+                                    var sql = "SELECT barang_jual.id_barang, barang, satuan FROM barang_jual " +
+                                            "JOIN barang ON barang_jual.id_barang = barang.id_barang " +
+                                            "JOIN satuan ON barang_jual.id_satuan = satuan.id_satuan " +
+                                            "WHERE barang_jual.id_barang = '" + $("#hdnInputIdBarang").val() + "'";
+                                    con.query(sql, function (err, res) {
+                                        if (err)
+                                            throw err;
+                                        for (var i = 0; i < res.length; i++) {
+                                            console.log("res : " + res[i].satuan);
+                                            $("#selectSatuan").append(
+                                                    "<option value='" + res[i].id_satuan + "'>" + res[i].satuan + "</option>"
+                                                    );
+                                        }
+                                    });
+                                }
+                            }).data("ui-autocomplete")._renderItem = function (ul, item) {
+                                return $("<li>")
+                                        .data("ui-autocomplete-item", item)
+                                        .append("<a>" + item.label + "</a>")
+                                        .appendTo(ul);
+                            };
+                        });
 
 
-            });
-            </script>
-            <div class="container content">
-                <div class="row">
-                    <div class="panel panel-primary kebawah">
-                        <div class="panel-heading">
-                            <div class="clearfix">
-                                <div class="pull-left">
-                                    <h3 class="panel-title">Daftar Pembelian Barang</h3>
-                                </div>
-                                <div class="pull-right">
-                                    <button type="button" class="btn btn-info btn-xs" id="btnTambahPembelian" data-toggle="modal" data-target="#mdlTambahPembelian">Tambah Pembelian</button>
+                    });
+                </script>
+                <script>
+                    $(function () {
+                        /*----------- Select -----------*/
+                        con.query('SELECT * FROM distributor', function (err, rows) {
+                            if (err)
+                                throw err;
+                            for (var i = 0; i < rows.length; i++) {
+                                $("#selectDistributor").append(
+                                        "<option value='" + rows[i].id_distributor + "'>" + rows[i].distributor + "</option>"
+                                        );
+                            }
+                        });
+                        /*con.query('SELECT * FROM satuan', function(err, rows) {
+                         if (err) throw err;
+                         for (var i = 0; i < rows.length; i++) {
+                         $("#selectSatuan").append(
+                         "<option value='" + rows[i].id_satuan + "'>" + rows[i].satuan + "</option>"
+                         );
+                         }
+                         });*/
+                        /*---------- Fokus input -----------*/
+                        $(document).on("click", "#btnTambahPembelian", function () {
+                            setTimeout(function () {
+                                $("#inputNamaBarang").focus();
+                            }, 500);
+                        });
+
+
+                    });
+                </script>
+                <div class="container content">
+                    <div class="row">
+                        <div class="panel panel-primary kebawah">
+                            <div class="panel-heading">
+                                <div class="clearfix">
+                                    <div class="pull-left">
+                                        <h3 class="panel-title">Daftar Pembelian Barang</h3>
+                                    </div>
+                                    <div class="pull-right">
+                                        <button type="button" class="btn btn-info btn-xs" id="btnTambahPembelian" data-toggle="modal" data-target="#mdlTambahPembelian">Tambah Pembelian</button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
+                        <table id="tabelPembelian" class="table table-hover table-bordered table-striped keatas">
+                            <thead>
+                                <tr>
+                                    <th width="20" rowspan="2" class="center">No.</th>
+                                    <th>Tanggal</th>
+                                    <th colspan="3">Total Nominal Pembelian (Rp)</th>
+                                    <th width="100">
+                                        <!--Aksi-->
+                                    </th>
+                                </tr>
+                                <tr>
+                                    <th width="50%">Nama Barang</th>
+                                    <th width="10%" align="right">Jumlah</th>
+                                    <th width="10%" align="left">Satuan</th>
+                                    <th width="20%" align="right">Harga Satuan</th>
+                                    <th width="10%" align="right">Total Harga</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="info">
+                                    <td align="center "><strong>1</strong></td>
+                                    <td><strong>2014-03-19 15:05:54</strong></td>
+                                    <td colspan="3"><strong>Rp. 675.936</strong></td>
+                                    <td align="center">
+                                        <button type="button" class="btn btn-primary btn-xs "><span class="glyphicon glyphicon-trash "></span></button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td></td>
+                                    <td class="kiri ">1. Teh Botol Sosro Beling</td>
+                                    <td width="10% " align="right ">48</td>
+                                    <td width="10% " align="left ">Botol</td>
+                                    <td width="20% " align="right ">Rp. 1.875</td>
+                                    <td width="10% " align="right ">Rp. 90.000</td>
+                                </tr>
+                                <tr>
+                                    <td></td>
+                                    <td class="kiri ">2. Teh Botol Sosro Kotak</td>
+                                    <td width="10% " align="right ">48</td>
+                                    <td width="10% " align="left ">Botol</td>
+                                    <td width="20% " align="right ">Rp. 1.875</td>
+                                    <td width="10% " align="right ">Rp. 90.000</td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
-                    <table id="tabelPembelian" class="table table-hover table-bordered table-striped keatas">
-                        <thead>
-                            <tr>
-                                <th width="20" rowspan="2" class="center">No.</th>
-                                <th>Tanggal</th>
-                                <th colspan="3">Total Nominal Pembelian (Rp)</th>
-                                <th width="100">
-                                    <!--Aksi-->
-                                </th>
-                            </tr>
-                            <tr>
-                                <th width="50%">Nama Barang</th>
-                                <th width="10%" align="right">Jumlah</th>
-                                <th width="10%" align="left">Satuan</th>
-                                <th width="20%" align="right">Harga Satuan</th>
-                                <th width="10%" align="right">Total Harga</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr class="info">
-                                <td align="center "><strong>1</strong></td>
-                                <td><strong>2014-03-19 15:05:54</strong></td>
-                                <td colspan="3"><strong>Rp. 675.936</strong></td>
-                                <td align="center">
-                                    <button type="button" class="btn btn-primary btn-xs "><span class="glyphicon glyphicon-trash "></span></button>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td></td>
-                                <td class="kiri ">1. Teh Botol Sosro Beling</td>
-                                <td width="10% " align="right ">48</td>
-                                <td width="10% " align="left ">Botol</td>
-                                <td width="20% " align="right ">Rp. 1.875</td>
-                                <td width="10% " align="right ">Rp. 90.000</td>
-                            </tr>
-                            <tr>
-                                <td></td>
-                                <td class="kiri ">2. Teh Botol Sosro Kotak</td>
-                                <td width="10% " align="right ">48</td>
-                                <td width="10% " align="left ">Botol</td>
-                                <td width="20% " align="right ">Rp. 1.875</td>
-                                <td width="10% " align="right ">Rp. 90.000</td>
-                            </tr>
-                        </tbody>
-                    </table>
                 </div>
-            </div>
-            <!-- Modal Tambah Pembelian -->
-            <div class="container">
-                <div class="modal fade" id="mdlTambahPembelian" tabindex="-1" role="document" data-backdrop="static">
-                    <div class="modal-dialog">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <button type="button" class="close closePgn" data-dismiss="modal">&times;</button>
-                                <h4 class="modal-title">Informasi Pembelian</h4>
-                            </div>
-                            <div class="modal-body">
-                                <form class="form-horizontal" id="frmInputPembelian">
-                                    <table id="tabelPengguna" class="table table-condensed table-hover ">
-                                        <thead>
-                                        </thead>
-                                        <tbody>
-                                            <tr>
-                                                <td class="text-center">
-                                                    <label for="inputNamaBarang" class="control-label">Nama Barang</label>
-                                                </td>
-                                                <td class="text-center">
-                                                    <input class="form-control input-sm" name="inputNamaBarang" id="inputNamaBarang" placeholder="Nama Barang" type="text" autocomplete="off">
-                                                    <input name="hdnInputIdBarang" id="hdnInputIdBarang" type="hidden">
-                                                    <label style="display: none;" id="inputNamaBarang-error-duplicate">Data Sudah Ada</label>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td class="text-center">
-                                                    <label for="selectSatuan" class="control-label">Satuan</label>
-                                                </td>
-                                                <td class="text-center">
-                                                    <select name="selectSatuan" id="selectSatuan" class="form-control input-sm">
-                                                        <option value="">-pilih-</option>
-                                                    </select>
-                                                    <label style="display: none;" id="selectDistributor-error-duplicate">Data Sudah Ada</label>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td class="text-center">
-                                                    <label for="selectDistributor" class="control-label">Distributor</label>
-                                                </td>
-                                                <td class="text-center">
-                                                    <select name="selectDistributor" id="selectDistributor" class="form-control input-sm">
-                                                        <option value="">-pilih-</option>
-                                                    </select>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td class="text-center">
-                                                    <label for="inputQTY" class="control-label">QTY</label>
-                                                </td>
-                                                <td class="text-center">
-                                                    <input class="form-control input-sm" name="inputQTY" id="inputQTY" placeholder="Jumlah Barang" type="text">
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td class="text-center">
-                                                    <label for="inputHarga" class="control-label">Harga Satuan</label>
-                                                </td>
-                                                <td class="text-center">
-                                                    <input class="form-control input-sm" name="inputHarga" id="inputHarga" placeholder="Harga" type="text">
-                                                </td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </form>
-                            </div>
-                            <div class="modal-footer">
-                                <button type="submit" form="frmInputPembelian" class="btn btn-info  btn-xs">Simpan</button>
-                                <a href="#" id="closePmb" class="btn btn-default btn-xs closePmb" data-dismiss="modal">Tutup</a>
+                <!-- Modal Tambah Pembelian -->
+                <div class="container">
+                    <div class="modal fade" id="mdlTambahPembelian" tabindex="-1" role="document" data-backdrop="static">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <button type="button" class="close closePgn" data-dismiss="modal">&times;</button>
+                                    <h4 class="modal-title">Informasi Pembelian</h4>
+                                </div>
+                                <div class="modal-body">
+                                    <form class="form-horizontal" id="frmInputPembelian">
+                                        <table id="tabelPengguna" class="table table-condensed table-hover ">
+                                            <thead>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td class="text-center">
+                                                        <label for="inputNamaBarang" class="control-label">Nama Barang</label>
+                                                    </td>
+                                                    <td class="text-center">
+                                                        <input class="form-control input-sm" name="inputNamaBarang" id="inputNamaBarang" placeholder="Nama Barang" type="text" autocomplete="off">
+                                                        <input name="hdnInputIdBarang" id="hdnInputIdBarang" type="hidden">
+                                                        <label style="display: none;" id="inputNamaBarang-error-duplicate">Data Sudah Ada</label>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="text-center">
+                                                        <label for="selectSatuan" class="control-label">Satuan</label>
+                                                    </td>
+                                                    <td class="text-center">
+                                                        <select name="selectSatuan" id="selectSatuan" class="form-control input-sm">
+                                                            <option value="">-pilih-</option>
+                                                        </select>
+                                                        <label style="display: none;" id="selectDistributor-error-duplicate">Data Sudah Ada</label>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="text-center">
+                                                        <label for="selectDistributor" class="control-label">Distributor</label>
+                                                    </td>
+                                                    <td class="text-center">
+                                                        <select name="selectDistributor" id="selectDistributor" class="form-control input-sm">
+                                                            <option value="">-pilih-</option>
+                                                        </select>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="text-center">
+                                                        <label for="inputQTY" class="control-label">QTY</label>
+                                                    </td>
+                                                    <td class="text-center">
+                                                        <input class="form-control input-sm" name="inputQTY" id="inputQTY" placeholder="Jumlah Barang" type="text">
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="text-center">
+                                                        <label for="inputHarga" class="control-label">Harga Satuan</label>
+                                                    </td>
+                                                    <td class="text-center">
+                                                        <input class="form-control input-sm" name="inputHarga" id="inputHarga" placeholder="Harga" type="text">
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </form>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="submit" form="frmInputPembelian" class="btn btn-info  btn-xs">Simpan</button>
+                                    <a href="#" id="closePmb" class="btn btn-default btn-xs closePmb" data-dismiss="modal">Tutup</a>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-    <!-- footer -->
-    <div id="footer"></div>
-    <script>
-    $("#navigation ").load("navbar.html ");
-    $("#footer ").load("footer.html ");
-    $("#header ").load("header.html ");
-    </script>
-</body>
+        <!-- footer -->
+        <div id="footer"></div>
+        <script>
+            $("#navigation ").load("navbar.html ");
+            $("#footer ").load("footer.html ");
+            $("#header ").load("header.html ");
+        </script>
+    </body>
 
 </html>
