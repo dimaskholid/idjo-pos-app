@@ -24,11 +24,6 @@
     <script src="assets/js/connect.js"></script>
     <script src="assets/js/jquery.msgBox.js"></script>
     <script src="assets/js/ajaxcontentloader.js"></script>
-    <script>
-    $(function() {
-
-    });
-    </script>
 </head>
 
 <body>
@@ -41,8 +36,7 @@
         <div id="content-loader">
             <script>
             $(function() {
-
-                /*------------------ Shhow Modal -----------------*/
+                /*------------------ Show Modal -----------------*/
                 $(document).on("click", "#btnTambahDistributor", function() {
                     setTimeout(function() {
                         $("#inputDistributor").focus();
@@ -75,7 +69,6 @@
                         inpEditDistributor: "Isi Nama Distributor"
                     },
                     submitHandler: function(form) {
-
                         var dist = {
                             distributor: $("#inpEditDistributor").val()
                         };

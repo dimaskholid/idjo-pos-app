@@ -201,8 +201,7 @@
                             if (res[0].co == 0) {
                                 $("#inpEditDistributor-error-duplicate").hide();
                                 var rowCount = $('#tabelBarang tbody tr').length;
-                                con.query(
-                                    'UPDATE barang SET barang = ?, id_kategori = ? Where id_barang = ?', [$("#inpEditBarang").val(), $("#selectEditKategori").val(),
+                                con.query('UPDATE barang SET barang = ?, id_kategori = ? Where id_barang = ?', [$("#inpEditBarang").val(), $("#selectEditKategori").val(),
                                         $("input[name=hdnIdBarang]").val()
                                     ],
                                     function(err, result) {

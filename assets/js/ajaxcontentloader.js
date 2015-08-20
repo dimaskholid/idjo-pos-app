@@ -1,13 +1,8 @@
-$(document).on("click", "ul.navbar-nav li ul li a", function(e) {
+$(document).on("click", "ul.navbar-nav li ul li a,a.kasir, a.navbar-brand", function(e) {
     e.preventDefault();
     var url = $(this).attr("href");
 
-    loadContentData(url); //console.log(url);
-    //alert(url);
-
-
-    //alert("ajax");
-
+    loadContentData(url);
 });
 
 function loadContentData(url) {
