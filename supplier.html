@@ -71,13 +71,20 @@
                     $("#mdlEditDistributor").modal("toggle");
                     $("#closeDist").trigger("click");
                 });
+                /*auto increment*/
+                con.query("SELECT AUTO_INCREMENT FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA='idjo' AND TABLE_NAME = 'distributor'", function(err, rest) {
+                    if (err) throw err;
+
+                    console.log("Next Vall : " + rest['AUTO_INCREMENT'] + " " + rest[0]);
+                    alert(rest)
+                });
 
                 //Select All
                 con.query('SELECT * FROM distributor', function(err, rows) {
                     if (err) throw err;
 
                     console.log('Data received from Db:\n');
-                    console.log(rows);
+                    console.log(rows[0]);
                     $("#tabelDistributor tbody").empty();
                     for (var i = 0; i < rows.length; i++) {
                         console.log(rows[i].distributor + " " + rows[i].id_distributor)
