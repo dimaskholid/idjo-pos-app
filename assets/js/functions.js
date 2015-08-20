@@ -21,7 +21,7 @@ function notifDelete() {
         alertify.set({
             delay: 2000
         });
-        alertify.log("Sukses menghapus data");
+        alertify.log("Data berhasil dihapus");
     }, 1000);
 }
 

@@ -41,15 +41,9 @@
             //alert("bahaya");
             $(function() {
 
-                //show modal
-                $(document).on("click", "#btnTambahSatuan", function() {
-
-                    //$('#tambahSatuan').modal('show');
-
-                    setTimeout(function() {
-                        $("#inputSatuan").focus();
-                    }, 500);
-                });
+                //focus
+                focusInput("#btnTambahSatuan", "#inputSatuan");
+                focusInput("#edit-satuan", "#inpEditSatuan");
                 /*------------------ Edit -----------------*/
                 $(document).on("click", "#edit-satuan", function() {
                     $('#editSatuan').modal('show');
@@ -59,20 +53,47 @@
                     $("input[name=hdnIdSatuan]").val(id);
                 });
 
-                $("#frmEditSatuan").on("submit", function(e) {
-                    e.preventDefault();
-                    con.query(
-                        'UPDATE satuan SET satuan = ? Where id_satuan = ?', [$("#inpEditSatuan").val(),
-                            $("input[name=hdnIdSatuan]").val()
-                        ],
-                        function(err, result) {
+                //*------------ Validasi Satuan ------------------*//
+                $(document).on("keyup", "#inpEditSatuan", function() {
+                    if ($(this).val() == "") {
+                        $("#inpEditSatuan-error-duplicate").hide();
+                    }
+                });
+                $("#frmEditSatuan").validate({
+                    rules: {
+                        inpEditSatuan: "required"
+                    },
+                    messages: {
+                        inpEditSatuan: "Isi satuan"
+                    },
+                    submitHandler: function(form) {
+                        con.query("SELECT COUNT(*) AS co FROM satuan WHERE satuan = '" + $("#inpEditSatuan").val() + "'", function(err, res) {
                             if (err) throw err;
+                            cekSatuan(res);
+                        });
 
-                            console.log('Changed ' + result.changedRows + ' rows');
+                        cekSatuan = function(res) {
+                            if (res[0].co == 0) {
+                                $("#inpEditSatuan-error-duplicate").hide();
+                                con.query(
+                                    'UPDATE satuan SET satuan = ? Where id_satuan = ?', [$("#inpEditSatuan").val(),
+                                        $("input[name=hdnIdSatuan]").val()
+                                    ],
+                                    function(err, result) {
+                                        if (err) throw err;
+
+                                        console.log('Changed ' + result.changedRows + ' rows');
+                                    }
+                                );
+                                $("#editSatuan").modal("toggle");
+                                $("#closeSatuan").trigger("click");
+                                notifEdit();
+                            } else {
+                                $("#inpEditSatuan-error-duplicate").show();
+                            }
                         }
-                    );
-                    $("#editSatuan").modal("toggle");
-                    $("#closeSatuan").trigger("click");
+
+                    }
                 });
 
                 //Select All
@@ -103,31 +124,56 @@
                 });
             });
 
-            //Insert baru
-            $("#satuan").on("submit", function(event) {
-                event.preventDefault();
-                //console.log($("#inputSatuan").va());
-                //console.log($(this).serialize());
-                var unit = {
-                    satuan: $("#inputSatuan").val()
-                };
-                var rowCount = $('#tabelSatuan tbody tr').length;
-                con.query('INSERT INTO satuan SET ?', unit, function(err, res) {
-                    if (err) throw err;
-                    console.log(res.insertId);
-                });
 
-                $("#satuan").trigger('reset');
-                $("#tabelSatuan tbody").append(
-                    "<tr>" +
-                    "<td>" + parseInt(rowCount + 1) + "</td>" +
-                    "<td>" + unit['satuan'] + "</td>" +
-                    "<td>" +
-                    "<button type='button' class='btn btn-link btn-xs'> " + "<span class='glyphicon glyphicon-wrench'></span>" + "</button>" +
-                    "<button type='button' class='btn btn-link btn-xs'> " + "<span class='glyphicon glyphicon-trash'></span>" + "</button>" +
-                    "</td > " +
-                    "</tr>"
-                );
+            //*------------ Insert baru ------------------*//
+            $(document).on("keyup", "#inputSatuan", function() {
+                if ($(this).val() == "") {
+                    $("#inputSatuan-error-duplicate").hide();
+                }
+            });
+            $("#satuan").validate({
+                rules: {
+                    inputSatuan: "required"
+                },
+                messages: {
+                    inputSatuan: "Isi satuan"
+                },
+                submitHandler: function(form) {
+                    var unit = {
+                        satuan: $("#inputSatuan").val()
+                    };
+                    con.query("SELECT COUNT(*) AS co FROM satuan WHERE satuan = '" + unit['satuan'] + "'", function(err, res) {
+                        if (err) throw err;
+                        cekSatuan(res);
+                    });
+
+                    cekSatuan = function(res) {
+                        if (res[0].co == 0) {
+                            $("#inputSatuan-error-duplicate").hide();
+                            var rowCount = $('#tabelSatuan tbody tr').length;
+                            con.query('INSERT INTO satuan SET ?', unit, function(err, res) {
+                                if (err) throw err;
+                                console.log(res.insertId);
+                            });
+                            $("#satuan").trigger('reset');
+                            $("#tabelSatuan tbody").append(
+                                "<tr>" +
+                                "<td>" + parseInt(rowCount + 1) + "</td>" +
+                                "<td>" + unit['satuan'] + "</td>" +
+                                "<td>" +
+                                "<button type='button' class='btn btn-link btn-xs'> " + "<span class='glyphicon glyphicon-wrench'></span>" + "</button>" +
+                                "<button type='button' class='btn btn-link btn-xs'> " + "<span class='glyphicon glyphicon-trash'></span>" + "</button>" +
+                                "</td > " +
+                                "</tr>"
+                            );
+                            notifInput();
+
+                        } else {
+                            $("#inputSatuan-error-duplicate").show();
+                        }
+                    }
+
+                }
             });
 
 
@@ -242,7 +288,8 @@
                                         <div class="form-group">
                                             <label for="inputSatuan" class="col-lg-2 control-label">Nama</label>
                                             <div class="col-lg-10">
-                                                <input class="form-control input-sm" id="inputSatuan" placeholder="Satuan" type="text">
+                                                <input class="form-control input-sm" name="inputSatuan" id="inputSatuan" placeholder="Satuan" type="text">
+                                                <label style="display: none;" id="inputSatuan-error-duplicate">Data Sudah Ada</label>
                                             </div>
                                         </div>
                                     </fieldset>
@@ -272,7 +319,8 @@
                                             <label for="inpEditSatuan" class="col-lg-2 control-label">Nama</label>
                                             <div class="col-lg-10">
                                                 <input type="hidden" name="hdnIdSatuan" value="">
-                                                <input class="form-control input-sm" id="inpEditSatuan" placeholder="Satuan" type="text">
+                                                <input class="form-control input-sm" name="inpEditSatuan" id="inpEditSatuan" placeholder="Satuan" type="text">
+                                                <label style="display: none;" id="inpEditSatuan-error-duplicate">Data Sudah Ada</label>
                                             </div>
                                         </div>
                                     </fieldset>
