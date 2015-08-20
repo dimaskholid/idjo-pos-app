@@ -84,7 +84,7 @@
             $(function() {
 
                 /*------------ View All ----------*/
-                con.query('SELECT * FROM barang_jual JOIN barang ON barang_jual.id_barang = barang.id_barang JOIN satuan ON barang_jual.id_satuan = satuan.id_satuan ORDER BY id_barang_jual DESC', function(err, rows) {
+                con.query('SELECT * FROM barang_jual JOIN barang ON barang_jual.id_barang = barang.id_barang JOIN satuan ON barang_jual.id_satuan = satuan.id_satuan ORDER BY id_barang_jual ASC', function(err, rows) {
                     if (err)
                         throw err;
 
@@ -130,10 +130,13 @@
                     }
                 });
                 /*--------------- Edit ---------------*/
+                $(document).on("change", "#selectEditSatuan", function() {
+                    $("#editBrgJual-error-duplicate").hide();
+                });
                 $(document).on("click", "#btnEditBarangJual", function() {
                     $('#mdlEditBarangJual').modal('show');
                     var idJual = $(this).closest('tr').find('#idBarangJual').val(),
-                        //idBarang = $(this).closest('tr').find('#hdnIdBarang').val(),
+                        idBarang = $(this).closest('tr').find('#hdnIdBarang').val(),
                         inpBarang = $(this).closest('tr').find('#hdnBarang').val(),
                         idSatuan = $(this).closest('tr').find('#idSatuan').val(),
                         //inpSatuan = $(this).closest('tr').find('#hdnSatuan').val(),
@@ -141,7 +144,8 @@
                         inpJumlah = $(this).closest('tr').find('#hdnMultiplier').val(),
                         inpHarga = $(this).closest('tr').find('#hdnHarga').val();
                     $("#editBarang").val(inpBarang);
-                    $("#hdnIdBrgJual").val(idJual); //cek
+                    $("#hdnIdEditBarang").val(idBarang);
+                    $("#hdnIdBrgJual").val(idJual); //cek 
                     $("#selectEditSatuan").val(idSatuan);
                     $("#editAlias").val(inpAlias);
                     $("#editJumlah").val(inpJumlah);
@@ -188,18 +192,36 @@
                         }
                     },
                     submitHandler: function(form) {
-                        con.query(
-                            'UPDATE barang_jual SET id_satuan=?, multiplier = ?, alias = ?, harga = ? Where id_barang_jual = ?', [$("#selectEditSatuan").val(), $("#editJumlah").val(), $("#editAlias").val(), $("#editHarga").val(),
-                                $("#hdnIdBrgJual").val()
-                            ],
-                            function(err, result) {
-                                if (err) throw err;
 
-                                console.log('Changed ' + result.changedRows + ' rows');
+                        /*---------------------------------------------*/
+                        con.query("SELECT COUNT(*) AS co FROM barang_jual WHERE id_barang = '" + $("#hdnIdEditBarang").val() + "' AND id_satuan ='" + $("#selectEditSatuan").val() + "'", function(err, res) {
+                            if (err) throw err;
+                            cekBrgJual(res);
+                            console.log("cek edit barang jual " + $("#selectEditSatuan").val());
+                        });
+
+                        cekBrgJual = function(res) {
+                            if (res[0].co == 0) {
+                                $("#editBrgJual-error-duplicate").hide();
+                                var rowCount = $('#tabelBarangJual tbody tr').length;
+                                con.query(
+                                    'UPDATE barang_jual SET id_satuan=?, multiplier = ?, alias = ?, harga = ? Where id_barang_jual = ?', [$("#selectEditSatuan").val(), $("#editJumlah").val(), $("#editAlias").val(), $("#editHarga").val(),
+                                        $("#hdnIdBrgJual").val()
+                                    ],
+                                    function(err, result) {
+                                        if (err) throw err;
+                                        console.log('Changed ' + result.changedRows + ' rows');
+                                    }
+                                );
+                                /*-----------reload purchasing------------*/
+                                localStorage['purchasing'] = 0;
+                                $("#mdlEditBarangJual").modal("toggle");
+                                $("#closeBrgJual").trigger("click");
+                                notifEdit();
+                            } else {
+                                $("#editBrgJual-error-duplicate").show();
                             }
-                        );
-                        $("#mdlEditBarangJual").modal("toggle");
-                        $("#closeBrgJual").trigger("click");
+                        } /*-----------------------------------------*/
                     }
                 });
                 /*---------- Fokus input -----------*/
@@ -264,7 +286,10 @@
                         cancelButtonClass: "btn-default btn-xs"
                     });
                 });
-                /*--------------- Validasi Input ------------------*/
+                /*--------------- Input Baru ------------------*/
+                $(document).on("change", "#selectSatuan", function() {
+                    $("#inputBrgJual-error-duplicate").hide();
+                });
                 $("#frmInputBarangJual").validate({
                     ignore: "",
                     rules: {
@@ -306,8 +331,6 @@
                         }
                     },
                     submitHandler: function(form) {
-                        //alert("validasi sukses");
-                        //event.preventDefault();
                         var selectTxt = $("#selectSatuan option:selected").text(),
                             namaBarang = $("#inputBarang").val(),
                             brgJual = {
@@ -317,29 +340,43 @@
                                 alias: $("#inputAlias").val(),
                                 harga: $("#inputHarga").val()
                             };
-                        var rowCount = $('#tabelBarangJual tbody tr').length;
-                        con.query('INSERT INTO barang_jual SET ?', brgJual, function(err, res) {
-                            if (err)
-                                throw err;
-                            console.log(res.insertId);
+                        /*---------------------------------------------*/
+                        con.query("SELECT COUNT(*) AS co FROM barang_jual WHERE id_barang = '" + brgJual['id_barang'] + "' AND id_satuan ='" + brgJual['id_satuan'] + "'", function(err, res) {
+                            if (err) throw err;
+                            cekBrgJual(res);
                         });
-                        /*-----------reload purchasing------------*/
-                        localStorage['purchasing'] = 0;
-                        $("#frmInputBarangJual").trigger('reset');
-                        $("#tabelBarangJual tbody").append(
-                            "<tr>" +
-                            "<td>" + parseInt(rowCount + 1) + "</td>" +
-                            "<td>" + namaBarang + "</td>" +
-                            "<td>" + selectTxt + "</td>" +
-                            "<td>" + brgJual['multiplier'] + "</td>" +
-                            "<td>" + brgJual['alias'] + "</td>" +
-                            "<td>" + brgJual['harga'] + "</td>" +
-                            "<td>" +
-                            "<button type='button' class='btn btn-link btn-xs'> " + "<span class='glyphicon glyphicon-wrench'></span>" + "</button>" +
-                            "<button type='button' class='btn btn-link btn-xs'> " + "<span class='glyphicon glyphicon-trash'></span>" + "</button>" +
-                            "</td > " +
-                            "</tr>"
-                        );
+
+                        cekBrgJual = function(res) {
+                            if (res[0].co == 0) {
+                                $("#inputBrgJual-error-duplicate").hide();
+                                var rowCount = $('#tabelBarangJual tbody tr').length;
+                                con.query('INSERT INTO barang_jual SET ?', brgJual, function(err, res) {
+                                    if (err)
+                                        throw err;
+                                    console.log(res.insertId);
+                                });
+                                /*-----------reload purchasing------------*/
+                                localStorage['purchasing'] = 0;
+                                $("#frmInputBarangJual").trigger('reset');
+                                $("#tabelBarangJual tbody").append(
+                                    "<tr>" +
+                                    "<td>" + parseInt(rowCount + 1) + "</td>" +
+                                    "<td>" + namaBarang + "</td>" +
+                                    "<td>" + selectTxt + "</td>" +
+                                    "<td>" + brgJual['multiplier'] + "</td>" +
+                                    "<td>" + brgJual['alias'] + "</td>" +
+                                    "<td>" + brgJual['harga'] + "</td>" +
+                                    "<td>" +
+                                    "<button type='button' class='btn btn-link btn-xs'> " + "<span class='glyphicon glyphicon-wrench'></span>" + "</button>" +
+                                    "<button type='button' class='btn btn-link btn-xs'> " + "<span class='glyphicon glyphicon-trash'></span>" + "</button>" +
+                                    "</td > " +
+                                    "</tr>"
+                                );
+                                notifInput();
+                            } else {
+                                $("#inputBrgJual-error-duplicate").show();
+                            }
+                        } /*-----------------------------------------*/
                     }
                 });
 
@@ -360,7 +397,7 @@
                             </div>
                         </div>
                         <div class="panel-body">
-                            Panel content
+                            <!-- Panel content -->
                         </div>
                     </div>
                     <table id="tabelBarangJual" class="table table-hover table-bordered table-striped">
@@ -431,6 +468,7 @@
                                                 <select class="form-control input-sm" name="selectSatuan" id="selectSatuan">
                                                     <option value="">- Pilih -</option>
                                                 </select>
+                                                <label style="display: none;" id="inputBrgJual-error-duplicate">Data Sudah Ada</label>
                                             </div>
                                         </div>
                                         <div class="form-group">
@@ -480,15 +518,17 @@
                                                 <div class="ui-widget">
                                                     <input class="form-control input-sm" name="editBarang" id="editBarang" placeholder="Nama Barang" type="text" readonly="readonly">
                                                     <input name="hdnIdBrgJual" id="hdnIdBrgJual" type="hidden">
+                                                    <input name="hdnIdEditBarang" id="hdnIdEditBarang" type="hidden">
                                                 </div>
                                             </div>
                                         </div>
                                         <div class="form-group">
-                                            <label for="selectSatuan" class="col-lg-2 control-label">Satuan</label>
+                                            <label for="selectEditSatuan" class="col-lg-2 control-label">Satuan</label>
                                             <div class="col-lg-10">
                                                 <select class="form-control input-sm" name="selectSatuan" id="selectEditSatuan">
                                                     <option value="">- Pilih -</option>
                                                 </select>
+                                                <label style="display: none;" id="editBrgJual-error-duplicate">Data Sudah Ada</label>
                                             </div>
                                         </div>
                                         <div class="form-group">
