@@ -10,6 +10,7 @@
     <!-- Bootstrap -->
     <link href="assets/css/bootstrap.min.css" rel="stylesheet">
     <link href="assets/css/style.css" rel="stylesheet">
+    <link href="assets/css/msgBoxLight.css" rel="stylesheet">
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
     <!--[if lt IE 9]>
@@ -21,6 +22,7 @@
     <!-- Include all compiled plugins (below), or include individual files as needed -->
     <script src="assets/js/bootstrap.min.js"></script>
     <script src="assets/js/connect.js"></script>
+    <script src="assets/js/jquery.msgBox.js"></script>
     <script src="assets/js/ajaxcontentloader.js"></script>
     <script>
     $(function() {
@@ -39,12 +41,16 @@
         <div id="content-loader">
             <script>
             $(function() {
+
                 /*------------------ Shhow Modal -----------------*/
                 $(document).on("click", "#btnTambahDistributor", function() {
-
                     setTimeout(function() {
-
                         $("#inputDistributor").focus();
+                    }, 500);
+                });
+                $(document).on("click", "#btnEditDistributor", function() {
+                    setTimeout(function() {
+                        $("#inpEditDistributor").focus();
                     }, 500);
                 });
                 /*------------------ Edit -----------------*/
@@ -55,36 +61,62 @@
                     $("#inpEditDistributor").val(inpDistributor);
                     $("input[name=hdnIdDistributor]").val(id);
                 });
-
-                $("#frmEditDistributor").on("submit", function(e) {
-                    e.preventDefault();
-                    con.query(
-                        'UPDATE distributor SET distributor = ? Where id_distributor = ?', [$("#inpEditDistributor").val(),
-                            $("input[name=hdnIdDistributor]").val()
-                        ],
-                        function(err, result) {
-                            if (err) throw err;
-
-                            console.log('Changed ' + result.changedRows + ' rows');
-                        }
-                    );
-                    $("#mdlEditDistributor").modal("toggle");
-                    $("#closeDist").trigger("click");
+                //*--------------- Validasi Edit ------------------*//
+                $(document).on("keyup", "#inpEditDistributor", function() {
+                    if ($(this).val() == "") {
+                        $("#inpEditDistributor-error-duplicate").hide();
+                    }
                 });
-                /*auto increment*/
-                con.query("SELECT AUTO_INCREMENT FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA='idjo' AND TABLE_NAME = 'distributor'", function(err, rest) {
-                    if (err) throw err;
+                $("#frmEditDistributor").validate({
+                    rules: {
+                        inpEditDistributor: "required"
+                    },
+                    messages: {
+                        inpEditDistributor: "Isi Nama Distributor"
+                    },
+                    submitHandler: function(form) {
 
-                    console.log("Next Vall : " + rest['AUTO_INCREMENT'] + " " + rest[0]);
-                    alert(rest)
+                        var dist = {
+                            distributor: $("#inpEditDistributor").val()
+                        };
+                        con.query("SELECT COUNT(*) AS co FROM distributor WHERE distributor = '" + dist['distributor'] + "'", function(err, res) {
+                            if (err) throw err;
+                            cekEditDistributor(res);
+                        });
+
+                        cekEditDistributor = function(res) {
+                            if (res[0].co == 0) {
+                                $("#inpEditDistributor-error-duplicate").hide();
+                                var rowCount = $('#tabelDistributor tbody tr').length;
+                                con.query(
+                                    'UPDATE distributor SET distributor = ? Where id_distributor = ?', [$("#inpEditDistributor").val(),
+                                        $("input[name=hdnIdDistributor]").val()
+                                    ],
+                                    function(err, result) {
+                                        if (err) throw err;
+
+                                        console.log('Changed ' + result.changedRows + ' rows');
+                                    }
+                                );
+                                $("#mdlEditDistributor").modal("toggle");
+                                $("#closeDist").trigger("click");
+                                notifEdit();
+
+                            } else {
+                                $("#inpEditDistributor-error-duplicate").show();
+                            }
+                        }
+
+                    }
                 });
 
                 //Select All
                 con.query('SELECT * FROM distributor', function(err, rows) {
                     if (err) throw err;
 
-                    console.log('Data received from Db:\n');
-                    console.log(rows[0]);
+                    console.log('Data received from Db:');
+                    console.log(rows);
+                    console.log("Next Vall : " + rows['AUTO_INCREMENT']);
                     $("#tabelDistributor tbody").empty();
                     for (var i = 0; i < rows.length; i++) {
                         console.log(rows[i].distributor + " " + rows[i].id_distributor)
@@ -126,13 +158,16 @@
                             if (err) throw err;
                             cekDistributor(res);
                             console.log(res.insertId);
+                            console.log("co : " + res[0].co);
                         });
 
                         cekDistributor = function(res) {
                             if (res[0].co == 0) {
                                 $("#inputDistributor-error-duplicate").hide();
                                 var rowCount = $('#tabelDistributor tbody tr').length;
-                                con.query('INSERT INTO distributor SET ?', dist, function(err, res) {
+                                con.query('INSERT INTO distributor SET ?', {
+                                    distributor: dist['distributor']
+                                }, function(err, res) {
                                     if (err) throw err;
                                     console.log(res.insertId);
                                 });
@@ -142,8 +177,13 @@
                                     "<tr>" +
                                     "<td>" + parseInt(rowCount + 1) + "</td>" +
                                     "<td>" + dist['distributor'] + "</td>" +
+                                    "<td>" +
+                                    "<button type='button' class='btn btn-link btn-xs'> " + "<span class='glyphicon glyphicon-wrench'></span>" + "</button>" +
+                                    "<button type='button' class='btn btn-link btn-xs'> " + "<span class='glyphicon glyphicon-trash'></span>" + "</button>" +
+                                    "</td > " +
                                     "</tr>"
                                 );
+                                notifInput();
 
                             } else {
                                 $("#inputDistributor-error-duplicate").show();
@@ -179,6 +219,7 @@
                                     error: function(data) {}
                                 });
                             }, 200);
+                            notifDelete();
                         },
                         cancel: function(button) {},
                         confirmButton: "Hapus",
@@ -295,7 +336,8 @@
                                             <label for="inpEditDistributor" class="col-lg-2 control-label">Nama</label>
                                             <div class="col-lg-10">
                                                 <input type="hidden" name="hdnIdDistributor" value="">
-                                                <input class="form-control input-sm" id="inpEditDistributor" placeholder="Nama Distributor" type="text">
+                                                <input class="form-control input-sm" name="inpEditDistributor" id="inpEditDistributor" placeholder="Nama Distributor" type="text">
+                                                <label style="display: none;" id="inpEditDistributor-error-duplicate">Data Sudah Ada</label>
                                             </div>
                                         </div>
                                     </fieldset>

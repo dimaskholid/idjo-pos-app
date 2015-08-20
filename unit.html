@@ -47,7 +47,6 @@
                     //$('#tambahSatuan').modal('show');
 
                     setTimeout(function() {
-
                         $("#inputSatuan").focus();
                     }, 500);
                 });
@@ -88,8 +87,8 @@
                         $("#tabelSatuan tbody").append(
                             "<tr>" +
                             "<td>" +
-                            "<input type='hidden' name='idSatuan' id='idSatuan' value=" + rows[i].id_satuan + ">" +
-                            "<input type='hidden' name='nSatuan' id='nSatuan' value=" + rows[i].satuan + ">" +
+                            "<input type='hidden' name='idSatuan' id='idSatuan' value='" + rows[i].id_satuan + "'>" +
+                            "<input type='hidden' name='nSatuan' id='nSatuan' value='" + rows[i].satuan + "'>" +
                             parseInt(i + 1) + "</td>" +
                             "<td>" + rows[i].satuan + "</td>" +
                             "<td>" +
@@ -157,6 +156,7 @@
                                 error: function(data) {}
                             });
                         }, 200);
+                        notifDelete();
                     },
                     cancel: function(button) {},
                     confirmButton: "Hapus",

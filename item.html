@@ -86,7 +86,7 @@
                 /*----------- Input Baru ------------*/
                 $(document).on("keyup", "#inputBarang", function() {
                     if ($(this).val() == "") {
-                        $("#inputDistributor-error-duplicate").hide();
+                        $("#inputBarang-error-duplicate").hide();
                     }
                 });
                 $("#frmInputBarang").validate({
@@ -112,7 +112,6 @@
                         con.query("SELECT COUNT(*) AS co FROM barang WHERE barang = '" + brg['barang'] + "'", function(err, res) {
                             if (err) throw err;
                             cekBarang(res);
-                            console.log(res.insertId);
                         });
 
                         cekBarang = function(res) {
@@ -139,7 +138,7 @@
                                 );
 
                             } else {
-                                $("#inputDistributor-error-duplicate").show();
+                                $("#inputBarang-error-duplicate").show();
                             }
                         }
 
@@ -164,6 +163,11 @@
 
 
                 /*------------------ Edit -----------------*/
+                $(document).on("keyup", "#inpEditBarang", function() {
+                    if ($(this).val() == "") {
+                        $("#inpEditBarang-error-duplicate").hide();
+                    }
+                });
                 $(document).on("click", "#btnEditBarang", function() {
                     $('#mdlEditBarang').modal('show');
                     var id = $(this).closest('tr').find('input[name=idBarang]').val(),
@@ -188,19 +192,33 @@
                         }
                     },
                     submitHandler: function(form) {
-                        con.query(
-                            'UPDATE barang SET barang = ?, id_kategori = ? Where id_barang = ?', [$("#inpEditBarang").val(), $("#selectEditKategori").val(),
-                                $("input[name=hdnIdBarang]").val()
-                            ],
-                            function(err, result) {
-                                if (err) throw err;
-                                console.log('Changed ' + result.changedRows + ' rows');
+                        con.query("SELECT COUNT(*) AS co FROM barang WHERE barang = '" + $("#inpEditBarang").val() + "'", function(err, res) {
+                            if (err) throw err;
+                            cekBarang(res);
+                        });
+
+                        cekBarang = function(res) {
+                            if (res[0].co == 0) {
+                                $("#inpEditDistributor-error-duplicate").hide();
+                                var rowCount = $('#tabelBarang tbody tr').length;
+                                con.query(
+                                    'UPDATE barang SET barang = ?, id_kategori = ? Where id_barang = ?', [$("#inpEditBarang").val(), $("#selectEditKategori").val(),
+                                        $("input[name=hdnIdBarang]").val()
+                                    ],
+                                    function(err, result) {
+                                        if (err) throw err;
+                                        console.log('Changed ' + result.changedRows + ' rows');
+                                    }
+                                );
+                                /*-----------reload sellingitem------------*/
+                                localStorage['sellingitem'] = 0;
+                                $("#mdlEditBarang").modal("toggle");
+                                $("#closeBarang").trigger("click");
+                                notifEdit();
+                            } else {
+                                $("#inpEditBarang-error-duplicate").show();
                             }
-                        );
-                        /*-----------reload sellingitem------------*/
-                        localStorage['sellingitem'] = 0;
-                        $("#mdlEditBarang").modal("toggle");
-                        $("#closeBarang").trigger("click");
+                        }
                     }
                 });
 
@@ -229,6 +247,7 @@
                                     error: function(data) {}
                                 });
                             }, 200);
+                            notifDelete();
                         },
                         cancel: function(button) {},
                         confirmButton: "Hapus",
@@ -303,7 +322,7 @@
                                             <label for="inputBarang" class="col-lg-2 control-label">Nama</label>
                                             <div class="col-lg-10">
                                                 <input class="form-control input-sm" name="inputBarang" id="inputBarang" placeholder="Nama Barang" type="text">
-                                                <label style="display: none;" id="inputDistributor-error-duplicate">Data Sudah Ada</label>
+                                                <label style="display: none;" id="inputBarang-error-duplicate">Data Sudah Ada</label>
                                             </div>
                                         </div>
                                         <div class="form-group">
@@ -342,6 +361,7 @@
                                             <div class="col-lg-10">
                                                 <input type="hidden" name="hdnIdBarang" value="">
                                                 <input class="form-control input-sm" id="inpEditBarang" name="inpEditBarang" placeholder="Nama Barang" type="text">
+                                                <label style="display: none;" id="inpEditBarang-error-duplicate">Data Sudah Ada</label>
                                             </div>
                                         </div>
                                         <div class="form-group">
