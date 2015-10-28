@@ -1,283 +1,471 @@
 <!DOCTYPE html>
 <html lang="en">
 
-    <head>
-        <meta charset="utf-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
-        <title>Pembelian</title>
-        <!-- Bootstrap -->
-        <link href="assets/css/bootstrap.min.css" rel="stylesheet">
-        <link href="assets/css/style.css" rel="stylesheet">
-        <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
-        <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
-        <!--[if lt IE 9]>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <title>Pembelian</title>
+    <!-- Bootstrap -->
+    <link href="assets/css/bootstrap.min.css" rel="stylesheet">
+    <link href="assets/css/style.css" rel="stylesheet">
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
           <script src="assets/js/html5shiv.min.js"></script>
           <script src="assets/js/respond.min.js"></script>
         <![endif]-->
-        <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
-        <script src="assets/js/connect.js"></script>
-        <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
-        <script src="assets/js/jquery.min.js"></script>
-        <!-- Include all compiled plugins (below), or include individual files as needed -->
-        <script src="assets/js/bootstrap.min.js"></script>
-        <script src="assets/js/jquery.confirm.min.js"></script>
-        <script src="assets/js/ajaxcontentloader.js"></script>
-        <script src="assets/js/jquery.validate.min.js"></script>
-        <!-- Add Jquery UI main JS and CSS files -->
-        <link rel="stylesheet" href="assets/js/autocomplete/jquery-ui.css">
-        <!-- <script src="assets/js/autocomplete/jquery.js"></script> -->
-        <script src="assets/js/autocomplete/jquery-ui.js"></script>
-        <link rel="stylesheet" href="assets/css/style.css">
-    </head>
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="assets/js/connect.js"></script>
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="assets/js/jquery.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="assets/js/bootstrap.min.js"></script>
+    <script src="assets/js/jquery.confirm.min.js"></script>
+    <script src="assets/js/ajaxcontentloader.js"></script>
+    <script src="assets/js/jquery.validate.min.js"></script>
+    <!-- Add Jquery UI main JS and CSS files -->
+    <link rel="stylesheet" href="assets/js/autocomplete/jquery-ui.css">
+    <!-- <script src="assets/js/autocomplete/jquery.js"></script> -->
+    <script src="assets/js/autocomplete/jquery-ui.js"></script>
+    <link rel="stylesheet" href="assets/css/style.css">
+</head>
 
-    <body>
-        <!-- header -->
-        <div id="header"></div>
-        <!-- Navigation -->
-        <div id="navigation"></div>
-        <!-- content -->
-        <div id="content-wrapper">
-            <div id="content-loader">
-                <script>
-                    $(function () {
-                        //taruh di sellingitem.html
-                        if (localStorage['purchasing'] == 0) {
-                            setTimeout(function () {
+<body>
+    <!-- header -->
+    <div id="header"></div>
+    <!-- Navigation -->
+    <div id="navigation"></div>
+    <!-- content -->
+    <div id="content-wrapper">
+        <div id="content-loader">
+            <script>
+            $(function() {
+                //load satuan (join) dimasukkan ke localstorage, filter sesuai id_item
+                //cek update data di sellingitem.html
+                if (localStorage['purchasing'] == 0) {
+                    setTimeout(function() {
+                        $.ajax({
+                            type: "GET",
+                            url: "purchasing.html",
+                            success: function(data) {
+                                var content = $(data).find("#content-loader");
+                                $("#content-wrapper").fadeOut().empty().fadeIn().append(content);
+                            },
+                            error: function(data) {}
+                        });
+                    }, 200);
+                    localStorage['purchasing'] = 1;
+                };
+
+                con.query("SELECT id_barang AS id , barang AS label FROM barang", function(err, rows) {
+                    if (err)
+                        throw err;
+                    localStorage['jarr'] = JSON.stringify(rows);
+                });
+                var arr = $.parseJSON(localStorage['jarr']);
+
+                $(document).on("keydown", "#inputNamaBarang", function() {
+                    $("#selectSatuan").find('option:not(:first)').remove();
+                    $("#inputNamaBarang").autocomplete({
+                        source: arr,
+                        select: function(event, ui) {
+                            $("#inputNamaBarang").val(ui.item.label);
+                            $("#hdnInputIdBarang").val(ui.item.id);
+                            console.log("id barang " + $("#hdnInputIdBarang").val());
+                            //return false;
+
+                            var sql = "SELECT barang_jual.id_barang AS idbarang, barang, barang_jual.id_satuan AS idsatuan, satuan FROM barang_jual " +
+                                "JOIN barang ON barang_jual.id_barang = barang.id_barang " +
+                                "JOIN satuan ON barang_jual.id_satuan = satuan.id_satuan " +
+                                "WHERE barang_jual.id_barang = '" + $("#hdnInputIdBarang").val() + "'";
+                            con.query(sql, function(err, res) {
+                                if (err)
+                                    throw err;
+                                //localStorage['satuan']
+                                for (var i = 0; i < res.length; i++) {
+                                    $("#selectSatuan").append(
+                                        "<option value='" + res[i].idsatuan + "'>" + res[i].idsatuan + "." + res[i].satuan + "</option>"
+                                    );
+                                }
+                            });
+                        }
+                    }).data("ui-autocomplete")._renderItem = function(ul, item) {
+                        return $("<li>")
+                            .data("ui-autocomplete-item", item)
+                            .append("<a>" + item.label + "</a>")
+                            .appendTo(ul);
+                    };
+                });
+
+
+            });
+            </script>
+            <script>
+            $(function() {
+                /*-------------- View all -----------------*/
+                con.query('SELECT * FROM pembelian JOIN barang ON pembelian.id_barang = barang.id_barang JOIN distributor ON pembelian.id_distributor = distributor.id_distributor JOIN satuan ON pembelian.id_satuan = satuan.id_satuan ORDER BY id_pembelian DESC', function(err, rows) {
+                    if (err)
+                        throw err;
+
+                    console.log('Data received from tabel Pembelian\n');
+                    console.log(rows[0]);
+                    $("#tabelPembelian tbody").empty();
+                    for (var i = 0; i < rows.length; i++) {
+                        console.log(rows[i].id_pembelian + " " + rows[i].tanggal + " " + rows[i].barang + " " + rows[i].satuan + " " + rows[i].distributor + " " + rows[i].qty + " " + rows[i].harga_satuan + " " + rows[i].harga_total);
+                        $("#tabelPembelian tbody").append(
+                            "<tr>" +
+                            "<td>" +
+                            "<input type='hidden' name='idPembelian' id='idPembelian' value='" + rows[i].id_pembelian + "'>" +
+                            "<input type='hidden' name='hdnBarang' id='hdnBarang' value='" + rows[i].barang + "'>" +
+                            "<input type='hidden' name='hdnIdBarang' id='hdnIdBarang' value='" + rows[i].id_barang + "'>" +
+                            "<input type='hidden' name='idSatuan' id='idSatuan' value='" + rows[i].id_satuan + "'>" +
+                            "<input type='hidden' name='hdnSatuan' id='hdnSatuan' value='" + rows[i].satuan + "'>" +
+                            "<input type='hidden' name='hdnQty' id='hdnQty' value='" + rows[i].qty + "'>" +
+                            "<input type='hidden' name='hdnHargaSatuan' id='hdnHargaSatuan' value='" + rows[i].harga_satuan + "'>" +
+                            "<input type='hidden' name='hdnHargaTotal' id='hdnHargaTotal' value='" + rows[i].harga_total + "'>" +
+                            parseInt(i + 1) + "</td>" +
+                            "<td>" + rows[i].tanggal + "</td>" +
+                            "<td>" + rows[i].barang + "</td>" +
+                            "<td>" + rows[i].distributor + "</td>" +
+                            "<td>" + rows[i].satuan + "</td>" +
+                            "<td>" + rows[i].qty + "</td>" +
+                            "<td>" + rows[i].harga_satuan + "</td>" +
+                            "<td>" + rows[i].harga_total + "</td>" +
+                            "<td>" +
+                            "<button type='button' id='btnDelPembelian' class = 'btn btn-link btn-xs'> " + "<span class='glyphicon glyphicon-trash'></span>" + "</button>" +
+                            "</td > " +
+                            "</tr>"
+                        );
+                    };
+                });
+                /*-------------- end view  -----------------*/
+
+                /*-------------- Tanggal moment().format('LL') -----------------*/
+                var today = new Date();
+                $("#inputTgl").val(toJSONLocal(today));
+
+                /*-------------- harga satuan -----------------*/
+                $(document).on("keyup", "#inputHargaBeli", function(e) {
+                    var total = parseInt($(this).val());
+                    var jumlah = parseInt($("#inputQTY").val());
+                    var satuan = total / jumlah;
+                    if ($(this).val() == "") {
+                        $("#inputHargaSatuan").val("");
+                    } else {
+                        $("#inputHargaSatuan").val(satuan);
+                    }
+                });
+                /*----------- Select Distributor -----------*/
+                con.query('SELECT * FROM distributor', function(err, rows) {
+                    if (err)
+                        throw err;
+                    for (var i = 0; i < rows.length; i++) {
+                        $("#selectDistributor").append(
+                            "<option value='" + rows[i].id_distributor + "'>" + rows[i].distributor + "</option>"
+                        );
+                    }
+                });
+
+                /*----------- Select Satuan -----------
+                con.query('SELECT * FROM satuan', function(err, rows) {
+                    if (err)
+                        throw err;
+                    for (var i = 0; i < rows.length; i++) {
+                        $("#selectSatuan").append(
+                            "<option value='" + rows[i].id_satuan + "'>" + rows[i].id_satuan + "." + rows[i].satuan + "</option>"
+                        );
+                    }
+                });*/
+                /*--------------- reload ------------------*/
+                $(document).on("click", "#closePmb, .closePmb", function(e) {
+                    e.stopImmediatePropagation();
+                    setTimeout(function() {
+                        $.ajax({
+                            type: "GET",
+                            url: "purchasing.html",
+                            success: function(data) {
+                                var content = $(data).find("#content-loader");
+                                $("#content-wrapper").fadeOut().empty().fadeIn().append(content);
+                            },
+                            error: function(data) {}
+                        });
+                    }, 200);
+                });
+
+                /*--------------- delete ---------------*/
+                $(document).on("click", "#btnDelPembelian", function(e) {
+                    var id = $(this).closest('tr').find('input[name=idPembelian]').val();
+                    var hdnBarang = $(this).closest('tr').find('input[name=hdnBarang]').val();
+
+                    $.confirm({
+                        text: "Yakin untuk menghapus data " + id + " : " + hdnBarang,
+                        confirm: function(button) {
+                            con.query('DELETE FROM pembelian WHERE id_pembelian = "' + id + '"', function(err, res) {
+                                if (err)
+                                    throw err;
+                                console.log('deleted ' + res.affectedRows + ' rows');
+                            });
+                            setTimeout(function() {
                                 $.ajax({
                                     type: "GET",
                                     url: "purchasing.html",
-                                    success: function (data) {
+                                    success: function(data) {
                                         var content = $(data).find("#content-loader");
                                         $("#content-wrapper").fadeOut().empty().fadeIn().append(content);
                                     },
-                                    error: function (data) {
-                                    }
+                                    error: function(data) {}
                                 });
                             }, 200);
-                            localStorage['purchasing'] = 1;
+                            notifDelete();
+                        },
+                        cancel: function(button) {},
+                        confirmButton: "Hapus",
+                        cancelButton: "Batal",
+                        post: true,
+                        confirmButtonClass: "btn-danger btn-xs",
+                        cancelButtonClass: "btn-default btn-xs"
+                    });
+                });
+
+                /*------------ Validasi Input -------------*/
+                $("#frmInputPembelian").validate({
+                    rules: {
+                        inputNamaBarang: "required",
+                        selectSatuan: {
+                            required: true
+                        },
+                        selectDistributor: {
+                            required: true
+                        },
+                        inputQTY: {
+                            required: true,
+                            number: true
+                        },
+                        inputHargaBeli: {
+                            required: true,
+                            number: true
                         }
-                        ;
+                    },
+                    messages: {
+                        inputNamaBarang: "Isi nama Barang",
+                        selectSatuan: {
+                            required: "Pilih Satuan"
+                        },
+                        selectDistributor: {
+                            required: "Pilih Distributor"
+                        },
+                        inputQTY: {
+                            required: "Isi jumlah barang",
+                            number: "Harus angka"
+                        },
+                        inputHargaBeli: {
+                            required: "Isi total pembelian",
+                            number: "Harus angka"
+                        }
+                    },
+                    submitHandler: function(form) {
 
-
-                        con.query("SELECT id_barang AS id , barang AS label FROM barang", function (err, rows) {
-                            if (err)
-                                throw err;
-                            localStorage['jarr'] = JSON.stringify(rows);
+                        var beli = {
+                            id_barang: $("#hdnInputIdBarang").val(),
+                            id_distributor: $("#selectDistributor").val(),
+                            id_satuan: $("#selectSatuan").val(),
+                            qty: $("#inputQTY").val(),
+                            harga_satuan: $("#inputHargaSatuan").val(),
+                            harga_total: $("#inputHargaBeli").val()
+                        };
+                        var nama_barang = $("#inputNamaBarang").val();
+                        var satuan = $("#selectSatuan option:selected").text();
+                        var dist = $("#selectDistributor option:selected").text();
+                        var rowCount = $('#tabelPembelian tbody tr').length;
+                        con.query('INSERT INTO pembelian SET ?', beli, function(err, res) {
+                            if (err) throw err;
+                            console.log(res.insertId);
+                            alert("id satuan : " + beli['id_satuan']);
                         });
-                        var arr = $.parseJSON(localStorage['jarr']);
-                        
-                        $(document).on("keydown", "#inputNamaBarang", function () {
-                            $("#selectSatuan").find('option:not(:first)').remove();
-                            $("#inputNamaBarang").autocomplete({
-                                source: arr,
-                                select: function (event, ui) {
-                                    $("#inputNamaBarang").val(ui.item.label);
-                                    $("#hdnInputIdBarang").val(ui.item.id);
-                                    console.log("id barang " + $("#hdnInputIdBarang").val());
-                                    //return false;
+                        $("#frmInputPembelian").trigger('reset');
+                        $("#tabelPembelian tbody").append(
+                            "<tr>" +
+                            "<td>" + parseInt(rowCount + 1) + "</td>" +
+                            "<td>" + "</td>" +
+                            "<td>" + nama_barang + "</td>" +
+                            "<td>" + dist + "</td>" +
+                            "<td>" + satuan + "</td>" +
+                            "<td>" + beli['qty'] + "</td>" +
+                            "<td>" + beli['harga_satuan'] + "</td>" +
+                            "<td>" + beli['harga_total'] + "</td>" +
+                            "<td>" +
+                            "<button type='button' class='btn btn-link btn-xs'> " + "<span class='glyphicon glyphicon-trash'></span>" + "</button>" +
+                            "</td > " +
+                            "</tr>"
+                        );
+                        notifInput();
+                    }
+                });
 
-                                    var sql = "SELECT barang_jual.id_barang, barang, satuan FROM barang_jual " +
-                                            "JOIN barang ON barang_jual.id_barang = barang.id_barang " +
-                                            "JOIN satuan ON barang_jual.id_satuan = satuan.id_satuan " +
-                                            "WHERE barang_jual.id_barang = '" + $("#hdnInputIdBarang").val() + "'";
-                                    con.query(sql, function (err, res) {
-                                        if (err)
-                                            throw err;
-                                        for (var i = 0; i < res.length; i++) {
-                                            console.log("res : " + res[i].satuan);
-                                            $("#selectSatuan").append(
-                                                    "<option value='" + res[i].id_satuan + "'>" + res[i].satuan + "</option>"
-                                                    );
-                                        }
-                                    });
-                                }
-                            }).data("ui-autocomplete")._renderItem = function (ul, item) {
-                                return $("<li>")
-                                        .data("ui-autocomplete-item", item)
-                                        .append("<a>" + item.label + "</a>")
-                                        .appendTo(ul);
-                            };
-                        });
+                /*---------- Fokus input -----------*/
+                $(document).on("click", "#btnTambahPembelian", function() {
+                    setTimeout(function() {
+                        $("#inputNamaBarang").focus();
+                    }, 500);
+                });
 
 
-                    });
-                </script>
-                <script>
-                    $(function () {
-                        /*----------- Select -----------*/
-                        con.query('SELECT * FROM distributor', function (err, rows) {
-                            if (err)
-                                throw err;
-                            for (var i = 0; i < rows.length; i++) {
-                                $("#selectDistributor").append(
-                                        "<option value='" + rows[i].id_distributor + "'>" + rows[i].distributor + "</option>"
-                                        );
-                            }
-                        });
-                        /*con.query('SELECT * FROM satuan', function(err, rows) {
-                         if (err) throw err;
-                         for (var i = 0; i < rows.length; i++) {
-                         $("#selectSatuan").append(
-                         "<option value='" + rows[i].id_satuan + "'>" + rows[i].satuan + "</option>"
-                         );
-                         }
-                         });*/
-                        /*---------- Fokus input -----------*/
-                        $(document).on("click", "#btnTambahPembelian", function () {
-                            setTimeout(function () {
-                                $("#inputNamaBarang").focus();
-                            }, 500);
-                        });
-
-
-                    });
-                </script>
-                <div class="container content">
-                    <div class="row">
-                        <div class="panel panel-primary kebawah">
-                            <div class="panel-heading">
-                                <div class="clearfix">
-                                    <div class="pull-left">
-                                        <h3 class="panel-title">Daftar Pembelian Barang</h3>
-                                    </div>
-                                    <div class="pull-right">
-                                        <button type="button" class="btn btn-info btn-xs" id="btnTambahPembelian" data-toggle="modal" data-target="#mdlTambahPembelian">Tambah Pembelian</button>
-                                    </div>
+            });
+            </script>
+            <div class="container content">
+                <div class="row">
+                    <div class="panel panel-primary kebawah">
+                        <div class="panel-heading">
+                            <div class="clearfix">
+                                <div class="pull-left">
+                                    <h3 class="panel-title">Daftar Pembelian Barang</h3>
+                                </div>
+                                <div class="pull-right">
+                                    <button type="button" class="btn btn-info btn-xs" id="btnTambahPembelian" data-toggle="modal" data-target="#mdlTambahPembelian">Tambah Pembelian</button>
                                 </div>
                             </div>
                         </div>
-                        <table id="tabelPembelian" class="table table-hover table-bordered table-striped keatas">
-                            <thead>
-                                <tr>
-                                    <th width="20" rowspan="2" class="center">No.</th>
-                                    <th>Tanggal</th>
-                                    <th colspan="3">Total Nominal Pembelian (Rp)</th>
-                                    <th width="100">
-                                        <!--Aksi-->
-                                    </th>
-                                </tr>
-                                <tr>
-                                    <th width="50%">Nama Barang</th>
-                                    <th width="10%" align="right">Jumlah</th>
-                                    <th width="10%" align="left">Satuan</th>
-                                    <th width="20%" align="right">Harga Satuan</th>
-                                    <th width="10%" align="right">Total Harga</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr class="info">
-                                    <td align="center "><strong>1</strong></td>
-                                    <td><strong>2014-03-19 15:05:54</strong></td>
-                                    <td colspan="3"><strong>Rp. 675.936</strong></td>
-                                    <td align="center">
-                                        <button type="button" class="btn btn-primary btn-xs "><span class="glyphicon glyphicon-trash "></span></button>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td></td>
-                                    <td class="kiri ">1. Teh Botol Sosro Beling</td>
-                                    <td width="10% " align="right ">48</td>
-                                    <td width="10% " align="left ">Botol</td>
-                                    <td width="20% " align="right ">Rp. 1.875</td>
-                                    <td width="10% " align="right ">Rp. 90.000</td>
-                                </tr>
-                                <tr>
-                                    <td></td>
-                                    <td class="kiri ">2. Teh Botol Sosro Kotak</td>
-                                    <td width="10% " align="right ">48</td>
-                                    <td width="10% " align="left ">Botol</td>
-                                    <td width="20% " align="right ">Rp. 1.875</td>
-                                    <td width="10% " align="right ">Rp. 90.000</td>
-                                </tr>
-                            </tbody>
-                        </table>
                     </div>
+                    <table id="tabelPembelian" class="table table-hover table-bordered table-striped keatas">
+                        <thead>
+                            <tr>
+                                <th width="5%">No</th>
+                                <th width="15%">Tanggal</th>
+                                <th width="20%">Nama Barang</th>
+                                <th width="20%" align="right">Distributor</th>
+                                <th width="10%" align="left">Satuan</th>
+                                <th width="10%" align="right">Jumlah</th>
+                                <th width="10%" align="right">Harga Satuan</th>
+                                <th width="15%" align="right">Total Harga</th>
+                                <th width="5%" align="right"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>1</td>
+                                <td>2015-27-08</td>
+                                <td class="kiri ">Teh Botol Sosro Beling</td>
+                                <td width="10% " align="right ">48</td>
+                                <td width="10% " align="left ">Botol</td>
+                                <td width="20% " align="right ">Rp. 1.875</td>
+                                <td width="10% " align="right ">Rp. 90.000</td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td>2</td>
+                                <td>2015-27-08</td>
+                                <td class="kiri ">Teh Botol Sosro Beling</td>
+                                <td width="10% " align="right ">48</td>
+                                <td width="10% " align="left ">Botol</td>
+                                <td width="20% " align="right ">Rp. 1.875</td>
+                                <td width="10% " align="right ">Rp. 90.000</td>
+                                <td></td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
-                <!-- Modal Tambah Pembelian -->
-                <div class="container">
-                    <div class="modal fade" id="mdlTambahPembelian" tabindex="-1" role="document" data-backdrop="static">
-                        <div class="modal-dialog">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <button type="button" class="close closePgn" data-dismiss="modal">&times;</button>
-                                    <h4 class="modal-title">Informasi Pembelian</h4>
-                                </div>
-                                <div class="modal-body">
-                                    <form class="form-horizontal" id="frmInputPembelian">
-                                        <table id="tabelPengguna" class="table table-condensed table-hover ">
-                                            <thead>
-                                            </thead>
-                                            <tbody>
-                                                <tr>
-                                                    <td class="text-center">
-                                                        <label for="inputNamaBarang" class="control-label">Nama Barang</label>
-                                                    </td>
-                                                    <td class="text-center">
-                                                        <input class="form-control input-sm" name="inputNamaBarang" id="inputNamaBarang" placeholder="Nama Barang" type="text" autocomplete="off">
-                                                        <input name="hdnInputIdBarang" id="hdnInputIdBarang" type="hidden">
-                                                        <label style="display: none;" id="inputNamaBarang-error-duplicate">Data Sudah Ada</label>
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td class="text-center">
-                                                        <label for="selectSatuan" class="control-label">Satuan</label>
-                                                    </td>
-                                                    <td class="text-center">
-                                                        <select name="selectSatuan" id="selectSatuan" class="form-control input-sm">
-                                                            <option value="">-pilih-</option>
-                                                        </select>
-                                                        <label style="display: none;" id="selectDistributor-error-duplicate">Data Sudah Ada</label>
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td class="text-center">
-                                                        <label for="selectDistributor" class="control-label">Distributor</label>
-                                                    </td>
-                                                    <td class="text-center">
-                                                        <select name="selectDistributor" id="selectDistributor" class="form-control input-sm">
-                                                            <option value="">-pilih-</option>
-                                                        </select>
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td class="text-center">
-                                                        <label for="inputQTY" class="control-label">QTY</label>
-                                                    </td>
-                                                    <td class="text-center">
-                                                        <input class="form-control input-sm" name="inputQTY" id="inputQTY" placeholder="Jumlah Barang" type="text">
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td class="text-center">
-                                                        <label for="inputHarga" class="control-label">Harga Satuan</label>
-                                                    </td>
-                                                    <td class="text-center">
-                                                        <input class="form-control input-sm" name="inputHarga" id="inputHarga" placeholder="Harga" type="text">
-                                                    </td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
-                                    </form>
-                                </div>
-                                <div class="modal-footer">
-                                    <button type="submit" form="frmInputPembelian" class="btn btn-info  btn-xs">Simpan</button>
-                                    <a href="#" id="closePmb" class="btn btn-default btn-xs closePmb" data-dismiss="modal">Tutup</a>
-                                </div>
+            </div>
+            <!-- Modal Tambah Pembelian -->
+            <div class="container">
+                <div class="modal fade" id="mdlTambahPembelian" tabindex="-1" role="document" data-backdrop="static">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close closePmb" data-dismiss="modal">&times;</button>
+                                <h4 class="modal-title">Informasi Pembelian</h4>
+                            </div>
+                            <div class="modal-body">
+                                <form class="form-horizontal" id="frmInputPembelian">
+                                    <table id="tabelPengguna" class="table table-condensed table-hover ">
+                                        <thead>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td class="">
+                                                    <label for="inputTgl" class="control-label">Tanggal </label>
+                                                </td>
+                                                <td class="">
+                                                    <input class="form-control input-sm" name="inputTgl" id="inputTgl" type="text" readonly="readonly">
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="">
+                                                    <label for="inputNamaBarang" class="control-label">Nama Barang</label>
+                                                </td>
+                                                <td class="">
+                                                    <input class="form-control input-sm" name="inputNamaBarang" id="inputNamaBarang" placeholder="Nama Barang" type="text" autocomplete="off">
+                                                    <input name="hdnInputIdBarang" id="hdnInputIdBarang" type="hidden">
+                                                    <label style="display: none;" id="inputNamaBarang-error-duplicate">Data Sudah Ada</label>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="">
+                                                    <label for="selectSatuan" class="control-label">Satuan</label>
+                                                </td>
+                                                <td class="">
+                                                    <select name="selectSatuan" id="selectSatuan" class="form-control input-sm">
+                                                        <option value="">-pilih-</option>
+                                                    </select>
+                                                    <label style="display: none;" id="selectDistributor-error-duplicate">Data Sudah Ada</label>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="">
+                                                    <label for="selectDistributor" class="control-label">Distributor</label>
+                                                </td>
+                                                <td class="">
+                                                    <select name="selectDistributor" id="selectDistributor" class="form-control input-sm">
+                                                        <option value="">-pilih-</option>
+                                                    </select>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="">
+                                                    <label for="inputQTY" class="control-label">QTY</label>
+                                                </td>
+                                                <td class="">
+                                                    <input class="form-control input-sm" name="inputQTY" id="inputQTY" placeholder="Jumlah Barang" type="text">
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="">
+                                                    <label for="inputHargaBeli" class="control-label">Harga Beli</label>
+                                                </td>
+                                                <td class="">
+                                                    <input class="form-control input-sm" name="inputHargaBeli" id="inputHargaBeli" placeholder="Total Pembelian" type="text">
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="">
+                                                    <label for="inputHargaSatuan" class="control-label">Harga Satuan</label>
+                                                </td>
+                                                <td class="">
+                                                    <input class="form-control input-sm" readonly="readonly" name="inputHargaSatuan" id="inputHargaSatuan" placeholder="Harga Satuan" type="text">
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </form>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="submit" form="frmInputPembelian" class="btn btn-info  btn-xs">Simpan</button>
+                                <a href="#" id="closePmb" class="btn btn-default btn-xs closePmb" data-dismiss="modal">Tutup</a>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-        <!-- footer -->
-        <div id="footer"></div>
-        <script>
-            $("#navigation ").load("navbar.html ");
-            $("#footer ").load("footer.html ");
-            $("#header ").load("header.html ");
-        </script>
-    </body>
+    </div>
+    <!-- footer -->
+    <div id="footer"></div>
+    <script>
+    $("#navigation ").load("navbar.html ");
+    $("#footer ").load("footer.html ");
+    $("#header ").load("header.html ");
+    </script>
+</body>
 
 </html>

@@ -6,7 +6,8 @@ var con = mysql.createConnection({
     host: "localhost",
     user: "root",
     password: "root",
-    database: "idjodb"
+    database: "idjodb",
+    dateStrings: "DATETIME"
 });
 
 con.connect(function(err) {
@@ -29,3 +30,10 @@ var ngui = require('nw.gui');
 
 // Get the current window
 var nwin = ngui.Window.get();
+
+//moment.js
+var moment = require('moment');
+moment().format();
+
+//numeral.js 
+var numeral = require('numeral');

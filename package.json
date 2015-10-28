@@ -1,21 +1,23 @@
 {
-    "name": "idjo-demo",
-    "version": "0.0.1",
-    "description": "Sistem Informasi Penjualan Toko IDJO Purworejo",
-    "main": "index.html",
-    "window": {
-        "toolbar": true,
-        "position": null,
-        "fullscreen": false,
-        "width": 1200,
-        "heigth": 768,
-        "min_width": 1000,
-        "min_height": 650,
-        "frame": true
-    },
-    "author": "",
-    "dependencies": {
-        "js-md5": "^0.3.0",
-        "mysql": "^2.8.0"
-    }
+  "name": "idjo-demo",
+  "version": "0.0.1",
+  "description": "Sistem Informasi Penjualan Toko IDJO Purworejo",
+  "main": "index.html",
+  "window": {
+    "toolbar": true,
+    "position": null,
+    "fullscreen": false,
+    "width": 1200,
+    "heigth": 768,
+    "min_width": 1000,
+    "min_height": 650,
+    "frame": true
+  },
+  "author": "",
+  "dependencies": {
+    "js-md5": "^0.3.0",
+    "moment": "^2.10.6",
+    "mysql": "^2.8.0",
+    "numeral": "^1.5.3"
+  }
 }

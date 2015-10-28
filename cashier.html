@@ -74,7 +74,7 @@
                         $("#tabel-daftar-belanja").children("tbody").append('\
                         <tr class="tr_' + input_id_barang_jual + '">\
                                 <td class="kiri ">' + input_nama_barang + ' <input type="hidden" name="dt_id_barang_jual" id="dt_id_barang_jual" value="' + input_id_barang_jual + '" /></td>\
-                                <td width="10% " align="right ">Rp. ' + input_harga_barang + ' <input type="hidden" name="dt_harga_barang" id="dt_harga_barang" value="' + input_harga_barang + '" /></td>\
+                                <td width="15% " align="right ">Rp. ' + input_harga_barang + ' <input type="hidden" name="dt_harga_barang" id="dt_harga_barang" value="' + input_harga_barang + '" /></td>\
                                 <td width="10% " align="left ">' + input_qty_barang + ' <input type="hidden" name="dt_qty_barang" id="dt_qty_barang" value="' + input_qty_barang + '" /></td>\
                                 <td width="20% " align="right ">Rp. ' + jumlah + ' <input type="hidden" name="dt_jumlah" id="dt_jumlah" value="' + jumlah + '" /></td>\
                                 <td width="10% " align="right "><button class="btn btn-primary btn-xs " type="button" id="delete"><span class="glyphicon glyphicon-trash "></span></button></td>\
@@ -136,10 +136,10 @@
                     var bayar = $("#final_bayar").val();
                     var kembalian = $("#final_kembalian").val();
                     if (bayar == "") {
-                        alert("Kolom bayar masih kosong");
+                        alertify.alert("Kolom bayar masih kosong");
                         $("#final_bayar").focus();
                     } else if (kembalian < 0) {
-                        alert("Jumlah uang yang dibayarkan masih kurang");
+                        alertify.alert("Jumlah uang yang dibayarkan masih kurang");
                         $("#final_bayar").focus();
                     } else {
                         $("#form-daftar-belanja").submit();
@@ -151,7 +151,7 @@
                     if (dt_total > 0) {
                         $("#btn_input_bayar").trigger("click");
                     } else {
-                        alert("Daftar belanja masih kosong");
+                        alertify.alert("Daftar belanja masih kosong");
                         $("#input_nama_barang").focus();
                     }
                 })
@@ -197,7 +197,7 @@
                             } else if (j == 4) {
                                 var jumlah = data[i].value;
                                 j = 1;
-                                con.query("INSERT INTO transaksi_detail (id_transaksi, id_barang_jual, qty, harga_satuan, jumlah) VALUES('" + id_transaksi + "', '" + id_barang_jual + "', '" + qty + "', '" + harga_satuan + "', '" + jumlah + "')", function(err, rows) {
+                                con.query("INSERT INTO transaksi_detail (id_transaksi, id_barang_jual, qty, harga_satuan, total_harga) VALUES('" + id_transaksi + "', '" + id_barang_jual + "', '" + qty + "', '" + harga_satuan + "', '" + jumlah + "')", function(err, rows) {
                                     if (err)
                                         throw err;
                                 });
@@ -207,7 +207,7 @@
                     }
 
                     function finishInsertTransaksiDetail() {
-                        alert("Transaksi berhasil");
+                        alertify.alert("Transaksi berhasil");
                         $("#closePmb").trigger("click");
                         $("#cancel").trigger("click");
                         setTimeout(function() {
@@ -228,7 +228,7 @@
                     $("#input_nama_barang").focus();
                 })
 
-                con.query("SELECT id_barang_jual AS id , barang AS label, barang_jual.harga AS harga, satuan.satuan FROM barang JOIN barang_jual ON barang.id_barang = barang_jual.id_barang JOIN satuan ON barang_jual.id_satuan=satuan.id_satuan", function(err, rows) {
+                con.query("SELECT id_barang_jual AS id , barang AS label, barang_jual.harga AS harga, satuan.satuan as satuan FROM barang JOIN barang_jual ON barang.id_barang = barang_jual.id_barang JOIN satuan ON barang_jual.id_satuan=satuan.id_satuan", function(err, rows) {
                     if (err)
                         throw err;
                     getData(JSON.stringify(rows));

@@ -127,3 +127,21 @@ footer {
     float: left;
     border-bottom-width: 0;
 }
+
+
+/*Capitalize, uppercase etc*/
+
+input,
+.content {
+    text-transform: uppercase;
+}
+
+::-webkit-input-placeholder {
+    text-transform: capitalize;
+}
+
+* {
+    -webkit-border-radius: 0 !important;
+    -moz-border-radius: 0 !important;
+    border-radius: 0 !important;
+}

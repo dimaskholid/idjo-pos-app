@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <title>Laporan Stock</title>
+    <!-- Bootstrap -->
+    <link href="assets/css/bootstrap.min.css" rel="stylesheet">
+    <link href="assets/css/style.css" rel="stylesheet">
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="assets/js/html5shiv.min.js"></script>
+      <script src="assets/js/respond.min.js"></script>
+      <![endif]-->
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="assets/js/jquery.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="assets/js/bootstrap.min.js"></script>
+    <script src="assets/js/ajaxcontentloader.js"></script>
+</head>
+
+<body>
+    <!-- header -->
+    <div id="header"></div>
+    <!-- Navigation -->
+    <div id="navigation"></div>
+    <!-- content -->
+    <div id="content-wrapper">
+        <div id="content-loader">
+            <div class="container content">
+                <script>
+                /*-------------- View all -----------------*/
+                con.query('SELECT * FROM stock JOIN barang ON stock.id_barang = barang.id_barang JOIN satuan ON stock.id_satuan = satuan.id_satuan ', function(err, rows) {
+                    if (err)
+                        throw err;
+
+                    console.log('Data received from tabel stock\n');
+                    console.log(rows[0]);
+                    $("#tabelLaporanStock tbody").empty();
+                    for (var i = 0; i < rows.length; i++) {
+
+                        $("#tabelLaporanStock tbody").append(
+                            "<tr>" +
+                            "<td>" +
+                            "<input type='hidden' name='idstock' id='idstock' value='" + rows[i].id_stock + "'>" +
+                            "<input type='hidden' name='hdnBarang' id='hdnBarang' value='" + rows[i].barang + "'>" +
+                            "<input type='hidden' name='hdnIdBarang' id='hdnIdBarang' value='" + rows[i].id_barang + "'>" +
+                            "<input type='hidden' name='idSatuan' id='idSatuan' value='" + rows[i].id_satuan + "'>" +
+                            "<input type='hidden' name='hdnStock' id='hdnStock' value='" + rows[i].stock + "'>" +
+                            parseInt(i + 1) + "</td>" +
+                            "<td>" + rows[i].barang + "</td>" +
+                            "<td>" + rows[i].stock + "</td>" +
+                            "<td>" + rows[i].satuan + "</td>" +
+                            "</tr>"
+                        );
+                    };
+                });
+                /*-------------- end view  -----------------*/
+                </script>
+                <div class="row">
+                    <div class="panel panel-primary kebawah">
+                        <div class="panel-heading">
+                            <div class="clearfix">
+                                <div class="pull-left">
+                                    <h3 class="panel-title">Laporan Stock Barang</h3>
+                                </div>
+                                <div class="pull-right">
+                                    <button type="button" class="btn btn-info btn-xs" id="btnTambahPembelian" data-toggle="modal" data-target="">Cetak</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <table id="tabelLaporanStock" class="table table-hover table-bordered table-striped keatas">
+                        <thead>
+                            <tr>
+                                <th width="5%">No</th>
+                                <th width="35%">Nama</th>
+                                <th width="30%" align="right">Stock</th>
+                                <th width="30%" align="left">Satuan</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>1</td>
+                                <td>NPK</td>
+                                <td>1</td>
+                                <td>Bungkus</td>
+                                <td></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- footer -->
+    <div id="footer"></div>
+    <script>
+    $("#navigation").load("navbar.html");
+    $("#footer").load("footer.html");
+    $("#header").load("header.html");
+    </script>
+</body>
+
+</html>

@@ -34,8 +34,37 @@ function focusInput(btn, input) {
     });
 }
 
+/*-------------- numeral js ------------*/
+// load a language
+numeral.language('id', {
+    delimiters: {
+        thousands: '.',
+        decimal: '.'
+    },
+    abbreviations: {
+        thousand: 'k',
+        million: 'm',
+        billion: 'b',
+        trillion: 't'
+    },
+    currency: {
+        symbol: 'Rp'
+    }
+});
 
+// switch between languages
+numeral.language('id');
 
+function formatCurrency(number) {
+    numeral(number).format('0,0');
+}
+
+/*-------------- date ------------*/
+function toJSONLocal(date) {
+    var local = new Date(date);
+    local.setMinutes(date.getMinutes() - date.getTimezoneOffset());
+    return local.toJSON().slice(0, 10);
+}
 
 
 
