@@ -83,10 +83,9 @@
                             con.query(sql, function(err, res) {
                                 if (err)
                                     throw err;
-                                //localStorage['satuan']
                                 for (var i = 0; i < res.length; i++) {
                                     $("#selectSatuan").append(
-                                        "<option value='" + res[i].idsatuan + "'>" + res[i].idsatuan + "." + res[i].satuan + "</option>"
+                                        "<option value='" + res[i].idsatuan + "'>" + res[i].satuan + "</option>"
                                     );
                                 }
                             });
@@ -98,8 +97,6 @@
                             .appendTo(ul);
                     };
                 });
-
-
             });
             </script>
             <script>
@@ -168,16 +165,6 @@
                     }
                 });
 
-                /*----------- Select Satuan -----------
-                con.query('SELECT * FROM satuan', function(err, rows) {
-                    if (err)
-                        throw err;
-                    for (var i = 0; i < rows.length; i++) {
-                        $("#selectSatuan").append(
-                            "<option value='" + rows[i].id_satuan + "'>" + rows[i].id_satuan + "." + rows[i].satuan + "</option>"
-                        );
-                    }
-                });*/
                 /*--------------- reload ------------------*/
                 $(document).on("click", "#closePmb, .closePmb", function(e) {
                     e.stopImmediatePropagation();
@@ -266,7 +253,7 @@
                         }
                     },
                     submitHandler: function(form) {
-
+                        //insert ke 'pembelian' -> cek 'stock' ada id_barang yg sama atau tidak, kalau ada,qty x multiplier, stock ditambah, kalau tidak ada, insert new
                         var beli = {
                             id_barang: $("#hdnInputIdBarang").val(),
                             id_distributor: $("#selectDistributor").val(),
@@ -279,12 +266,98 @@
                         var satuan = $("#selectSatuan option:selected").text();
                         var dist = $("#selectDistributor option:selected").text();
                         var rowCount = $('#tabelPembelian tbody tr').length;
-                        con.query('INSERT INTO pembelian SET ?', beli, function(err, res) {
+
+                        /*--- cari id_pembelian ---*/
+                        con.query("SHOW TABLE STATUS LIKE 'pembelian'", function(err, rows) {
                             if (err) throw err;
-                            console.log(res.insertId);
-                            alert("id satuan : " + beli['id_satuan']);
+                            getIdPembelian(rows);
                         });
-                        $("#frmInputPembelian").trigger('reset');
+
+                        function getIdPembelian(dataIdPembelian) {
+                            /*--- insert tabel pembelian ---*/
+                            var idPembelian = dataIdPembelian[0].Auto_increment;
+                            con.query('INSERT INTO pembelian SET ?', beli, function(err, res) {
+                                if (err) throw err;
+                                console.log(res.insertId);
+                            });
+
+                            /*--- cek tabel stock ---*/
+                            con.query("SELECT COUNT(*) AS co FROM stock WHERE id_barang ='" + beli['id_barang'] + "'", function(err, rows) {
+                                if (err) throw err;
+                                var co = rows[0].co;
+                                //alert(co);
+                                if (co == 0) {
+                                    alert("insert baru");
+                                    //insert baru
+                                    /*--- insert tabel stock  & stock_detail ---*/
+                                    con.query("SHOW TABLE STATUS LIKE 'stock'", function(err, rows) {
+                                        if (err) throw err;
+                                        var id_stock = rows[0].Auto_increment;
+                                        //getNext(rows);
+                                        con.query("SELECT barang_jual.harga, barang_jual.multiplier FROM barang_jual WHERE barang_jual.id_barang='" + beli['id_barang'] + "' AND barang_jual.id_satuan = '" + beli['id_satuan'] + "'", function(err, rows) {
+                                            if (err) throw err;
+
+                                            var harga_jual = rows[0].harga,
+                                                multiply = rows[0].multiplier,
+                                                id_barang = beli['id_barang'],
+                                                id_satuan = beli['id_satuan'],
+                                                qty = beli['qty'];
+                                            var input_stock = qty * multiply;
+
+                                            con.query("INSERT INTO stock (id_stock, id_barang, id_satuan, stock, harga_jual) VALUES('" + id_stock + "', '" + id_barang + "', '" + id_satuan + "', '" + input_stock + "', '" + harga_jual + "')", function(err, rows) {
+                                                if (err) throw err;
+                                            });
+                                            con.query("INSERT INTO stock_detail (id_stock, id_pembelian, pembelian_stock, stock, harga_beli) VALUES('" + id_stock + "','" + idPembelian + "','" + input_stock + "','" + input_stock + "','" + beli['harga_satuan'] + "')", function(err, rows) {
+                                                if (err)
+                                                    throw err;
+                                            });
+                                        });
+                                    });
+                                } else if (co == 1) {
+                                    //alert("update " + co);
+                                    //update stock
+                                    //ambil stock, jumlahkan dengan stok baru
+                                    /*--- getNext id_stock ---*/
+                                    con.query("SHOW TABLE STATUS LIKE 'stock'", function(err, rows) {
+                                        if (err) throw err;
+                                        //getNext(rows);
+                                        var id_stock = rows[0].Auto_increment;
+                                        //alert("id_barang " + beli['id_barang']);
+
+                                        con.query("SELECT barang_jual.harga, barang_jual.multiplier, stock.id_stock ,stock.stock FROM barang_jual JOIN stock ON stock.id_barang = barang_jual.id_barang WHERE barang_jual.id_barang='" + beli['id_barang'] + "' AND barang_jual.id_satuan = '" + beli['id_satuan'] + "'", function(err, rows) {
+                                            if (err) throw err;
+
+                                            var harga_jual = rows[0].harga,
+                                                multiply = rows[0].multiplier,
+                                                nilai_stock = rows[0].stock,
+                                                id_barang = beli['id_barang'],
+                                                id_satuan = beli['id_satuan'],
+                                                idstock = rows[0].id_stock,
+                                                qty = beli['qty'];
+                                            var input_stock = qty * multiply,
+                                                sum_stock = input_stock + nilai_stock;
+
+                                            con.query("UPDATE stock SET stock = ? WHERE id_barang = ?", [sum_stock, id_barang], function(err, rows) {
+                                                if (err) throw err;
+                                                //alert("update");
+                                                //insertStockDetail(id_stock);
+                                            });
+                                            con.query("INSERT INTO stock_detail (id_stock, id_pembelian, pembelian_stock, stock, harga_beli) VALUES('" + idstock + "','" + idPembelian + "','" + input_stock + "','" + input_stock + "','" + beli['harga_satuan'] + "')", function(err, rows) {
+                                                if (err)
+                                                    throw err;
+                                            });
+
+                                        });
+                                    });
+                                } else {
+                                    alert("data double");
+                                }
+                                /*--- else ---*/
+                            });
+                        }
+
+                        /*--- rubah tabel pembelian ---*/
+                        $("#inputNamaBarang, #inputQTY, #inputHargaBeli, #inputHargaSatuan").val("");
                         $("#tabelPembelian tbody").append(
                             "<tr>" +
                             "<td>" + parseInt(rowCount + 1) + "</td>" +
@@ -310,7 +383,6 @@
                         $("#inputNamaBarang").focus();
                     }, 500);
                 });
-
 
             });
             </script>
