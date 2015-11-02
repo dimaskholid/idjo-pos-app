@@ -51,18 +51,124 @@
                             "<input type='hidden' name='hdnIdBarang' id='hdnIdBarang' value='" + rows[i].id_barang + "'>" +
                             "<input type='hidden' name='idSatuan' id='idSatuan' value='" + rows[i].id_satuan + "'>" +
                             "<input type='hidden' name='hdnStock' id='hdnStock' value='" + rows[i].stock + "'>" +
+                            "<input type='hidden' name='hdnSatuan' id='hdnSatuan' value='" + rows[i].satuan + "'>" +
                             parseInt(i + 1) + "</td>" +
                             "<td>" + rows[i].barang + "</td>" +
                             "<td>" + rows[i].stock + "</td>" +
                             "<td>" + rows[i].satuan + "</td>" +
                             "<td>" +
-                            "<button type='button' id='btnDelPembelian' class = 'btn btn-link btn-xs'> " + "<span class='glyphicon glyphicon-trash'></span>" + "</button>" +
+                            "<button type='button' id='btnUpdateStock' class = 'btn btn-link btn-xs'> " + "<span class='glyphicon glyphicon-wrench'></span>" + "</button>" +
                             "</td > " +
                             "</tr>"
                         );
                     };
                 });
                 /*-------------- end view  -----------------*/
+                /*-------------- Sisa Stock -----------------*/
+                $(document).on("keyup", "#inputPengurang", function(e) {
+                    var pengurang = parseInt($(this).val());
+                    var awal = parseInt($("#hdnStock").val());
+                    var sisa = awal - pengurang;
+                    if ($(this).val() == "" || $(this).val() > awal) {
+                        $("#sisaStock").val("");
+                    } else {
+                        $("#sisaStock").val(sisa);
+                    }
+                });
+                /*--------------- reload ------------------*/
+                $(document).on("click", "#closeStock, .closeStock", function(e) {
+                    e.stopImmediatePropagation();
+                    setTimeout(function() {
+                        $.ajax({
+                            type: "GET",
+                            url: "updatestock.html",
+                            success: function(data) {
+                                var content = $(data).find("#content-loader");
+                                $("#content-wrapper").fadeOut().empty().fadeIn().append(content);
+                            },
+                            error: function(data) {}
+                        });
+                    }, 200);
+                });
+
+                /*--------------- Validasi update stock ------------------*/
+                $("#frmUpdateStock").validate({
+                    rules: {
+                        inputPengurang: {
+                            number: true,
+                            minlength: 1,
+                            required: true
+                        },
+                        sisaStock: {
+                            number: true,
+                            minlength: 1,
+                            required: true
+                        }
+                    },
+                    messages: {
+                        inputPengurang: {
+                            number: "Input berupa angka",
+                            minlength: "Tidak boleh kosong",
+                            required: "Tidak boleh kosong"
+                        },
+                        sisaStock: {
+                            number: "Cek lagi input pengurang",
+                            minlength: "Cek lagi input pengurang",
+                            required: "Cek lagi input pengurang"
+                        }
+                    },
+                    submitHandler: function(form) {
+                        var idStockBarang = $("#idBarangStock").val();
+                        var min = parseInt($("#inputPengurang").val());
+                        var hasil = parseInt($("#sisaStock").val());
+                        var new_stock, id_det, id_stock, stock_det;
+
+                        con.query("SELECT stock.id_stock AS idStock, id_stock_detail, stock_detail.stock AS stock_data FROM stock JOIN stock_detail ON stock_detail.id_stock = stock.id_stock WHERE id_barang = '" + idStockBarang + "' AND stock_detail.stock > '0' ORDER BY stock_detail.id_stock_detail ASC", function(err, rows) {
+                            if (err) throw err;
+                            for (var i = 0; i < rows.length; i++) {
+                                stock_det = rows[i].stock_data;
+                                if (stock_det >= min) {
+                                    new_stock = stock_det - min;
+                                    id_det = rows[i].id_stock_detail;
+                                    id_stock = rows[i].idStock;
+                                    //update tabel stock
+                                    con.query("UPDATE stock SET stock = ? WHERE id_stock = ?", [hasil, id_stock], function(err, rows) {
+                                        if (err) throw err;
+                                    });
+                                    //update stock_detail
+                                    con.query("UPDATE stock_detail SET stock = ? WHERE id_stock_detail = ?", [new_stock, id_det], function(err, rows) {
+                                        if (err) throw err;
+                                    });
+                                } else {
+                                    min = min - stock_det;
+                                    new_stock = 0;
+                                    id_det = rows[i].id_stock_detail;
+                                    id_stock = rows[i].idStock;
+                                    //update tabel stock
+                                    con.query("UPDATE stock SET stock = ? WHERE id_stock = ?", [hasil, id_stock], function(err, rows) {
+                                        if (err) throw err;
+                                    });
+                                    //update stock_detail
+                                    con.query("UPDATE stock_detail SET stock = ? WHERE id_stock_detail = ?", [new_stock, id_det], function(err, rows) {
+                                        if (err) throw err;
+                                    });
+                                }
+                            }
+
+                        });
+                    }
+                });
+
+                /*--- on show modal ---*/
+                $(document).on("click", "#btnUpdateStock", function() {
+                    $('#mdlUpdateStock').modal('show');
+                    var idBarang = $(this).closest('tr').find("#hdnIdBarang").val();
+                    var stockAwal = $(this).closest('tr').find('#hdnStock').val();
+                    var satuanStock = $(this).closest('tr').find('#hdnSatuan').val();
+                    $("#stockTersedia").html(stockAwal + " " + satuanStock);
+                    $("#hdnStock").val(stockAwal);
+                    $("#idBarangStock").val(idBarang);
+                });
                 </script>
                 <div class="row">
                     <div class="panel panel-primary kebawah">
@@ -94,6 +200,59 @@
                             </tr>
                         </tbody>
                     </table>
+                </div>
+                <!-- Modal Tambah Pembelian -->
+                <div class="container">
+                    <div class="modal fade" id="mdlUpdateStock" tabindex="-1" role="document" data-backdrop="static">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <button type="button" class="close closeStock" data-dismiss="modal">&times;</button>
+                                    <h4 class="modal-title">Update Stock</h4>
+                                </div>
+                                <div class="modal-body">
+                                    <form class="form-horizontal" id="frmUpdateStock">
+                                        <table id="tabelPengguna" class="table table-condensed table-hover">
+                                            <thead>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td class="">
+                                                        <label for="" class="control-label">Stok tersedia</label>
+                                                    </td>
+                                                    <td class="left">
+                                                        <label style="text-align: left;" id="stockTersedia">1 Bungkus</label>
+                                                        <input type="hidden" id="hdnStock" name="hdnStock">
+                                                        <input type="hidden" id="idBarangStock" name="idBarangStock">
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="">
+                                                        <label for="inputPengurang" class="control-label">Pengurang</label>
+                                                    </td>
+                                                    <td class="">
+                                                        <input class="form-control input-sm" name="inputPengurang" id="inputPengurang" placeholder="jumlah pengurang" type="text" autocomplete="off">
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="">
+                                                        <label for="sisaStock" class="control-label">Sisa Stock</label>
+                                                    </td>
+                                                    <td class="">
+                                                        <input class="form-control input-sm" name="sisaStock" id="sisaStock" placeholder="sisa stock" type="text" autocomplete="off" readonly="true">
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </form>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="submit" form="frmUpdateStock" class="btn btn-info  btn-xs">Simpan</button>
+                                    <a href="#" id="closeStock" class="btn btn-default btn-xs closeStock" data-dismiss="modal">Tutup</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

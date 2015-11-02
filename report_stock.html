@@ -34,7 +34,7 @@
             <div class="container content">
                 <script>
                 /*-------------- View all -----------------*/
-                con.query('SELECT * FROM stock JOIN barang ON stock.id_barang = barang.id_barang JOIN satuan ON stock.id_satuan = satuan.id_satuan ', function(err, rows) {
+                con.query("SELECT * FROM stock JOIN barang ON stock.id_barang = barang.id_barang JOIN satuan ON stock.id_satuan = satuan.id_satuan", function(err, rows) {
                     if (err)
                         throw err;
 

@@ -76,19 +76,30 @@
                             console.log("id barang " + $("#hdnInputIdBarang").val());
                             //return false;
 
+                            var idBarang = $("#hdnInputIdBarang").val();
+
                             var sql = "SELECT barang_jual.id_barang AS idbarang, barang, barang_jual.id_satuan AS idsatuan, satuan FROM barang_jual " +
                                 "JOIN barang ON barang_jual.id_barang = barang.id_barang " +
                                 "JOIN satuan ON barang_jual.id_satuan = satuan.id_satuan " +
-                                "WHERE barang_jual.id_barang = '" + $("#hdnInputIdBarang").val() + "'";
-                            con.query(sql, function(err, res) {
-                                if (err)
-                                    throw err;
-                                for (var i = 0; i < res.length; i++) {
-                                    $("#selectSatuan").append(
-                                        "<option value='" + res[i].idsatuan + "'>" + res[i].satuan + "</option>"
-                                    );
+                                "WHERE barang_jual.id_barang = '" + idBarang + "'";
+
+                            //cek multiplier
+                            con.query("Select COUNT(*) AS co FROM barang_jual WHERE id_barang ='" + idBarang + "' AND multiplier ='1'", function(err, rows) {
+                                if (err) throw err;
+                                if (rows[0].co == 0) {
+                                    alertify.alert("TIdak ada satuan terkecil, silahkan seting di halaman Barang Jual");
+                                } else {
+                                    con.query(sql, function(err, res) {
+                                        if (err)
+                                            throw err;
+                                        for (var i = 0; i < res.length; i++) {
+                                            $("#selectSatuan").append(
+                                                "<option value='" + res[i].idsatuan + "'>" + res[i].satuan + "</option>"
+                                            );
+                                        }
+                                    });
                                 }
-                            });
+                            })
                         }
                     }).data("ui-autocomplete")._renderItem = function(ul, item) {
                         return $("<li>")
@@ -185,27 +196,49 @@
                 $(document).on("click", "#btnDelPembelian", function(e) {
                     var id = $(this).closest('tr').find('input[name=idPembelian]').val();
                     var hdnBarang = $(this).closest('tr').find('input[name=hdnBarang]').val();
+                    var idBarang = $(this).closest('tr').find('input[name=hdnIdBarang]').val();
 
                     $.confirm({
                         text: "Yakin untuk menghapus data " + id + " : " + hdnBarang,
                         confirm: function(button) {
-                            con.query('DELETE FROM pembelian WHERE id_pembelian = "' + id + '"', function(err, res) {
-                                if (err)
-                                    throw err;
-                                console.log('deleted ' + res.affectedRows + ' rows');
+                            //cek stock barang
+                            con.query("SELECT * FROM stock_detail WHERE id_pembelian ='" + id + "'", function(err, rows) {
+                                if (err) throw err;
+                                var stock_beli = rows[0].pembelian_stock;
+                                var stock_tersedia = rows[0].stock;
+
+                                if (stock_tersedia < stock_beli) {
+                                    alertify.alert("Tidak bisa menghapus transaksi pembelian, karena stok barang kurang dari jumlah pembelian barang!");
+                                } else {
+                                    //kurangi stock di tabel stock
+                                    con.query("SELECT * FROM stock WHERE id_barang = '" + idBarang + "'", function(err, rows) {
+                                        if (err) throw err;
+                                        var total_stock = rows[0].stock - stock_beli;
+
+                                        con.query("UPDATE stock SET stock = ? WHERE id_barang = ?", [total_stock, idBarang], function(err, rows) {
+                                            if (err) throw err;
+                                        });
+                                    })
+
+                                    con.query("DELETE pembelian, stock_detail FROM pembelian JOIN stock_detail ON pembelian.id_pembelian = stock_detail.id_pembelian WHERE pembelian.id_pembelian = '" + id + "'", function(err, res) {
+                                        if (err)
+                                            throw err;
+                                        console.log('deleted ' + res.affectedRows + ' rows');
+                                    });
+                                    setTimeout(function() {
+                                        $.ajax({
+                                            type: "GET",
+                                            url: "purchasing.html",
+                                            success: function(data) {
+                                                var content = $(data).find("#content-loader");
+                                                $("#content-wrapper").fadeOut().empty().fadeIn().append(content);
+                                            },
+                                            error: function(data) {}
+                                        });
+                                    }, 200);
+                                    notifDelete();
+                                }
                             });
-                            setTimeout(function() {
-                                $.ajax({
-                                    type: "GET",
-                                    url: "purchasing.html",
-                                    success: function(data) {
-                                        var content = $(data).find("#content-loader");
-                                        $("#content-wrapper").fadeOut().empty().fadeIn().append(content);
-                                    },
-                                    error: function(data) {}
-                                });
-                            }, 200);
-                            notifDelete();
                         },
                         cancel: function(button) {},
                         confirmButton: "Hapus",
@@ -287,7 +320,7 @@
                                 var co = rows[0].co;
                                 //alert(co);
                                 if (co == 0) {
-                                    alert("insert baru");
+                                    //alert("insert baru");
                                     //insert baru
                                     /*--- insert tabel stock  & stock_detail ---*/
                                     con.query("SHOW TABLE STATUS LIKE 'stock'", function(err, rows) {
@@ -300,17 +333,23 @@
                                             var harga_jual = rows[0].harga,
                                                 multiply = rows[0].multiplier,
                                                 id_barang = beli['id_barang'],
-                                                id_satuan = beli['id_satuan'],
                                                 qty = beli['qty'];
                                             var input_stock = qty * multiply;
 
-                                            con.query("INSERT INTO stock (id_stock, id_barang, id_satuan, stock, harga_jual) VALUES('" + id_stock + "', '" + id_barang + "', '" + id_satuan + "', '" + input_stock + "', '" + harga_jual + "')", function(err, rows) {
+                                            con.query("SELECT * FROM barang_jual WHERE barang_jual.id_barang='" + beli['id_barang'] + "' AND barang_jual.multiplier = '1'", function(err, rows) {
                                                 if (err) throw err;
-                                            });
-                                            con.query("INSERT INTO stock_detail (id_stock, id_pembelian, pembelian_stock, stock, harga_beli) VALUES('" + id_stock + "','" + idPembelian + "','" + input_stock + "','" + input_stock + "','" + beli['harga_satuan'] + "')", function(err, rows) {
-                                                if (err)
-                                                    throw err;
-                                            });
+
+                                                var id_satuan = rows[0].id_satuan;
+
+                                                con.query("INSERT INTO stock (id_stock, id_barang, id_satuan, stock, harga_jual) VALUES('" + id_stock + "', '" + id_barang + "', '" + id_satuan + "', '" + input_stock + "', '" + harga_jual + "')", function(err, rows) {
+                                                    if (err) throw err;
+                                                });
+                                                con.query("INSERT INTO stock_detail (id_stock, id_pembelian, pembelian_stock, stock, harga_beli) VALUES('" + id_stock + "','" + idPembelian + "','" + input_stock + "','" + input_stock + "','" + beli['harga_satuan'] + "')", function(err, rows) {
+                                                    if (err)
+                                                        throw err;
+                                                });
+
+                                            })
                                         });
                                     });
                                 } else if (co == 1) {
