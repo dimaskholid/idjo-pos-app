@@ -1,3 +1,12 @@
+function notif(data) {
+    setTimeout(function() {
+        alertify.set({
+            delay: 2000
+        });
+        alertify.log(data);
+    }, 1000);
+}
+
 function notifEdit() {
     setTimeout(function() {
         alertify.set({

@@ -75,6 +75,13 @@
                         $("#sisaStock").val(sisa);
                     }
                 });
+                /*---------- Fokus input -----------*/
+                $(document).on("click", "#btnUpdateStock", function() {
+                    setTimeout(function() {
+                        $("#inputPengurang").focus();
+                    }, 500);
+                });
+
                 /*--------------- reload ------------------*/
                 $(document).on("click", "#closeStock, .closeStock", function(e) {
                     e.stopImmediatePropagation();
@@ -125,37 +132,52 @@
 
                         con.query("SELECT stock.id_stock AS idStock, id_stock_detail, stock_detail.stock AS stock_data FROM stock JOIN stock_detail ON stock_detail.id_stock = stock.id_stock WHERE id_barang = '" + idStockBarang + "' AND stock_detail.stock > '0' ORDER BY stock_detail.id_stock_detail ASC", function(err, rows) {
                             if (err) throw err;
+                            id_stock = rows[0].idStock;
                             for (var i = 0; i < rows.length; i++) {
                                 stock_det = rows[i].stock_data;
-                                if (stock_det >= min) {
+                                if (i == 0) {
                                     new_stock = stock_det - min;
                                     id_det = rows[i].id_stock_detail;
-                                    id_stock = rows[i].idStock;
-                                    //update tabel stock
-                                    con.query("UPDATE stock SET stock = ? WHERE id_stock = ?", [hasil, id_stock], function(err, rows) {
-                                        if (err) throw err;
-                                    });
-                                    //update stock_detail
-                                    con.query("UPDATE stock_detail SET stock = ? WHERE id_stock_detail = ?", [new_stock, id_det], function(err, rows) {
-                                        if (err) throw err;
-                                    });
+                                    if (new_stock < 0) {
+                                        //update detail -> kosongin
+                                        //alert("part 1");
+                                        con.query("UPDATE stock_detail SET stock = '0' WHERE id_stock_detail = '" + id_det + "'", function(err, rows) {
+                                            if (err) throw err;
+                                        });
+                                    } else {
+                                        //update detail -> new_stock
+                                        //alert("part 2");
+                                        con.query("UPDATE stock_detail SET stock = '" + new_stock + "' WHERE id_stock_detail = '" + id_det + "'", function(err, rows) {
+                                            if (err) throw err;
+                                        });
+                                    }
                                 } else {
-                                    min = min - stock_det;
-                                    new_stock = 0;
                                     id_det = rows[i].id_stock_detail;
-                                    id_stock = rows[i].idStock;
-                                    //update tabel stock
-                                    con.query("UPDATE stock SET stock = ? WHERE id_stock = ?", [hasil, id_stock], function(err, rows) {
-                                        if (err) throw err;
-                                    });
-                                    //update stock_detail
-                                    con.query("UPDATE stock_detail SET stock = ? WHERE id_stock_detail = ?", [new_stock, id_det], function(err, rows) {
-                                        if (err) throw err;
-                                    });
+                                    if (new_stock < 0) {
+                                        new_stock = stock_det + new_stock;
+                                        if (new_stock < 0) {
+                                            //update detail -> kosongin
+                                            //alert("part 3");
+                                            con.query("UPDATE stock_detail SET stock = '0' WHERE id_stock_detail = '" + id_det + "'", function(err, rows) {
+                                                if (err) throw err;
+                                            });
+                                        } else {
+                                            //update detail -> new_stock
+                                            //alert("part 4");
+                                            con.query("UPDATE stock_detail SET stock = '" + new_stock + "' WHERE id_stock_detail = '" + id_det + "'", function(err, rows) {
+                                                if (err) throw err;
+                                            });
+                                        }
+                                    }
                                 }
+                                //update stock
+                                con.query("UPDATE stock SET stock = '" + hasil + "' WHERE id_stock = '" + id_stock + "'", function(err, rows) {
+                                    if (err) throw err;
+                                });
                             }
-
                         });
+                        $("#closeStock").trigger('click');
+                        notif("Berhasil merubah data stok");
                     }
                 });
 
