@@ -87,7 +87,7 @@
                             con.query("Select COUNT(*) AS co FROM barang_jual WHERE id_barang ='" + idBarang + "' AND multiplier ='1'", function(err, rows) {
                                 if (err) throw err;
                                 if (rows[0].co == 0) {
-                                    alertify.alert("TIdak ada satuan terkecil, silahkan seting di halaman Barang Jual");
+                                    alertify.alert("TIdak ada satuan terkecil, silahkan seting di menu Barang Jual");
                                 } else {
                                     con.query(sql, function(err, res) {
                                         if (err)
@@ -99,7 +99,7 @@
                                         }
                                     });
                                 }
-                            })
+                            });
                         }
                     }).data("ui-autocomplete")._renderItem = function(ul, item) {
                         return $("<li>")
@@ -154,15 +154,32 @@
                 var today = new Date();
                 $("#inputTgl").val(toJSONLocal(today));
 
+                /*----------- cek satuan -------------*/
+                $(document).on("change", "#selectSatuan", function(e) {
+                    //$("#hdnIdSatuan").val($(this).val());
+                    idSat = $(this).val();
+                    con.query("SELECT multiplier AS multiply FROM barang_jual WHERE id_barang='" + $("#hdnInputIdBarang").val() + "' AND id_satuan ='" + idSat + "'", function(err, rows) {
+                        if (err) throw err;
+                        $("#hdnMultiply").val(rows[0].multiply);
+                        //alert($("#hdnMultiply").val());
+                    });
+                });
+
                 /*-------------- harga satuan -----------------*/
                 $(document).on("keyup", "#inputHargaBeli", function(e) {
-                    var total = parseInt($(this).val());
+                    var multi = $("#hdnMultiply").val();
+                    var total = parseInt($("#inputHargaBeli").val());
                     var jumlah = parseInt($("#inputQTY").val());
-                    var satuan = total / jumlah;
-                    if ($(this).val() == "") {
-                        $("#inputHargaSatuan").val("");
+                    //hitung harga satuan
+                    var satuan = total / (jumlah * multi);
+                    if (multi == "") {
+                        alertify.alert("Pilih satuan");
                     } else {
-                        $("#inputHargaSatuan").val(satuan);
+                        if ($(this).val() == "") {
+                            $("#inputHargaSatuan").val("");
+                        } else {
+                            $("#inputHargaSatuan").val(satuan);
+                        }
                     }
                 });
                 /*----------- Select Distributor -----------*/
@@ -519,6 +536,7 @@
                                                     <select name="selectSatuan" id="selectSatuan" class="form-control input-sm">
                                                         <option value="">-pilih-</option>
                                                     </select>
+                                                    <input name="hdnMultiply" id="hdnMultiply" type="hidden">
                                                     <label style="display: none;" id="selectDistributor-error-duplicate">Data Sudah Ada</label>
                                                 </td>
                                             </tr>

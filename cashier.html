@@ -45,11 +45,15 @@
     <!-- content -->
     <div id="content-wrapper">
         <div id="content-loader">
+            <iframe id="framePrint" style="display:none;" src="" frameborder="0">
+            </iframe>
             <script type="text/javascript">
             $(function() {
                 $(document).on("submit", "#form-input-produk", function(e) {
                     e.preventDefault();
                     var input_id_barang_jual = $("#input_id_barang_jual").val();
+                    var input_id_barang = $("#input_id_barang").val(); //id_barang
+                    var input_multiplier = $("#input_multiplier").val(); //multiplier
                     var input_nama_barang = $("#input_nama_barang").val();
                     var input_harga_barang = $("#input_harga_barang").val();
                     var input_qty_barang = $("#input_qty_barang").val();
@@ -73,7 +77,7 @@
 
                         $("#tabel-daftar-belanja").children("tbody").append('\
                         <tr class="tr_' + input_id_barang_jual + '">\
-                                <td class="kiri ">' + input_nama_barang + ' <input type="hidden" name="dt_id_barang_jual" id="dt_id_barang_jual" value="' + input_id_barang_jual + '" /></td>\
+                                <td class="kiri ">' + input_nama_barang + ' <input type="hidden" name="dt_id_barang_jual" id="dt_id_barang_jual" value="' + input_id_barang_jual + '" /><input type="hidden" name="dt_id_barang" id="dt_id_barang" value="' + input_id_barang + '" /><input type="hidden" name="dt_multiplier" id="dt_multiplier" value="' + input_multiplier + '" /></td>\
                                 <td width="15% " align="right ">Rp. ' + input_harga_barang + ' <input type="hidden" name="dt_harga_barang" id="dt_harga_barang" value="' + input_harga_barang + '" /></td>\
                                 <td width="10% " align="left ">' + input_qty_barang + ' <input type="hidden" name="dt_qty_barang" id="dt_qty_barang" value="' + input_qty_barang + '" /></td>\
                                 <td width="20% " align="right ">Rp. ' + jumlah + ' <input type="hidden" name="dt_jumlah" id="dt_jumlah" value="' + jumlah + '" /></td>\
@@ -94,13 +98,18 @@
                     }
                 });
 
+                $(document).on("change", "#input_qty_barang", function(e) {
+                    // cek stok 
+
+                })
+
                 $(document).on("click", "#btn_input_bayar", function(e) {
                     setTimeout(function() {
                         var total = $("#dt_total").val();
                         $("#final_total_bayar").val(total);
                         $("#final_bayar").val("").focus();
                         $("#final_kembalian").val("");
-                    }, 500)
+                    }, 500);
                 });
 
                 $(document).on("keyup", "#final_bayar", function(e) {
@@ -154,15 +163,17 @@
                         alertify.alert("Daftar belanja masih kosong");
                         $("#input_nama_barang").focus();
                     }
-                })
+                });
 
                 $(document).on("submit", "#form-daftar-belanja", function(e) {
                     e.preventDefault();
 
                     var data = $(this).serializeArray();
                     var count = data.length;
-                    var loop = (count - 1) / 4;
+                    //var loop = (count - 1) / 6;
                     var j = 1;
+                    //alertify.alert(JSON.stringify(data));
+                    //console.log();
 
                     con.query("SHOW TABLE STATUS LIKE 'transaksi'", function(err, rows) {
                         if (err) throw err;
@@ -175,44 +186,161 @@
                         var total_transaksi = parseInt($("#final_total_bayar").val());
                         var bayar = $("#final_bayar").val();
                         var kembalian = $("#final_kembalian").val();
+                        $("#hdn_id_transaksi").val(id_transaksi);
 
                         con.query("INSERT INTO transaksi (id_transaksi, id_pengguna, total_transaksi, bayar, kembalian) VALUES('" + id_transaksi + "', '" + id_pengguna + "', '" + total_transaksi + "', '" + bayar + "', '" + kembalian + "')", function(err, rows) {
                             if (err)
                                 throw err;
-                            insertTransaksiDetail(id_transaksi);
+                            getNextValIdTransaksiDetail(id_transaksi);
                         });
                     }
 
-                    function insertTransaksiDetail(id_transaksi) {
+                    function getNextValIdTransaksiDetail(id_transaksi) {
+                        con.query("SHOW TABLE STATUS LIKE 'transaksi_detail'", function(err, rows) {
+                            if (err) throw err;
+                            insertTransaksiDetail(id_transaksi, rows[0].Auto_increment);
+                        });
+                    }
+
+                    function insertTransaksiDetail(id_transaksi, id_transaksi_detail) {
+                        //alertify.alert(JSON.stringify(data[5]));
+                        var k = 0;
                         for (var i = 0; i < (count - 1); i++) {
                             if (j == 1) {
                                 var id_barang_jual = data[i].value;
+                                //alert(j + " " + id_barang_jual + " " + i);
                                 j++;
                             } else if (j == 2) {
-                                var harga_satuan = data[i].value;
+                                var id_barang = data[i].value;
+                                //alert(j + " " + id_barang + " " + i);
                                 j++;
                             } else if (j == 3) {
-                                var qty = data[i].value;
+                                var multiplier = data[i].value;
+                                //alert(j + " " + multiplier + " " + i);
                                 j++;
                             } else if (j == 4) {
-                                var jumlah = data[i].value;
+                                var harga_satuan = data[i].value;
+                                //alert(j + " " + harga_satuan + " " + i);
+                                j++;
+                            } else if (j == 5) {
+                                var qty = data[i].value;
+                                //alert(j + " " + qty + " " + i);
+                                j++;
+                            } else if (j == 6) {
+                                var valJumlah = data[i].value;
+                                //k++ function getRandomCode();
+                                //alert(j + " " + valJumlah + " " + i);
                                 j = 1;
-                                con.query("INSERT INTO transaksi_detail (id_transaksi, id_barang_jual, qty, harga_satuan, total_harga) VALUES('" + id_transaksi + "', '" + id_barang_jual + "', '" + qty + "', '" + harga_satuan + "', '" + jumlah + "')", function(err, rows) {
-                                    if (err)
-                                        throw err;
+
+                                //alert(id_transaksi_detail + k);
+
+                                con.query("INSERT INTO transaksi_detail (id_transaksi_detail, id_transaksi, id_barang_jual, qty, harga_satuan, total_harga) VALUES('" + (id_transaksi_detail + k) + "', '" + id_transaksi + "', '" + id_barang_jual + "', '" + qty + "', '" + harga_satuan + "', '" + valJumlah + "')", function(err, rows) {
+                                    if (err) throw err;
                                 });
+                                insertStockDetail(id_barang, id_barang_jual, (id_transaksi_detail + k), multiplier, qty, harga_satuan);
+
+                                k++;
                             }
                         }
+                        //alert(id_barang_jual + " " + harga_satuan + " " + qty + " " + jumlah);
                         finishInsertTransaksiDetail();
                     }
 
+                    function insertStockDetail(id_barang, id_barang_jual, id_transaksi_detail, multiplier, qty, harga_satuan) {
+                        con.query("SELECT stock.id_stock AS idStock, stock.id_satuan AS idSatuan, stock.stock AS total_stock, id_stock_detail, stock_detail.id_pembelian AS id_pembelian, stock_detail.stock AS stock_data, harga_beli FROM stock JOIN stock_detail ON stock_detail.id_stock = stock.id_stock WHERE id_barang = '" + id_barang + "' AND stock_detail.stock > '0' ORDER BY stock_detail.id_stock_detail ASC", function(err, rows) {
+                            if (err) throw err;
+                            var id_stock = rows[0].idStock;
+                            var id_satuan = rows[0].idSatuan;
+                            var total_stock = rows[0].total_stock;
+                            var jumlah_barang = qty * multiplier;
+                            var hasil = total_stock - jumlah_barang;
+                            var new_stock, stock_det, id_det;
+                            var harga_jual = harga_satuan / multiplier;
+                            var laba_satuan, laba_stock, laba_total, harga_beli = rows[0].harga_beli;
+                            //alert("hasil : " + hasil + " ; total_stock : " + total_stock + "; multiplier : " + multiplier + " ; qty : " + qty);
+                            //hasil : nan ; multiplier : undefined
+                            for (var i = 0; i < rows.length; i++) {
+                                stock_det = rows[i].stock_data;
+                                harga_beli = rows[i].harga_beli;
+
+                                if (i == 0) {
+                                    new_stock = stock_det - jumlah_barang;
+                                    id_det = rows[i].id_stock_detail;
+                                    if (new_stock < 0) {
+                                        //update detail -> 0
+                                        updateStockDetail(id_det, 0);
+
+                                        laba_satuan = harga_jual - harga_beli;
+                                        laba_total = laba_satuan * stock_det;
+
+                                        insertLaba(id_transaksi_detail, id_barang, id_satuan, id_barang_jual, stock_det, harga_beli, harga_jual, laba_satuan, laba_total);
+                                    } else {
+                                        //update detail -> new_stock
+                                        updateStockDetail(id_det, new_stock);
+
+                                        laba_stock = jumlah_barang;
+                                        laba_satuan = harga_jual - harga_beli;
+                                        laba_total = laba_satuan * laba_stock;
+
+                                        insertLaba(id_transaksi_detail, id_barang, id_satuan, id_barang_jual, laba_stock, harga_beli, harga_jual, laba_satuan, laba_total);
+                                    }
+                                } else {
+                                    id_det = rows[i].id_stock_detail;
+                                    if (new_stock < 0) {
+                                        var barang_terjual = new_stock * (-1);
+                                        new_stock = stock_det + new_stock;
+                                        if (new_stock < 0) {
+                                            //update detail -> kosongin
+                                            updateStockDetail(id_det, 0);
+
+                                            laba_satuan = harga_jual - harga_beli;
+                                            laba_total = laba_satuan * stock_det;
+
+                                            insertLaba(id_transaksi_detail, id_barang, id_satuan, id_barang_jual, stock_det, harga_beli, harga_jual, laba_satuan, laba_total);
+                                        } else {
+                                            //update detail -> new_stock
+                                            updateStockDetail(id_det, new_stock);
+
+                                            laba_stock = barang_terjual;
+                                            laba_satuan = harga_jual - harga_beli;
+                                            laba_total = laba_satuan * laba_stock;
+
+                                            insertLaba(id_transaksi_detail, id_barang, id_satuan, id_barang_jual, laba_stock, harga_beli, harga_jual, laba_satuan, laba_total);
+                                        }
+                                    }
+                                }
+                                //update stock
+                                con.query("UPDATE stock SET stock = '" + hasil + "' WHERE id_stock = '" + id_stock + "'", function(err, rows) {
+                                    if (err) throw err;
+                                });
+                            }
+                        });
+
+                    }
+
+                    function insertLaba(id_transaksi_detail, id_barang, id_satuan, id_barang_jual, qty, harga_beli, harga_jual, laba_satuan, laba_total) {
+                        con.query("INSERT INTO laba (id_transaksi_detail, id_barang,id_satuan,id_barang_jual,qty, harga_beli, harga_jual, laba_satuan, laba_total) VALUES('" + id_transaksi_detail + "','" + id_barang + "','" + id_satuan + "','" + id_barang_jual + "','" + qty + "','" + harga_beli + "','" + harga_jual + "','" + laba_satuan + "','" + laba_total + "')", function(err, rows) {
+                            if (err) throw err;
+                        });
+                    }
+
                     function finishInsertTransaksiDetail() {
-                        alertify.alert("Transaksi berhasil");
+                        //alertify.alert("Transaksi berhasil");
                         $("#closePmb").trigger("click");
                         $("#cancel").trigger("click");
                         setTimeout(function() {
                             $("#input_nama_barang").focus();
-                        }, 500)
+                        }, 500);
+                        //cetakStruk();
+                    }
+
+                    function cetakStruk() {
+                        //alert($("#hdn_id_transaksi").val());
+                        $("#framePrint").attr("src", "print_cashier.html?id_transaksi=" + $("#hdn_id_transaksi").val());
+
+                        setTimeout(function() {
+                            document.getElementById('framePrint').contentWindow.print_payment();
+                        }, 500);
                     }
                     //alert(loop);
                     //alert(JSON.stringify(data))
@@ -226,9 +354,9 @@
                     $("#dt_total").val(dt_total);
                     $(this).parents("tr").remove();
                     $("#input_nama_barang").focus();
-                })
+                });
 
-                con.query("SELECT id_barang_jual AS id , barang AS label, barang_jual.harga AS harga, satuan.satuan as satuan FROM barang JOIN barang_jual ON barang.id_barang = barang_jual.id_barang JOIN satuan ON barang_jual.id_satuan=satuan.id_satuan", function(err, rows) {
+                con.query("SELECT id_barang_jual AS id, multiplier AS multiply, barang_jual.id_barang AS idBarang, barang AS label, barang_jual.harga AS harga, satuan.satuan as satuan FROM barang JOIN barang_jual ON barang.id_barang = barang_jual.id_barang JOIN satuan ON barang_jual.id_satuan = satuan.id_satuan", function(err, rows) {
                     if (err)
                         throw err;
                     getData(JSON.stringify(rows));
@@ -245,9 +373,21 @@
                         select: function(event, ui) {
                             $("#input_nama_barang").val(ui.item.label);
                             $("#input_id_barang_jual").val(ui.item.id);
-                            $("#input_harga_barang").val(ui.item.harga);
-                            $("#input_qty_barang").val(1).select();
-                            $("#input_status").val("t");
+                            //alert(ui.item.id);
+                            //cek satuan terkecil
+                            con.query("Select COUNT(*) AS co FROM barang_jual WHERE id_barang ='" + ui.item.idBarang + "' AND multiplier ='1'", function(err, rows) {
+                                if (err) throw err;
+                                if (rows[0].co == 0) {
+                                    alertify.alert("TIdak ada satuan terkecil, silahkan seting di menu Barang Jual");
+                                    //$("#input_nama_barang").val("");
+                                } else {
+                                    $("#input_harga_barang").val(ui.item.harga);
+                                    $("#input_qty_barang").val(1).select();
+                                    $("#input_status").val("t");
+                                    $("#input_id_barang").val(ui.item.idBarang);
+                                    $("#input_multiplier").val(ui.item.multiply);
+                                }
+                            });
                         }
                     }).data("ui-autocomplete")._renderItem = function(ul, item) {
                         return $("<li>")
@@ -267,6 +407,8 @@
                     $("#input_qty_barang").val("");
                     $("#input_status").val("f");
                     $("#input_nama_barang").focus();
+                    $("#input_id_barang").val("");
+                    $("#input_multiplier").val("");
                 })
             })
             </script>
@@ -329,22 +471,25 @@
                                     <input type="text" class="form-control input-sm" id="input_nama_barang" autofocus="" name="input_nama_barang" value="">
                                     <input type="hidden" name="input_id_barang_jual" id="input_id_barang_jual" value="" />
                                     <input type="hidden" name="input_status" id="input_status" value="f" />
+                                    <input type="hidden" name="input_id_barang" id="input_id_barang" />
+                                    <input type="hidden" name="input_multiplier" id="input_multiplier" />
                                 </div>
                             </div>
                             <div class="form-group">
-                                <label for="inputPassword3" class="col-sm-5 control-label">Harga Barang</label>
+                                <label for="input_harga_barang" class="col-sm-5 control-label">Harga Barang</label>
                                 <div class="col-sm-7">
                                     <input type="text" class="form-control input-sm" id="input_harga_barang" readonly="" value="">
                                 </div>
                             </div>
                             <div class="form-group">
-                                <label for="inputPassword3" class="col-sm-5 control-label">QTY. Barang</label>
+                                <label for="input_qty_barang" class="col-sm-5 control-label">QTY. Barang</label>
                                 <div class="col-sm-7">
                                     <input type="text" class="form-control input-sm" id="input_qty_barang" value="">
                                 </div>
                             </div>
                             <div class="form-group">
                                 <div class="col-sm-offset-2 col-sm-10">
+                                    <input type="hidden" id="hdn_id_transaksi" value="">
                                     <button type="submit" class="btn btn-info btn-sm">Masukkan ke Daftar Belanja</button>
                                 </div>
                             </div>

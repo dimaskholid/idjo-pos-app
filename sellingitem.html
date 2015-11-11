@@ -119,6 +119,47 @@
                     };
                 });
                 /*----------- end view all ---------*/
+                /*---- cari barang ----*/
+                $(document).on("submit", "#frmCariBarang", function(e) {
+                    //tambah if (#cariBarang == kosong, tabel kembali )
+                    //if (#cariBarang == tidak ketemu, pesan barang tidak ada)
+                    e.preventDefault();
+                    con.query("SELECT * FROM barang_jual JOIN barang ON barang_jual.id_barang = barang.id_barang JOIN satuan ON barang_jual.id_satuan = satuan.id_satuan WHERE barang.barang LIKE '%" + $("#cariBarang").val() + "%'", function(err, rows) {
+                        if (err) throw err;
+
+                        console.log('Data cari received from Db:\n');
+                        console.log(rows);
+                        $("#tabelBarangJual tbody").empty();
+                        for (var i = 0; i < rows.length; i++) {
+                            console.log(rows[i].id_barang_jual + " " + rows[i].barang + " " + rows[i].satuan + " " + rows[i].alias + " " + rows[i].multiplier + " " + rows[i].harga);
+                            //alert("cari");
+                            $("#tabelBarangJual tbody").append(
+                                "<tr>" +
+                                "<td>" +
+                                "<input type='hidden' name='idBarangJual' id='idBarangJual' value='" + rows[i].id_barang_jual + "'>" +
+                                "<input type='hidden' name='hdnBarang' id='hdnBarang' value='" + rows[i].barang + "'>" +
+                                "<input type='hidden' name='hdnIdBarang' id='hdnIdBarang' value='" + rows[i].id_barang + "'>" +
+                                "<input type='hidden' name='idSatuan' id='idSatuan' value='" + rows[i].id_satuan + "'>" +
+                                "<input type='hidden' name='hdnSatuan' id='hdnSatuan' value='" + rows[i].satuan + "'>" +
+                                "<input type='hidden' name='hdnAlias' id='hdnAlias' value='" + rows[i].alias + "'>" +
+                                "<input type='hidden' name='hdnMultiplier' id='hdnMultiplier' value='" + rows[i].multiplier + "'>" +
+                                "<input type='hidden' name='hdnHarga' id='hdnHarga' value='" + rows[i].harga + "'>" +
+                                parseInt(i + 1) + "</td>" +
+                                "<td>" + rows[i].barang + "</td>" +
+                                "<td>" + rows[i].satuan + "</td>" +
+                                "<td>" + rows[i].multiplier + "</td>" +
+                                "<td>" + rows[i].alias + "</td>" +
+                                "<td>" + rows[i].harga + "</td>" +
+                                "<td>" +
+                                "<button type='button' id='btnEditBarangJual' class = 'btn btn-link btn-xs'> " + "<span class='glyphicon glyphicon-wrench'></span>" + "</button>" +
+                                "<button type='button' id='btnDelBarangJual' class = 'btn btn-link btn-xs'> " + "<span class='glyphicon glyphicon-trash'></span>" + "</button>" +
+                                "</td > " +
+                                "</tr>"
+                            );
+                        };
+
+                    });
+                });
                 /*----------- Select ---------*/
                 con.query('SELECT * FROM satuan', function(err, rows) {
                     if (err)
@@ -192,8 +233,18 @@
                         }
                     },
                     submitHandler: function(form) {
-
-                        /*---------------------------------------------*/
+                        con.query('UPDATE barang_jual SET id_satuan=?, multiplier = ?, alias = ?, harga = ? Where id_barang_jual = ?', [$("#selectEditSatuan").val(), $("#editJumlah").val(), $("#editAlias").val(), $("#editHarga").val(), $("#hdnIdBrgJual").val()],
+                            function(err, result) {
+                                if (err) throw err;
+                                console.log('Changed ' + result.changedRows + ' rows');
+                            }
+                        );
+                        /*-----------reload purchasing------------*/
+                        localStorage['purchasing'] = 0;
+                        $("#mdlEditBarangJual").modal("toggle");
+                        $("#closeBrgJual").trigger("click");
+                        notifEdit();
+                        /*---------------------------------------------
                         con.query("SELECT COUNT(*) AS co FROM barang_jual WHERE id_barang = '" + $("#hdnIdEditBarang").val() + "' AND id_satuan ='" + $("#selectEditSatuan").val() + "'", function(err, res) {
                             if (err) throw err;
                             cekBrgJual(res);
@@ -213,7 +264,7 @@
                                         console.log('Changed ' + result.changedRows + ' rows');
                                     }
                                 );
-                                /*-----------reload purchasing------------*/
+                                /*-----------reload purchasing------------
                                 localStorage['purchasing'] = 0;
                                 $("#mdlEditBarangJual").modal("toggle");
                                 $("#closeBrgJual").trigger("click");
@@ -221,7 +272,7 @@
                             } else {
                                 $("#editBrgJual-error-duplicate").show();
                             }
-                        } /*-----------------------------------------*/
+                        } -----------------------------------------*/
                     }
                 });
                 /*---------- Fokus input -----------*/
@@ -397,13 +448,13 @@
                         </div>
                         <div class="panel-body">
                             <!-- Panel content -->
-                            <form>
+                            <form class="form-horizontal" id="frmCariBarang">
                                 <fieldset>
                                     <div class="col-xs-4">
                                         <input class="form-control input-sm" name="cariBarang" id="cariBarang" placeholder="Nama Barang" type="text">
                                     </div>
                                     <div class="col-xs-8">
-                                        <button type="button" id="btnCari" class="btn btn-info btn-sm btnCari" data-toggle="modal" data-target="">Cari Barang</button>
+                                        <button type="submit" form="frmCariBarang" class="btn btn-info  btn-sm">Cari Barang</button>
                                     </div>
                                 </fieldset>
                             </form>

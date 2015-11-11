@@ -33,163 +33,163 @@
         <div id="content-loader">
             <div class="container content">
                 <script>
-                /*-------------- View all -----------------*/
-                con.query("SELECT * FROM stock JOIN barang ON stock.id_barang = barang.id_barang JOIN satuan ON stock.id_satuan = satuan.id_satuan", function(err, rows) {
-                    if (err)
-                        throw err;
+                $(function() {
+                    /*-------------- View all -----------------*/
+                    con.query("SELECT * FROM stock JOIN barang ON stock.id_barang = barang.id_barang JOIN satuan ON stock.id_satuan = satuan.id_satuan", function(err, rows) {
+                        if (err)
+                            throw err;
 
-                    console.log('Data received from tabel stock\n');
-                    console.log(rows[0]);
-                    $("#tabelUpdateStock tbody").empty();
-                    for (var i = 0; i < rows.length; i++) {
+                        console.log('Data received from tabel stock\n');
+                        console.log(rows[0]);
+                        $("#tabelUpdateStock tbody").empty();
+                        for (var i = 0; i < rows.length; i++) {
 
-                        $("#tabelUpdateStock tbody").append(
-                            "<tr>" +
-                            "<td>" +
-                            "<input type='hidden' name='idstock' id='idstock' value='" + rows[i].id_stock + "'>" +
-                            "<input type='hidden' name='hdnBarang' id='hdnBarang' value='" + rows[i].barang + "'>" +
-                            "<input type='hidden' name='hdnIdBarang' id='hdnIdBarang' value='" + rows[i].id_barang + "'>" +
-                            "<input type='hidden' name='idSatuan' id='idSatuan' value='" + rows[i].id_satuan + "'>" +
-                            "<input type='hidden' name='hdnStock' id='hdnStock' value='" + rows[i].stock + "'>" +
-                            "<input type='hidden' name='hdnSatuan' id='hdnSatuan' value='" + rows[i].satuan + "'>" +
-                            parseInt(i + 1) + "</td>" +
-                            "<td>" + rows[i].barang + "</td>" +
-                            "<td>" + rows[i].stock + "</td>" +
-                            "<td>" + rows[i].satuan + "</td>" +
-                            "<td>" +
-                            "<button type='button' id='btnUpdateStock' class = 'btn btn-link btn-xs'> " + "<span class='glyphicon glyphicon-wrench'></span>" + "</button>" +
-                            "</td > " +
-                            "</tr>"
-                        );
-                    };
-                });
-                /*-------------- end view  -----------------*/
-                /*-------------- Sisa Stock -----------------*/
-                $(document).on("keyup", "#inputPengurang", function(e) {
-                    var pengurang = parseInt($(this).val());
-                    var awal = parseInt($("#hdnStock").val());
-                    var sisa = awal - pengurang;
-                    if ($(this).val() == "" || $(this).val() > awal) {
-                        $("#sisaStock").val("");
-                    } else {
-                        $("#sisaStock").val(sisa);
-                    }
-                });
-                /*---------- Fokus input -----------*/
-                $(document).on("click", "#btnUpdateStock", function() {
-                    setTimeout(function() {
-                        $("#inputPengurang").focus();
-                    }, 500);
-                });
+                            $("#tabelUpdateStock tbody").append(
+                                "<tr>" +
+                                "<td>" +
+                                "<input type='hidden' name='idstock' id='idstock' value='" + rows[i].id_stock + "'>" +
+                                "<input type='hidden' name='hdnBarang' id='hdnBarang' value='" + rows[i].barang + "'>" +
+                                "<input type='hidden' name='hdnIdBarang' id='hdnIdBarang' value='" + rows[i].id_barang + "'>" +
+                                "<input type='hidden' name='idSatuan' id='idSatuan' value='" + rows[i].id_satuan + "'>" +
+                                "<input type='hidden' name='hdnStock' id='hdnStock' value='" + rows[i].stock + "'>" +
+                                "<input type='hidden' name='hdnSatuan' id='hdnSatuan' value='" + rows[i].satuan + "'>" +
+                                parseInt(i + 1) + "</td>" +
+                                "<td>" + rows[i].barang + "</td>" +
+                                "<td>" + rows[i].stock + "</td>" +
+                                "<td>" + rows[i].satuan + "</td>" +
+                                "<td>" +
+                                "<button type='button' id='btnUpdateStock' class = 'btn btn-link btn-xs'> " + "<span class='glyphicon glyphicon-wrench'></span>" + "</button>" +
+                                "</td > " +
+                                "</tr>"
+                            );
+                        };
+                    });
+                    /*-------------- end view  -----------------*/
+                    /*-------------- Sisa Stock -----------------*/
+                    $(document).on("keyup", "#inputPengurang", function(e) {
+                        var pengurang = parseInt($(this).val());
+                        var awal = parseInt($("#hdnStock").val());
+                        var sisa = awal - pengurang;
+                        if ($(this).val() == "" || $(this).val() > awal) {
+                            $("#sisaStock").val("");
+                        } else {
+                            $("#sisaStock").val(sisa);
+                        }
+                    });
+                    /*---------- Fokus input -----------*/
+                    $(document).on("click", "#btnUpdateStock", function() {
+                        setTimeout(function() {
+                            $("#inputPengurang").focus();
+                        }, 500);
+                    });
 
-                /*--------------- reload ------------------*/
-                $(document).on("click", "#closeStock, .closeStock", function(e) {
-                    e.stopImmediatePropagation();
-                    setTimeout(function() {
-                        $.ajax({
-                            type: "GET",
-                            url: "updatestock.html",
-                            success: function(data) {
-                                var content = $(data).find("#content-loader");
-                                $("#content-wrapper").fadeOut().empty().fadeIn().append(content);
+                    /*--------------- reload ------------------*/
+                    $(document).on("click", "#closeStock, .closeStock", function(e) {
+                        e.stopImmediatePropagation();
+                        setTimeout(function() {
+                            $.ajax({
+                                type: "GET",
+                                url: "updatestock.html",
+                                success: function(data) {
+                                    var content = $(data).find("#content-loader");
+                                    $("#content-wrapper").fadeOut().empty().fadeIn().append(content);
+                                },
+                                error: function(data) {}
+                            });
+                        }, 200);
+                    });
+
+                    /*--------------- Validasi update stock ------------------*/
+                    $("#frmUpdateStock").validate({
+                        rules: {
+                            inputPengurang: {
+                                number: true,
+                                minlength: 1,
+                                required: true
                             },
-                            error: function(data) {}
-                        });
-                    }, 200);
-                });
-
-                /*--------------- Validasi update stock ------------------*/
-                $("#frmUpdateStock").validate({
-                    rules: {
-                        inputPengurang: {
-                            number: true,
-                            minlength: 1,
-                            required: true
+                            sisaStock: {
+                                number: true,
+                                minlength: 1,
+                                required: true
+                            }
                         },
-                        sisaStock: {
-                            number: true,
-                            minlength: 1,
-                            required: true
-                        }
-                    },
-                    messages: {
-                        inputPengurang: {
-                            number: "Input berupa angka",
-                            minlength: "Tidak boleh kosong",
-                            required: "Tidak boleh kosong"
+                        messages: {
+                            inputPengurang: {
+                                number: "Input berupa angka",
+                                minlength: "Tidak boleh kosong",
+                                required: "Tidak boleh kosong"
+                            },
+                            sisaStock: {
+                                number: "Cek lagi input pengurang",
+                                minlength: "Cek lagi input pengurang",
+                                required: "Cek lagi input pengurang"
+                            }
                         },
-                        sisaStock: {
-                            number: "Cek lagi input pengurang",
-                            minlength: "Cek lagi input pengurang",
-                            required: "Cek lagi input pengurang"
-                        }
-                    },
-                    submitHandler: function(form) {
-                        var idStockBarang = $("#idBarangStock").val();
-                        var min = parseInt($("#inputPengurang").val());
-                        var hasil = parseInt($("#sisaStock").val());
-                        var new_stock, id_det, id_stock, stock_det;
+                        submitHandler: function(form) {
+                            var idStockBarang = $("#idBarangStock").val(); //id_barang
+                            var min = parseInt($("#inputPengurang").val());
+                            var hasil = parseInt($("#sisaStock").val());
+                            var new_stock, id_det, id_stock, stock_det;
 
-                        con.query("SELECT stock.id_stock AS idStock, id_stock_detail, stock_detail.stock AS stock_data FROM stock JOIN stock_detail ON stock_detail.id_stock = stock.id_stock WHERE id_barang = '" + idStockBarang + "' AND stock_detail.stock > '0' ORDER BY stock_detail.id_stock_detail ASC", function(err, rows) {
-                            if (err) throw err;
-                            id_stock = rows[0].idStock;
-                            for (var i = 0; i < rows.length; i++) {
-                                stock_det = rows[i].stock_data;
-                                if (i == 0) {
-                                    new_stock = stock_det - min;
-                                    id_det = rows[i].id_stock_detail;
-                                    if (new_stock < 0) {
-                                        //update detail -> kosongin
-                                        //alert("part 1");
-                                        con.query("UPDATE stock_detail SET stock = '0' WHERE id_stock_detail = '" + id_det + "'", function(err, rows) {
-                                            if (err) throw err;
-                                        });
-                                    } else {
-                                        //update detail -> new_stock
-                                        //alert("part 2");
-                                        con.query("UPDATE stock_detail SET stock = '" + new_stock + "' WHERE id_stock_detail = '" + id_det + "'", function(err, rows) {
-                                            if (err) throw err;
-                                        });
-                                    }
-                                } else {
-                                    id_det = rows[i].id_stock_detail;
-                                    if (new_stock < 0) {
-                                        new_stock = stock_det + new_stock;
+                            con.query("SELECT stock.id_stock AS idStock, id_stock_detail, stock_detail.stock AS stock_data FROM stock JOIN stock_detail ON stock_detail.id_stock = stock.id_stock WHERE id_barang = '" + idStockBarang + "' AND stock_detail.stock > '0' ORDER BY stock_detail.id_stock_detail ASC", function(err, rows) {
+                                if (err) throw err;
+                                id_stock = rows[0].idStock;
+                                for (var i = 0; i < rows.length; i++) {
+                                    stock_det = rows[i].stock_data;
+                                    if (i == 0) {
+                                        new_stock = stock_det - min;
+                                        id_det = rows[i].id_stock_detail;
                                         if (new_stock < 0) {
                                             //update detail -> kosongin
-                                            //alert("part 3");
-                                            con.query("UPDATE stock_detail SET stock = '0' WHERE id_stock_detail = '" + id_det + "'", function(err, rows) {
+                                            //alert("part 1");
+                                            /*con.query("UPDATE stock_detail SET stock = '0' WHERE id_stock_detail = '" + id_det + "'", function(err, rows) {
                                                 if (err) throw err;
-                                            });
+                                            });*/
+                                            updateStockDetail(id_det, 0);
                                         } else {
                                             //update detail -> new_stock
-                                            //alert("part 4");
-                                            con.query("UPDATE stock_detail SET stock = '" + new_stock + "' WHERE id_stock_detail = '" + id_det + "'", function(err, rows) {
+                                            //alert("part 2");
+                                            /*con.query("UPDATE stock_detail SET stock = '" + new_stock + "' WHERE id_stock_detail = '" + id_det + "'", function(err, rows) {
                                                 if (err) throw err;
-                                            });
+                                            });*/
+                                            updateStockDetail(id_det, new_stock);
+                                        }
+                                    } else {
+                                        id_det = rows[i].id_stock_detail;
+                                        if (new_stock < 0) {
+                                            new_stock = stock_det + new_stock;
+                                            if (new_stock < 0) {
+                                                //update detail -> kosongin
+                                                //alert("part 3");
+                                                updateStockDetail(id_det, 0);
+                                            } else {
+                                                //update detail -> new_stock
+                                                //alert("part 4");
+                                                updateStockDetail(id_det, new_stock);
+                                            }
                                         }
                                     }
+                                    //update stock
+                                    con.query("UPDATE stock SET stock = '" + hasil + "' WHERE id_stock = '" + id_stock + "'", function(err, rows) {
+                                        if (err) throw err;
+                                    });
                                 }
-                                //update stock
-                                con.query("UPDATE stock SET stock = '" + hasil + "' WHERE id_stock = '" + id_stock + "'", function(err, rows) {
-                                    if (err) throw err;
-                                });
-                            }
-                        });
-                        $("#closeStock").trigger('click');
-                        notif("Berhasil merubah data stok");
-                    }
-                });
+                            });
+                            $("#closeStock").trigger('click');
+                            notif("Berhasil merubah data stok");
+                        }
+                    });
 
-                /*--- on show modal ---*/
-                $(document).on("click", "#btnUpdateStock", function() {
-                    $('#mdlUpdateStock').modal('show');
-                    var idBarang = $(this).closest('tr').find("#hdnIdBarang").val();
-                    var stockAwal = $(this).closest('tr').find('#hdnStock').val();
-                    var satuanStock = $(this).closest('tr').find('#hdnSatuan').val();
-                    $("#stockTersedia").html(stockAwal + " " + satuanStock);
-                    $("#hdnStock").val(stockAwal);
-                    $("#idBarangStock").val(idBarang);
+                    /*--- on show modal ---*/
+                    $(document).on("click", "#btnUpdateStock", function() {
+                        $('#mdlUpdateStock').modal('show');
+                        var idBarang = $(this).closest('tr').find("#hdnIdBarang").val();
+                        var stockAwal = $(this).closest('tr').find('#hdnStock').val();
+                        var satuanStock = $(this).closest('tr').find('#hdnSatuan').val();
+                        $("#stockTersedia").html(stockAwal + " " + satuanStock);
+                        $("#hdnStock").val(stockAwal);
+                        $("#idBarangStock").val(idBarang);
+                    });
                 });
                 </script>
                 <div class="row">

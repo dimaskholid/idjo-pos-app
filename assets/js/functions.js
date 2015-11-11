@@ -75,7 +75,34 @@ function toJSONLocal(date) {
     return local.toJSON().slice(0, 10);
 }
 
+/*--------- reload --------------*/
+function reload(link, time) {
+    setTimeout(function() {
+        $.ajax({
+            type: "GET",
+            url: link,
+            success: function(data) {
+                var content = $(data).find("#content-loader");
+                $("#content-wrapper").fadeOut().empty().fadeIn().append(content);
+            },
+            error: function(data) {}
+        });
+    }, time);
+}
 
+//ambil param dari address bar ->> http://www.sitepoint.com/url-parameters-jquery/
+$.urlParam = function(name) {
+    var results = new RegExp('[\?&]' + name + '=([^&#]*)').exec(window.location.href);
+    return results[1] || 0;
+}
+
+
+/*-------- updateStockDetail -----*/
+function updateStockDetail(id, stock) {
+    con.query("UPDATE stock_detail SET stock = '" + stock + "' WHERE id_stock_detail = '" + id + "'", function(err, rows) {
+        if (err) throw err;
+    });
+}
 
 
 
