@@ -331,7 +331,7 @@
                         setTimeout(function() {
                             $("#input_nama_barang").focus();
                         }, 500);
-                        //cetakStruk();
+                        cetakStruk();
                     }
 
                     function cetakStruk() {
@@ -394,7 +394,7 @@
                             .data("ui-autocomplete-item", item)
                             .append("<a>" + item.label + " - " + item.satuan + "</a>")
                             .appendTo(ul);
-                    };
+                    }
                 });
 
                 $(document).on("click", "#cancel", function() {
@@ -409,7 +409,7 @@
                     $("#input_nama_barang").focus();
                     $("#input_id_barang").val("");
                     $("#input_multiplier").val("");
-                })
+                });
             })
             </script>
             <div class="container content">

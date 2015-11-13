@@ -34,7 +34,7 @@
             <div class="container content">
                 <script>
                 /*-------------- View all -----------------*/
-                con.query("SELECT * FROM transaksi JOIN transaksi_detail ON transaksi.id_transaksi = transaksi_detail.id_transaksi JOIN barang_jual ON transaksi_detail.id_barang_jual = barang_jual.id_barang_jual JOIN barang ON barang_jual.id_barang = barang.id_barang JOIN satuan ON barang_jual.id_satuan = satuan.id_satuan ORDER BY transaksi.tanggal", function(err, rows) {
+                con.query("SELECT * FROM transaksi JOIN transaksi_detail ON transaksi.id_transaksi = transaksi_detail.id_transaksi JOIN barang_jual ON transaksi_detail.id_barang_jual = barang_jual.id_barang_jual JOIN barang ON barang_jual.id_barang = barang.id_barang JOIN satuan ON barang_jual.id_satuan = satuan.id_satuan ORDER BY transaksi.tanggal DESC", function(err, rows) {
                     if (err)
                         throw err;
 
@@ -52,6 +52,7 @@
                             "<input type='hidden' name='idSatuan' id='idSatuan' value='" + rows[i].id_satuan + "'>" +
                             "<input type='hidden' name='hdnStock' id='hdnStock' value='" + rows[i].stock + "'>" +
                             parseInt(i + 1) + "</td>" +
+                            "<td>" + rows[i].tanggal + "</td>" +
                             "<td>" + rows[i].barang + "</td>" +
                             "<td>" + rows[i].qty + "</td>" +
                             "<td>" + rows[i].satuan + "</td>" +
@@ -78,9 +79,10 @@
                         <thead>
                             <tr>
                                 <th width="5%">No</th>
-                                <th width="35%">Nama Barang</th>
-                                <th width="30%" align="right">Jumlah Terjual</th>
-                                <th width="30%" align="left">Satuan</th>
+                                <th width="20%">Tanggal</th>
+                                <th width="25%">Nama Barang</th>
+                                <th width="25%" align="right">Jumlah Terjual</th>
+                                <th width="25%" align="left">Satuan</th>
                             </tr>
                         </thead>
                         <tbody>

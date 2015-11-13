@@ -104,9 +104,42 @@ function updateStockDetail(id, stock) {
     });
 }
 
+/*----- Month ------*/
+function setMonth(select) {
+    var month = new Array();
+    month[0] = "Januari";
+    month[1] = "Februari";
+    month[2] = "Maret";
+    month[3] = "April";
+    month[4] = "Mei";
+    month[5] = "Juni";
+    month[6] = "Juli";
+    month[7] = "Agustus";
+    month[8] = "September";
+    month[9] = "Oktober";
+    month[10] = "November";
+    month[11] = "Desember";
 
+    for (var i = 0; i < month.length; i++) {
+        $(select).append(
+            "<option value='" + i + "'>" + month[i] + "</option>"
+        );
+    }
+    var curMonth = new Date();
+    $(select).val(curMonth.getMonth());
+    //alert(curMonth.getMonth());
+}
 
-
+/*----- Year ------*/
+function setYear(selectYear) {
+    var curYear = new Date();
+    for (var i = curYear.getFullYear(); i >= 2003; i--) {
+        $(selectYear).append(
+            "<option value='" + i + "'>" + i + "</option>"
+        );
+    }
+    $(selectYear).val(curYear.getFullYear());
+}
 
 
 

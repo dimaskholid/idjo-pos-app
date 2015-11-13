@@ -34,7 +34,7 @@
             <div class="container content">
                 <script>
                 /*-------------- View all -----------------*/
-                con.query("SELECT * FROM stock JOIN barang ON stock.id_barang = barang.id_barang JOIN satuan ON stock.id_satuan = satuan.id_satuan", function(err, rows) {
+                con.query("SELECT barang.barang AS nama_barang, kategori.kategori AS kategori, laba.qty AS qty, satuan.satuan AS satuan, laba_total  FROM laba JOIN transaksi_detail ON transaksi_detail.id_transaksi_detail = laba.id_transaksi_detail JOIN barang ON barang.id_barang = laba.id_barang JOIN satuan ON satuan.id_satuan = laba.id_satuan JOIN kategori ON barang.id_kategori = kategori.id_kategori ORDER BY id_laba DESC", function(err, rows) {
                     if (err)
                         throw err;
 
@@ -46,15 +46,12 @@
                         $("#tabelLaporanStock tbody").append(
                             "<tr>" +
                             "<td>" +
-                            "<input type='hidden' name='idstock' id='idstock' value='" + rows[i].id_stock + "'>" +
-                            "<input type='hidden' name='hdnBarang' id='hdnBarang' value='" + rows[i].barang + "'>" +
-                            "<input type='hidden' name='hdnIdBarang' id='hdnIdBarang' value='" + rows[i].id_barang + "'>" +
-                            "<input type='hidden' name='idSatuan' id='idSatuan' value='" + rows[i].id_satuan + "'>" +
-                            "<input type='hidden' name='hdnStock' id='hdnStock' value='" + rows[i].stock + "'>" +
                             parseInt(i + 1) + "</td>" +
-                            "<td>" + rows[i].barang + "</td>" +
-                            "<td>" + rows[i].stock + "</td>" +
+                            "<td>" + rows[i].nama_barang + "</td>" +
+                            "<td>" + rows[i].kategori + "</td>" +
+                            "<td>" + rows[i].qty + "</td>" +
                             "<td>" + rows[i].satuan + "</td>" +
+                            "<td>" + rows[i].laba_total + "</td>" +
                             "</tr>"
                         );
                     };
@@ -78,9 +75,11 @@
                         <thead>
                             <tr>
                                 <th width="5%">No</th>
-                                <th width="35%">Nama</th>
-                                <th width="30%" align="right">Stock</th>
-                                <th width="30%" align="left">Satuan</th>
+                                <th width="25%">Nama</th>
+                                <th width="20%">Kategori</th>
+                                <th width="15%">Jumlah</th>
+                                <th width="15%" align="right">Satuan</th>
+                                <th width="20%" align="left">Laba</th>
                             </tr>
                         </thead>
                         <tbody>
