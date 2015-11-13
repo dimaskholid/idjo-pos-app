@@ -33,14 +33,40 @@
         <div id="content-loader">
             <div class="container content">
                 <script>
+                var sql = "SELECT pembelian.id_distributor AS id_distributor, distributor.distributor AS nama_distributor FROM pembelian JOIN distributor ON pembelian.id_distributor = distributor.id_distributor ORDER BY distributor ASC";
+                var options = {
+                    sql, nestTables: true
+                };
+                con.query(options, function(err, results) {
+                    //alertify.alert(JSON.stringify(results, null, "\n"));
+                    //$("#json").html(JSON.stringify(results, undefined, 2));
+                    /* results will be an array like this now:
+                    [{
+                      table1: {
+                        fieldA: '...',
+                        fieldB: '...',
+                      },
+                      table2: {
+                        fieldA: '...',
+                        fieldB: '...',
+                      },
+                    }, ...]
+                    */
+                });
                 /*-------------- View all -----------------*/
                 con.query("SELECT pembelian.id_distributor AS id_distributor, distributor.distributor AS nama_distributor FROM pembelian JOIN distributor ON pembelian.id_distributor = distributor.id_distributor GROUP BY distributor ORDER BY distributor ASC ", function(err, rows) {
-                    if (err)
-                        throw err;
-                    console.log('Data received\n');
+                    if (err) throw err;
+                    console.log('Data pembelian received\n');
+                    var dist = [];
+
                     $("#tabelLaporanStock tbody").empty();
+
                     for (var i = 0; i < rows.length; i++) {
-                        var id = rows[i].id_distributor;
+                        dist[i] = {};
+                        dist[i]["nama_distributor"] = rows[i].nama_distributor;
+                        dist[i]["id_distributor"] = rows[i].id_distributor;
+
+                        //
 
                         $("#tabelLaporanStock tbody").append(
                             "<tr>" +
@@ -51,18 +77,72 @@
                             "<td colspan=4 ><p class='kiri'>" + rows[i].nama_distributor + "</p></td>" +
                             "<td>" + "</td>" +
                             "</tr>" +
-                            "<tr>" +
-                            con.query("SELECT barang.barang AS nama_barang, qty, satuan.satuan AS satuan, harga_satuan, harga_total FROM pembelian JOIN distributor ON pembelian.id_distributor = distributor.id_distributor JOIN barang ON barang.id_barang = pembelian.id_barang JOIN satuan ON satuan.id_satuan = pembelian.id_satuan WHERE pembelian.id_distributor = '" + id + "'", function(err, rows) {
-                                if (err) throw err;
-                                for (var j = 0; j < rows.length; j++) {
-                                    "<td><p class='kiri'>" + rows[j].nama_barang + "</p></td>"
-                                }
-
-                            }) +
-                            "</tr>"
+                            "<tr ><td id='detail_distributor_" + rows[i].id_distributor + "' colspan=6 class='padding-0'></td></tr>"
                         );
-                    };
+                    }
+                    insertDataDetail(dist);
+
+                    //alertify.alert(JSON.stringify(arr));
+
                 });
+
+                function insertDataDetail(dist) {
+                    for (var i = 0; i < dist.length; i++) {
+                        con.query("SELECT barang.barang AS nama_barang, qty, satuan.satuan AS satuan, harga_satuan, harga_total, pembelian.id_distributor AS id_dist FROM pembelian JOIN distributor ON pembelian.id_distributor = distributor.id_distributor JOIN barang ON barang.id_barang = pembelian.id_barang JOIN satuan ON satuan.id_satuan = pembelian.id_satuan WHERE pembelian.id_distributor = '" + dist[i]["id_distributor"] + "'", function(err, rows) {
+                            if (err) throw err;
+
+                            for (var j = 0; j < rows.length; j++) {
+                                $("#detail_distributor_" + rows[j].id_dist).append(
+                                    "<table class=\"table table-hover keatas bawah-0 margin-0 padding-0\"><tr>" +
+                                    "<td width='5%'>\&nbsp;</td>" +
+                                    "<td width='25%'><p class='kiri'>" + (j + 1) + ". " + rows[j].nama_barang + "</p></td>" +
+                                    "<td width='15%'>" + rows[j].qty + "</td>" +
+                                    "<td width='15%'>" + rows[j].satuan + "</td>" +
+                                    "<td width='20%'>" + rows[j].harga_satuan + "</td>" +
+                                    "<td width='20%'>" + rows[j].harga_total + "</td>" +
+                                    "</tr></table>"
+                                );
+
+                                //dist[i]["detail"][j] = {};
+                                //dist[i]["detail"][j]["nama_barang"] = rows[j].nama_barang;
+                                //dist[i]["detail"][j]["qty"] = rows[j].qty;
+                                //dist[i]["detail"][j]["satuan"] = rows[j].satuan;
+                                //dist[i]["detail"][j]["harga_satuan"] = rows[j].harga_satuan;
+                                //dist[i]["detail"][j]["harga_total"] = rows[j].harga_total;
+                            }
+
+
+                        });
+
+                    }
+                    /**/
+
+                    $("#json").html(JSON.stringify(dist, undefined, 2));
+                }
+
+                function getIdDistributor(key, id, nama) {
+                    con.query("SELECT barang.barang AS nama_barang, qty, satuan.satuan AS satuan, harga_satuan, harga_total FROM pembelian JOIN distributor ON pembelian.id_distributor = distributor.id_distributor JOIN barang ON barang.id_barang = pembelian.id_barang JOIN satuan ON satuan.id_satuan = pembelian.id_satuan WHERE pembelian.id_distributor = '" + id + "'", function(err, rows) {
+                        if (err) throw err;
+                        alert(id + "." + nama + "\n");
+                        $("#tabelLaporanStock tbody").empty();
+
+                        $("#tabelLaporanStock tbody").append(
+                            "<tr>" +
+                            "<td>" +
+                            "<input type='hidden' name='idstock' id='idstock' value='" + id + "'>" + (parseInt(key) + 1) + "</td>" +
+                            "<td colspan=4 ><p class='kiri'>" + nama + "</p></td>" +
+                            "<td>" + "</td>" +
+                            "</tr>" +
+                            "<tr>" + "</tr>"
+                        );
+                        for (var j in rows) {
+                            var barang = rows[j].nama_barang;
+                            //alert(id + "." + nama + "\n" + barang);
+                        }
+
+
+                    });
+                }
                 /*-------------- end view  -----------------*/
                 setMonth("#selectMonth");
                 setYear("#selectYear");
@@ -119,6 +199,7 @@
                             </tr>
                         </tbody>
                     </table>
+                    <pre id="json"></pre>
                 </div>
             </div>
         </div>
