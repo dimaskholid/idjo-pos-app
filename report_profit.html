@@ -32,33 +32,92 @@
     <div id="content-wrapper">
         <div id="content-loader">
             <div class="container content">
+                <iframe id="framePrint" style="display:none;" src="" frameborder="0">
+                </iframe>
                 <script>
-                /*-------------- View all -----------------*/
-                con.query("SELECT barang.barang AS nama_barang, kategori.kategori AS kategori, laba.qty AS qty, satuan.satuan AS satuan, laba_total  FROM laba JOIN transaksi_detail ON transaksi_detail.id_transaksi_detail = laba.id_transaksi_detail JOIN barang ON barang.id_barang = laba.id_barang JOIN satuan ON satuan.id_satuan = laba.id_satuan JOIN kategori ON barang.id_kategori = kategori.id_kategori ORDER BY id_laba DESC", function(err, rows) {
-                    if (err)
-                        throw err;
+                setMonth("#selectMonth");
+                setYear("#selectYear");
+                var year = $("#selectYear").val();
+                var month = parseInt($("#selectMonth").val()) + 1;
+                $("#hdnDate").val(year + "-" + month);
 
-                    console.log('Data received from tabel stock\n');
-                    console.log(rows[0]);
-                    $("#tabelLaporanStock tbody").empty();
-                    for (var i = 0; i < rows.length; i++) {
+                $(document).on("change", "#selectMonth, #selectYear", function(e) {
+                    year = $("#selectYear").val();
+                    month = parseInt($("#selectMonth").val()) + 1;
+                    $("#hdnDate").val(year + "-" + month);
+                    //alertify.alert($("#hdnDate").val());
+                    //alertify.alert($("#selectMonth option:selected").text());
 
-                        $("#tabelLaporanStock tbody").append(
-                            "<tr>" +
-                            "<td>" +
-                            parseInt(i + 1) + "</td>" +
-                            "<td>" + rows[i].nama_barang + "</td>" +
-                            "<td>" + rows[i].kategori + "</td>" +
-                            "<td>" + rows[i].qty + "</td>" +
-                            "<td>" + rows[i].satuan + "</td>" +
-                            "<td>" + rows[i].laba_total + "</td>" +
-                            "</tr>"
-                        );
-                    };
                 });
-                /*-------------- end view  -----------------*/
+
+                $(document).on("submit", "#frmFilter", function(e) {
+                    e.preventDefault();
+                    viewAll($("#hdnDate").val());
+                });
+
+                $(document).on("click", "#btnCetak", function(e) {
+                    get_report();
+                });
+
+                function get_report() {
+                    //alert($("#hdn_id_transaksi").val());
+                    $("#framePrint").attr("src", "print_profit.html?date=" + $("#hdnDate").val() + "&month=" + $("#selectMonth option:selected").text() + "&year=" + $("#selectYear option:selected").text());
+
+                    setTimeout(function() {
+                        document.getElementById('framePrint').contentWindow.print_report();
+                    }, 500);
+                }
+                /*-------------- View all -----------------*/
+                viewAll($("#hdnDate").val());
+
+                function viewAll(date) {
+                    con.query("SELECT tanggal, barang.barang AS nama_barang, kategori.kategori AS kategori, laba.qty AS qty, satuan.satuan AS satuan, laba_total FROM laba JOIN transaksi_detail ON transaksi_detail.id_transaksi_detail = laba.id_transaksi_detail JOIN barang ON barang.id_barang = laba.id_barang JOIN satuan ON satuan.id_satuan = laba.id_satuan JOIN kategori ON barang.id_kategori = kategori.id_kategori WHERE laba.tanggal LIKE '" + date + "%' ORDER BY id_laba DESC", function(err, rows) {
+                        if (err)
+                            throw err;
+
+                        console.log('Data received from tabel stock\n');
+                        console.log(rows[0]);
+                        $("#tabelLaporanStock tbody").empty();
+                        for (var i = 0; i < rows.length; i++) {
+
+                            $("#tabelLaporanStock tbody").append(
+                                "<tr>" +
+                                "<td>" +
+                                parseInt(i + 1) + "</td>" +
+                                "<td>" + rows[i].tanggal + "</td>" +
+                                "<td>" + rows[i].nama_barang + "</td>" +
+                                "<td>" + rows[i].kategori + "</td>" +
+                                "<td>" + rows[i].qty + "</td>" +
+                                "<td>" + rows[i].satuan + "</td>" +
+                                "<td>" + rows[i].laba_total + "</td>" +
+                                "</tr>"
+                            );
+                        };
+                    });
+                    /*-------------- end view  -----------------*/
+
+                }
                 </script>
                 <div class="row">
+                    <div class="panel panel-primary">
+                        <div class="panel-body">
+                            <!-- Panel content -->
+                            <form class="form-horizontal" id="frmFilter">
+                                <fieldset>
+                                    <div class="col-xs-2">
+                                        <select class="form-control input-sm" name="selectMonth" id="selectMonth"></select>
+                                    </div>
+                                    <div class="col-xs-2">
+                                        <select class="form-control input-sm" name="selectYear" id="selectYear"></select>
+                                        <input type="hidden" id="hdnDate">
+                                    </div>
+                                    <div class="col-xs-8">
+                                        <button type="submit" form="frmFilter" class="btn btn-info btn-sm">Cari</button>
+                                    </div>
+                                </fieldset>
+                            </form>
+                        </div>
+                    </div>
                     <div class="panel panel-primary kebawah">
                         <div class="panel-heading">
                             <div class="clearfix">
@@ -66,7 +125,7 @@
                                     <h3 class="panel-title">Laporan Keuntungan</h3>
                                 </div>
                                 <div class="pull-right">
-                                    <button type="button" class="btn btn-info btn-xs" id="btnTambahPembelian" data-toggle="modal" data-target="">Cetak</button>
+                                    <button type="button" class="btn btn-info btn-xs" id="btnCetak" data-toggle="modal" data-target="">Cetak</button>
                                 </div>
                             </div>
                         </div>
@@ -75,11 +134,12 @@
                         <thead>
                             <tr>
                                 <th width="5%">No</th>
-                                <th width="25%">Nama</th>
-                                <th width="20%">Kategori</th>
+                                <th width="15%">Tanggal</th>
+                                <th width="20%">Nama</th>
+                                <th width="15%">Kategori</th>
                                 <th width="15%">Jumlah</th>
                                 <th width="15%" align="right">Satuan</th>
-                                <th width="20%" align="left">Laba</th>
+                                <th width="15%" align="left">Laba</th>
                             </tr>
                         </thead>
                         <tbody>

@@ -31,37 +31,75 @@
     <!-- content -->
     <div id="content-wrapper">
         <div id="content-loader">
+            <iframe id="framePrint" style="display:none;" src="" frameborder="0">
+            </iframe>
             <div class="container content">
                 <script>
-                /*-------------- View all -----------------*/
-                con.query("SELECT * FROM stock JOIN barang ON stock.id_barang = barang.id_barang JOIN satuan ON stock.id_satuan = satuan.id_satuan", function(err, rows) {
-                    if (err)
-                        throw err;
+                $(function() {
+                    viewAll($("#cariBarang").val());
+                    /*-------------- View all -----------------*/
+                    function viewAll(barang) {
+                        con.query("SELECT * FROM stock JOIN barang ON stock.id_barang = barang.id_barang JOIN satuan ON stock.id_satuan = satuan.id_satuan WHERE barang.barang LIKE '%" + barang + "%' ORDER BY barang ASC", function(err, rows) {
+                            if (err)
+                                throw err;
 
-                    console.log('Data received from tabel stock\n');
-                    console.log(rows[0]);
-                    $("#tabelLaporanStock tbody").empty();
-                    for (var i = 0; i < rows.length; i++) {
+                            console.log('Data received from tabel stock\n');
+                            console.log(rows[0]);
+                            $("#tabelLaporanStock tbody").empty();
+                            for (var i = 0; i < rows.length; i++) {
 
-                        $("#tabelLaporanStock tbody").append(
-                            "<tr>" +
-                            "<td>" +
-                            "<input type='hidden' name='idstock' id='idstock' value='" + rows[i].id_stock + "'>" +
-                            "<input type='hidden' name='hdnBarang' id='hdnBarang' value='" + rows[i].barang + "'>" +
-                            "<input type='hidden' name='hdnIdBarang' id='hdnIdBarang' value='" + rows[i].id_barang + "'>" +
-                            "<input type='hidden' name='idSatuan' id='idSatuan' value='" + rows[i].id_satuan + "'>" +
-                            "<input type='hidden' name='hdnStock' id='hdnStock' value='" + rows[i].stock + "'>" +
-                            parseInt(i + 1) + "</td>" +
-                            "<td>" + rows[i].barang + "</td>" +
-                            "<td>" + rows[i].stock + "</td>" +
-                            "<td>" + rows[i].satuan + "</td>" +
-                            "</tr>"
-                        );
-                    };
-                });
-                /*-------------- end view  -----------------*/
+                                $("#tabelLaporanStock tbody").append(
+                                    "<tr>" +
+                                    "<td>" +
+                                    "<input type='hidden' name='idstock' id='idstock' value='" + rows[i].id_stock + "'>" +
+                                    "<input type='hidden' name='hdnBarang' id='hdnBarang' value='" + rows[i].barang + "'>" +
+                                    "<input type='hidden' name='hdnIdBarang' id='hdnIdBarang' value='" + rows[i].id_barang + "'>" +
+                                    "<input type='hidden' name='idSatuan' id='idSatuan' value='" + rows[i].id_satuan + "'>" +
+                                    "<input type='hidden' name='hdnStock' id='hdnStock' value='" + rows[i].stock + "'>" +
+                                    parseInt(i + 1) + "</td>" +
+                                    "<td>" + rows[i].barang + "</td>" +
+                                    "<td>" + rows[i].stock + "</td>" +
+                                    "<td>" + rows[i].satuan + "</td>" +
+                                    "</tr>"
+                                );
+                            };
+                        });
+                    }
+                    /*-------------- end view  -----------------*/
+                    $(document).on("submit", "#frmCariStock", function(e) {
+                        e.preventDefault();
+                        viewAll($("#cariBarang").val());
+                    });
+                    $(document).on("click", "#btnCetak", function(e) {
+                        get_report();
+
+                    });
+
+                    function get_report() {
+                        $("#framePrint").attr("src", "print_stock.html");
+
+                        setTimeout(function() {
+                            document.getElementById('framePrint').contentWindow.print_report();
+                        }, 500);
+                    }
+                })
                 </script>
                 <div class="row">
+                    <div class="panel panel-primary">
+                        <div class="panel-body">
+                            <!-- Panel content -->
+                            <form class="form-horizontal" id="frmCariStock">
+                                <fieldset>
+                                    <div class="col-xs-4">
+                                        <input class="form-control input-sm" name="cariBarang" id="cariBarang" placeholder="Nama Barang" type="text">
+                                    </div>
+                                    <div class="col-xs-8">
+                                        <button type="submit" form="frmCariStock" class="btn btn-info  btn-sm">Cari</button>
+                                    </div>
+                                </fieldset>
+                            </form>
+                        </div>
+                    </div>
                     <div class="panel panel-primary kebawah">
                         <div class="panel-heading">
                             <div class="clearfix">
@@ -69,7 +107,7 @@
                                     <h3 class="panel-title">Laporan Stock Barang</h3>
                                 </div>
                                 <div class="pull-right">
-                                    <button type="button" class="btn btn-info btn-xs" id="btnTambahPembelian" data-toggle="modal" data-target="">Cetak</button>
+                                    <button type="button" class="btn btn-info btn-xs" id="btnCetak" data-toggle="modal" data-target="">Cetak</button>
                                 </div>
                             </div>
                         </div>

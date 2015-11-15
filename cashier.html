@@ -98,8 +98,9 @@
                     }
                 });
 
-                $(document).on("change", "#input_qty_barang", function(e) {
+                $(document).on("keyup", "#input_qty_barang", function(e) {
                     // cek stok 
+                    //alertify.alert("berubah : " + $("#input_qty_barang").val());
 
                 })
 
@@ -172,8 +173,6 @@
                     var count = data.length;
                     //var loop = (count - 1) / 6;
                     var j = 1;
-                    //alertify.alert(JSON.stringify(data));
-                    //console.log();
 
                     con.query("SHOW TABLE STATUS LIKE 'transaksi'", function(err, rows) {
                         if (err) throw err;

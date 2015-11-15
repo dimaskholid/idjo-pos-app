@@ -31,37 +31,127 @@
     <!-- content -->
     <div id="content-wrapper">
         <div id="content-loader">
-            <div class="container content">
-                <script>
-                /*-------------- View all -----------------*/
-                con.query("SELECT * FROM stock JOIN barang ON stock.id_barang = barang.id_barang JOIN satuan ON stock.id_satuan = satuan.id_satuan", function(err, rows) {
-                    if (err)
-                        throw err;
+            <iframe id="framePrint" style="display:none;" src="" frameborder="0">
+            </iframe>
+            <script>
+            setMonth("#selectMonth");
+            setYear("#selectYear");
+            var year = $("#selectYear").val();
+            var month = parseInt($("#selectMonth").val()) + 1;
+            $("#hdnDate").val(year + "-" + month);
 
-                    console.log('Data received from tabel stock\n');
-                    console.log(rows[0]);
+            $(document).on("change", "#selectMonth, #selectYear", function(e) {
+                year = $("#selectYear").val();
+                month = parseInt($("#selectMonth").val()) + 1;
+                $("#hdnDate").val(year + "-" + month);
+                //alertify.alert($("#hdnDate").val());
+                //alertify.alert($("#selectMonth option:selected").text());
+
+            });
+
+            $(document).on("submit", "#frmFilter", function(e) {
+                e.preventDefault();
+                viewAll($("#hdnDate").val());
+            });
+
+            $(document).on("click", "#btnCetak", function(e) {
+                get_report();
+
+            });
+
+            function get_report() {
+                //alert($("#hdn_id_transaksi").val());
+                $("#framePrint").attr("src", "print_transaction.html?date=" + $("#hdnDate").val() + "&month=" + $("#selectMonth option:selected").text() + "&year=" + $("#selectYear option:selected").text());
+
+                setTimeout(function() {
+                    document.getElementById('framePrint').contentWindow.print_report();
+                }, 500);
+            }
+
+            /*-------------- View all -----------------*/
+            viewAll($("#hdnDate").val());
+
+            function viewAll(date) {
+                con.query("SELECT * FROM transaksi WHERE tanggal LIKE '" + date + "%' ORDER BY tanggal DESC", function(err, rows) {
+                    if (err) throw err;
+                    console.log('Data pembelian received\n');
+                    var dist = [];
+
                     $("#tabelLaporanStock tbody").empty();
+
+
                     for (var i = 0; i < rows.length; i++) {
+                        dist[i] = {};
+                        dist[i]["id_transaksi"] = rows[i].id_transaksi;
 
                         $("#tabelLaporanStock tbody").append(
                             "<tr>" +
                             "<td>" +
-                            "<input type='hidden' name='idstock' id='idstock' value='" + rows[i].id_stock + "'>" +
-                            "<input type='hidden' name='hdnBarang' id='hdnBarang' value='" + rows[i].barang + "'>" +
-                            "<input type='hidden' name='hdnIdBarang' id='hdnIdBarang' value='" + rows[i].id_barang + "'>" +
-                            "<input type='hidden' name='idSatuan' id='idSatuan' value='" + rows[i].id_satuan + "'>" +
-                            "<input type='hidden' name='hdnStock' id='hdnStock' value='" + rows[i].stock + "'>" +
-                            parseInt(i + 1) + "</td>" +
-                            "<td>" + rows[i].barang + "</td>" +
-                            "<td>" + rows[i].stock + "</td>" +
-                            "<td>" + rows[i].satuan + "</td>" +
-                            "</tr>"
+                            "<input type='hidden' name='hdnBarang' id='hdnBarang' value='" + rows[i].id_transaksi + "'><strong>" +
+                            parseInt(i + 1) + "</strong></td>" +
+                            "<td colspan=2 ><p class='kiri'><strong>" + rows[i].tanggal + "</strong></p></td>" +
+                            "<td><p class='kiri'><strong>" + accounting.formatMoney(rows[i].total_transaksi) + "</strong></p></td>" +
+                            "<td><p class='kiri'><strong>" + accounting.formatMoney(rows[i].bayar) + "</strong></p></td>" +
+                            "<td><p class='kiri'><strong>" + accounting.formatMoney(rows[i].kembalian) + "</strong></p></td>" +
+                            "</tr>" +
+                            "<tr ><td id='detail_distributor_" + rows[i].id_transaksi + "' colspan=6 class='padding-0'></td></tr>"
                         );
-                    };
+                        //alert(rows[i].id_transaksi);
+                    }
+                    insertDataDetail(dist);
+                    //alertify.alert(JSON.stringify(dist));
+
                 });
-                /*-------------- end view  -----------------*/
-                </script>
+            };
+
+            function insertDataDetail(dist) {
+                for (var i = 0; i < dist.length; i++) {
+                    con.query("SELECT transaksi.id_transaksi AS id_trans, id_transaksi_detail, barang.barang AS barang, transaksi_detail.qty AS qty, satuan.satuan AS satuan, transaksi_detail.harga_satuan AS harga_satuan, transaksi_detail.total_harga AS total FROM transaksi_detail JOIN transaksi ON transaksi.id_transaksi = transaksi_detail.id_transaksi JOIN barang_jual ON barang_jual.id_barang_jual = transaksi_detail.id_barang_jual JOIN barang ON barang_jual.id_barang = barang.id_barang JOIN satuan ON barang_jual.id_satuan = satuan.id_satuan  WHERE transaksi.id_transaksi = '" + dist[i]["id_transaksi"] + "'", function(err, rows) {
+                        if (err) throw err;
+                        //kosongkan tabel
+                        for (var j = 0; j < rows.length; j++) {
+                            $("#detail_distributor_" + rows[j].id_trans + " tbody").empty();
+                        }
+                        //isi tabel data
+                        for (var j = 0; j < rows.length; j++) {
+                            $("#detail_distributor_" + rows[j].id_trans).append(
+                                "<table class=\"table table-hover keatas bawah-0 margin-0 padding-0\"><tr>" +
+                                "<td width='5%'>\&nbsp;</td>" +
+                                "<td width='25%'><p class='kiri'>" + (j + 1) + ". " + rows[j].barang + "</p></td>" +
+                                "<td width='15%'>" + rows[j].qty + "</td>" +
+                                "<td width='20%'>" + rows[j].satuan + "</td>" +
+                                "<td width='20%'>" + accounting.formatMoney(rows[j].harga_satuan) + "</td>" +
+                                "<td width='20%'>" + accounting.formatMoney(rows[j].total) + "</td>" +
+                                "</tr></table>"
+                            );
+                        }
+                    });
+                }
+                // $("#json").html(JSON.stringify(dist, undefined, 2));
+            }
+            /*-------------- end view  -----------------*/
+            </script>
+            <div class="container content">
                 <div class="row">
+                    <div class="panel panel-primary">
+                        <div class="panel-body">
+                            <!-- Panel content -->
+                            <form class="form-horizontal" id="frmFilter">
+                                <fieldset>
+                                    <div class="col-xs-2">
+                                        <select class="form-control input-sm" name="selectMonth" id="selectMonth"></select>
+                                    </div>
+                                    <div class="col-xs-2">
+                                        <select class="form-control input-sm" name="selectYear" id="selectYear"></select>
+                                        <input type="hidden" id="hdnDate">
+                                    </div>
+                                    <div class="col-xs-8">
+                                        <button type="submit" form="frmFilter" class="btn btn-info  btn-sm">Cari</button>
+                                    </div>
+                                </fieldset>
+                            </form>
+                        </div>
+                    </div>
                     <div class="panel panel-primary kebawah">
                         <div class="panel-heading">
                             <div class="clearfix">
@@ -69,7 +159,7 @@
                                     <h3 class="panel-title">Laporan Transaksi</h3>
                                 </div>
                                 <div class="pull-right">
-                                    <button type="button" class="btn btn-info btn-xs" id="btnTambahPembelian" data-toggle="modal" data-target="">Cetak</button>
+                                    <button type="button" class="btn btn-info btn-xs" id="btnCetak" data-toggle="modal" data-target="">Cetak</button>
                                 </div>
                             </div>
                         </div>
@@ -77,10 +167,20 @@
                     <table id="tabelLaporanStock" class="table table-hover table-bordered table-striped keatas">
                         <thead>
                             <tr>
-                                <th width="5%">No</th>
-                                <th width="35%">Nama</th>
-                                <th width="30%" align="right">Stock</th>
-                                <th width="30%" align="left">Satuan</th>
+                                <th width="5%" rowspan="2">No</th>
+                                <th width="35%" colspan="2">
+                                    <p class='kiri'>Tanggal</p>
+                                </th>
+                                <th width="20%" align="right">Total Tagihan</th>
+                                <th width="20%" align="left">Total Bayar</th>
+                                <th width="20%" align="left">Kembalian</th>
+                            </tr>
+                            <tr>
+                                <th width="25%">Nama Barang</th>
+                                <th width="15%" align="right">Jumlah</th>
+                                <th width="15%" align="left">Satuan</th>
+                                <th width="20%" align="left">Harga Satuan</th>
+                                <th width="20%" align="left">Total</th>
                             </tr>
                         </thead>
                         <tbody>

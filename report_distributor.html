@@ -32,64 +32,83 @@
     <div id="content-wrapper">
         <div id="content-loader">
             <div class="container content">
+                <iframe id="framePrint" style="display:none;" src="" frameborder="0">
+                </iframe>
                 <script>
-                var sql = "SELECT pembelian.id_distributor AS id_distributor, distributor.distributor AS nama_distributor FROM pembelian JOIN distributor ON pembelian.id_distributor = distributor.id_distributor ORDER BY distributor ASC";
-                var options = {
-                    sql, nestTables: true
-                };
-                con.query(options, function(err, results) {
-                    //alertify.alert(JSON.stringify(results, null, "\n"));
-                    //$("#json").html(JSON.stringify(results, undefined, 2));
-                    /* results will be an array like this now:
-                    [{
-                      table1: {
-                        fieldA: '...',
-                        fieldB: '...',
-                      },
-                      table2: {
-                        fieldA: '...',
-                        fieldB: '...',
-                      },
-                    }, ...]
-                    */
+                setMonth("#selectMonth");
+                setYear("#selectYear");
+                var year = $("#selectYear").val();
+                var month = parseInt($("#selectMonth").val()) + 1;
+                $("#hdnDate").val(year + "-" + month);
+                //alert($("#hdnDate").val());
+
+                $(document).on("change", "#selectMonth, #selectYear", function(e) {
+                    year = $("#selectYear").val();
+                    month = parseInt($("#selectMonth").val()) + 1;
+                    $("#hdnDate").val(year + "-" + month);
+                    //alertify.alert($("#hdnDate").val());
+                    //alertify.alert($("#selectMonth option:selected").text());
+
                 });
+
+                $(document).on("submit", "#frmFilter", function(e) {
+                    e.preventDefault();
+                    viewAll($("#hdnDate").val());
+                });
+
+                $(document).on("click", "#btnCetak", function(e) {
+                    get_report();
+                });
+
+                function get_report() {
+                    //alert($("#hdn_id_transaksi").val());
+                    $("#framePrint").attr("src", "print_supplier.html?date=" + $("#hdnDate").val() + "&month=" + $("#selectMonth option:selected").text() + "&year=" + $("#selectYear option:selected").text());
+
+                    setTimeout(function() {
+                        document.getElementById('framePrint').contentWindow.print_report();
+                    }, 500);
+                }
+
                 /*-------------- View all -----------------*/
-                con.query("SELECT pembelian.id_distributor AS id_distributor, distributor.distributor AS nama_distributor FROM pembelian JOIN distributor ON pembelian.id_distributor = distributor.id_distributor GROUP BY distributor ORDER BY distributor ASC ", function(err, rows) {
-                    if (err) throw err;
-                    console.log('Data pembelian received\n');
-                    var dist = [];
+                viewAll($("#hdnDate").val());
 
-                    $("#tabelLaporanStock tbody").empty();
+                function viewAll(date) {
+                    con.query("SELECT pembelian.id_distributor AS id_distributor, distributor.distributor AS nama_distributor FROM pembelian JOIN distributor ON pembelian.id_distributor = distributor.id_distributor WHERE tanggal LIKE '" + date + "%' GROUP BY distributor ORDER BY distributor ASC ", function(err, rows) {
+                        if (err) throw err;
+                        console.log('Data pembelian received\n');
+                        var dist = [];
 
-                    for (var i = 0; i < rows.length; i++) {
-                        dist[i] = {};
-                        dist[i]["nama_distributor"] = rows[i].nama_distributor;
-                        dist[i]["id_distributor"] = rows[i].id_distributor;
+                        $("#tabelLaporanStock tbody").empty();
 
-                        //
+                        for (var i = 0; i < rows.length; i++) {
+                            dist[i] = {};
+                            dist[i]["nama_distributor"] = rows[i].nama_distributor;
+                            dist[i]["id_distributor"] = rows[i].id_distributor;
 
-                        $("#tabelLaporanStock tbody").append(
-                            "<tr>" +
-                            "<td>" +
-                            "<input type='hidden' name='idstock' id='idstock' value='" + rows[i].id_pembelian + "'>" +
-                            "<input type='hidden' name='hdnBarang' id='hdnBarang' value='" + rows[i].id_distributor + "'>" +
-                            parseInt(i + 1) + "</td>" +
-                            "<td colspan=4 ><p class='kiri'>" + rows[i].nama_distributor + "</p></td>" +
-                            "<td>" + "</td>" +
-                            "</tr>" +
-                            "<tr ><td id='detail_distributor_" + rows[i].id_distributor + "' colspan=6 class='padding-0'></td></tr>"
-                        );
-                    }
-                    insertDataDetail(dist);
-
-                    //alertify.alert(JSON.stringify(arr));
-
-                });
+                            $("#tabelLaporanStock tbody").append(
+                                "<tr>" +
+                                "<td>" +
+                                "<input type='hidden' name='idstock' id='idstock' value='" + rows[i].id_pembelian + "'>" +
+                                "<input type='hidden' name='hdnBarang' id='hdnBarang' value='" + rows[i].id_distributor + "'><strong>" +
+                                parseInt(i + 1) + "</strong></td>" +
+                                "<td colspan=4 ><p class='kiri'><strong>" + rows[i].nama_distributor + "</strong></p></td>" +
+                                "<td>" + "</td>" +
+                                "</tr>" +
+                                "<tr ><td id='detail_distributor_" + rows[i].id_distributor + "' colspan=6 class='padding-0'></td></tr>"
+                            );
+                        }
+                        insertDataDetail(dist);
+                    });
+                }
 
                 function insertDataDetail(dist) {
                     for (var i = 0; i < dist.length; i++) {
                         con.query("SELECT barang.barang AS nama_barang, qty, satuan.satuan AS satuan, harga_satuan, harga_total, pembelian.id_distributor AS id_dist FROM pembelian JOIN distributor ON pembelian.id_distributor = distributor.id_distributor JOIN barang ON barang.id_barang = pembelian.id_barang JOIN satuan ON satuan.id_satuan = pembelian.id_satuan WHERE pembelian.id_distributor = '" + dist[i]["id_distributor"] + "'", function(err, rows) {
                             if (err) throw err;
+
+                            for (var j = 0; j < rows.length; j++) {
+                                $("#detail_distributor_" + rows[j].id_dist + " tbody").empty();
+                            }
 
                             for (var j = 0; j < rows.length; j++) {
                                 $("#detail_distributor_" + rows[j].id_dist).append(
@@ -98,54 +117,18 @@
                                     "<td width='25%'><p class='kiri'>" + (j + 1) + ". " + rows[j].nama_barang + "</p></td>" +
                                     "<td width='15%'>" + rows[j].qty + "</td>" +
                                     "<td width='15%'>" + rows[j].satuan + "</td>" +
-                                    "<td width='20%'>" + rows[j].harga_satuan + "</td>" +
-                                    "<td width='20%'>" + rows[j].harga_total + "</td>" +
+                                    "<td width='20%'>" + accounting.formatMoney(rows[j].harga_satuan) + "</td>" +
+                                    "<td width='20%'>" + accounting.formatMoney(rows[j].harga_total) + "</td>" +
                                     "</tr></table>"
                                 );
-
-                                //dist[i]["detail"][j] = {};
-                                //dist[i]["detail"][j]["nama_barang"] = rows[j].nama_barang;
-                                //dist[i]["detail"][j]["qty"] = rows[j].qty;
-                                //dist[i]["detail"][j]["satuan"] = rows[j].satuan;
-                                //dist[i]["detail"][j]["harga_satuan"] = rows[j].harga_satuan;
-                                //dist[i]["detail"][j]["harga_total"] = rows[j].harga_total;
                             }
-
-
                         });
-
                     }
                     /**/
 
-                    $("#json").html(JSON.stringify(dist, undefined, 2));
-                }
-
-                function getIdDistributor(key, id, nama) {
-                    con.query("SELECT barang.barang AS nama_barang, qty, satuan.satuan AS satuan, harga_satuan, harga_total FROM pembelian JOIN distributor ON pembelian.id_distributor = distributor.id_distributor JOIN barang ON barang.id_barang = pembelian.id_barang JOIN satuan ON satuan.id_satuan = pembelian.id_satuan WHERE pembelian.id_distributor = '" + id + "'", function(err, rows) {
-                        if (err) throw err;
-                        alert(id + "." + nama + "\n");
-                        $("#tabelLaporanStock tbody").empty();
-
-                        $("#tabelLaporanStock tbody").append(
-                            "<tr>" +
-                            "<td>" +
-                            "<input type='hidden' name='idstock' id='idstock' value='" + id + "'>" + (parseInt(key) + 1) + "</td>" +
-                            "<td colspan=4 ><p class='kiri'>" + nama + "</p></td>" +
-                            "<td>" + "</td>" +
-                            "</tr>" +
-                            "<tr>" + "</tr>"
-                        );
-                        for (var j in rows) {
-                            var barang = rows[j].nama_barang;
-                            //alert(id + "." + nama + "\n" + barang);
-                        }
-
-
-                    });
+                    // $("#json").html(JSON.stringify(dist, undefined, 2));
                 }
                 /*-------------- end view  -----------------*/
-                setMonth("#selectMonth");
-                setYear("#selectYear");
                 </script>
                 <div class="row">
                     <div class="panel panel-primary">
@@ -158,9 +141,10 @@
                                     </div>
                                     <div class="col-xs-2">
                                         <select class="form-control input-sm" name="selectYear" id="selectYear"></select>
+                                        <input type="hidden" id="hdnDate">
                                     </div>
                                     <div class="col-xs-8">
-                                        <button type="submit" form="frmFilter" class="btn btn-info  btn-sm">Cari</button>
+                                        <button type="submit" form="frmFilter" class="btn btn-info btn-sm">Cari</button>
                                     </div>
                                 </fieldset>
                             </form>
@@ -173,7 +157,7 @@
                                     <h3 class="panel-title">Laporan Distributor</h3>
                                 </div>
                                 <div class="pull-right">
-                                    <button type="button" class="btn btn-info btn-xs" id="btnTambahPembelian" data-toggle="modal" data-target="">Cetak</button>
+                                    <button type="button" class="btn btn-info btn-xs" id="btnCetak" data-toggle="modal" data-target="">Cetak</button>
                                 </div>
                             </div>
                         </div>
@@ -199,7 +183,6 @@
                             </tr>
                         </tbody>
                     </table>
-                    <pre id="json"></pre>
                 </div>
             </div>
         </div>

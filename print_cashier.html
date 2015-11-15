@@ -11,6 +11,7 @@
     <!-- JavaScript -->
     <script src="assets/js/connect.js"></script>
     <script src="assets/js/jquery.min.js"></script>
+    <script src="assets/js/accounting.min.js"></script>
     <script src="assets/js/functions.js"></script>
     <script>
     con.query("SELECT pengguna.nama AS pengguna, transaksi.tanggal AS tglTransaksi,transaksi_detail.qty AS qty,transaksi_detail.harga_satuan AS harga_satuan,transaksi_detail.total_harga AS harga_total, transaksi.bayar AS bayar, transaksi.kembalian AS kembalian FROM transaksi JOIN transaksi_detail ON transaksi.id_transaksi = transaksi_detail.id_transaksi JOIN pengguna ON transaksi.id_pengguna = pengguna.id_pengguna JOIN barang_jual ON barang_jual.id_barang_jual = transaksi_detail.id_barang_jual WHERE transaksi.id_transaksi = '" + $.urlParam('id_transaksi') + "'", function(err, rows) {
@@ -33,15 +34,16 @@
         );
 
     });
-    con.query("SELECT pengguna.nama AS pengguna, transaksi.tanggal AS tglTransaksi,transaksi_detail.qty AS qty,transaksi_detail.harga_satuan AS harga_satuan,transaksi_detail.total_harga AS harga_total, transaksi.bayar AS bayar, transaksi.kembalian AS kembalian FROM transaksi JOIN transaksi_detail ON transaksi.id_transaksi = transaksi_detail.id_transaksi JOIN pengguna ON transaksi.id_pengguna = pengguna.id_pengguna JOIN barang_jual ON barang_jual.id_barang_jual = transaksi_detail.id_barang_jual WHERE transaksi.id_transaksi = '" + $.urlParam('id_transaksi') + "'", function(err, rows) {
+    con.query("SELECT pengguna.nama AS pengguna, transaksi.tanggal AS tglTransaksi,transaksi_detail.qty AS qty,transaksi_detail.harga_satuan AS harga_satuan,transaksi_detail.total_harga AS harga_total, transaksi.bayar AS bayar, transaksi.kembalian AS kembalian, barang.barang AS nama_barang, satuan.satuan AS satuan FROM transaksi JOIN transaksi_detail ON transaksi.id_transaksi = transaksi_detail.id_transaksi JOIN pengguna ON transaksi.id_pengguna = pengguna.id_pengguna JOIN barang_jual ON barang_jual.id_barang_jual = transaksi_detail.id_barang_jual JOIN barang ON barang.id_barang = barang_jual.id_barang JOIN satuan ON satuan.id_satuan = barang_jual.id_satuan WHERE transaksi.id_transaksi = '" + $.urlParam('id_transaksi') + "'", function(err, rows) {
         if (err) throw err;
 
         for (var i = 0; i < rows.length; i++) {
             $("#body-table tbody").append(
                 //alias, qty, harga_satuan, harga_total
                 "<tr>" +
-                "<td>Total item</td>" +
+                "<td>" + rows[i].nama_barang + "</td>" +
                 "<td align='right'>" + rows[i].qty + "</td>" +
+                "<td align='right'>" + rows[i].satuan + "</td>" +
                 "<td align='right'>" + rows[i].harga_satuan + "</td>" +
                 "<td align='right'>" + rows[i].harga_total + "</td>" +
                 "</tr>"
