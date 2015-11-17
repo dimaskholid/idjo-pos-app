@@ -49,6 +49,60 @@
             </iframe>
             <script type="text/javascript">
             $(function() {
+                con.query("SELECT id_barang_jual AS id, multiplier AS multiply, barang_jual.id_barang AS idBarang, barang AS label, barang_jual.harga AS harga, satuan.satuan as satuan FROM barang JOIN barang_jual ON barang.id_barang = barang_jual.id_barang JOIN satuan ON barang_jual.id_satuan = satuan.id_satuan", function(err, rows) {
+                    if (err)
+                        throw err;
+                    getData(JSON.stringify(rows));
+                });
+
+                function getData(data) {
+                    localStorage['jarr'] = data;
+                }
+                var arr = $.parseJSON(localStorage['jarr']);
+
+                $(document).on("keydown", "#input_nama_barang", function() {
+                    $("#input_nama_barang").autocomplete({
+                        source: arr,
+                        select: function(event, ui) {
+                            $("#input_nama_barang").val(ui.item.label);
+                            $("#input_id_barang_jual").val(ui.item.id);
+                            //alert(ui.item.id);
+                            //cek satuan terkecil
+                            con.query("Select COUNT(*) AS co FROM barang_jual WHERE id_barang ='" + ui.item.idBarang + "' AND multiplier ='1'", function(err, rows) {
+                                if (err) throw err;
+                                if (rows[0].co == 0) {
+                                    alertify.alert("TIdak ada satuan terkecil, silahkan seting di menu Barang Jual");
+                                    //$("#input_nama_barang").val("");
+                                } else {
+                                    $("#input_harga_barang").val(ui.item.harga);
+                                    $("#input_qty_barang").val(1).select();
+                                    $("#input_status").val("t");
+                                    $("#input_id_barang").val(ui.item.idBarang);
+                                    $("#input_multiplier").val(ui.item.multiply);
+                                }
+                            });
+                        }
+                    }).data("ui-autocomplete")._renderItem = function(ul, item) {
+                        return $("<li>")
+                            .data("ui-autocomplete-item", item)
+                            .append("<a>" + item.label + " - " + item.satuan + "</a>")
+                            .appendTo(ul);
+                    }
+                });
+
+                $(document).on("click", "#cancel", function() {
+                    $("#tabel-daftar-belanja").children("tbody").empty();
+                    $("#total").empty().append(0);
+                    $("#dt_total").val(0);
+                    $("#input_id_barang_jual").val("");
+                    $("#input_nama_barang").val("").focus();
+                    $("#input_harga_barang").val("");
+                    $("#input_qty_barang").val("");
+                    $("#input_status").val("f");
+                    $("#input_nama_barang").focus();
+                    $("#input_id_barang").val("");
+                    $("#input_multiplier").val("");
+                });
                 $(document).on("submit", "#form-input-produk", function(e) {
                     e.preventDefault();
                     var input_id_barang_jual = $("#input_id_barang_jual").val();
@@ -341,8 +395,6 @@
                             document.getElementById('framePrint').contentWindow.print_payment();
                         }, 500);
                     }
-                    //alert(loop);
-                    //alert(JSON.stringify(data))
                     console.log(data);
                 });
 
@@ -355,60 +407,7 @@
                     $("#input_nama_barang").focus();
                 });
 
-                con.query("SELECT id_barang_jual AS id, multiplier AS multiply, barang_jual.id_barang AS idBarang, barang AS label, barang_jual.harga AS harga, satuan.satuan as satuan FROM barang JOIN barang_jual ON barang.id_barang = barang_jual.id_barang JOIN satuan ON barang_jual.id_satuan = satuan.id_satuan", function(err, rows) {
-                    if (err)
-                        throw err;
-                    getData(JSON.stringify(rows));
-                });
 
-                function getData(data) {
-                    localStorage['jarr'] = data;
-                }
-                var arr = $.parseJSON(localStorage['jarr']);
-
-                $(document).on("keydown", "#input_nama_barang", function() {
-                    $("#input_nama_barang").autocomplete({
-                        source: arr,
-                        select: function(event, ui) {
-                            $("#input_nama_barang").val(ui.item.label);
-                            $("#input_id_barang_jual").val(ui.item.id);
-                            //alert(ui.item.id);
-                            //cek satuan terkecil
-                            con.query("Select COUNT(*) AS co FROM barang_jual WHERE id_barang ='" + ui.item.idBarang + "' AND multiplier ='1'", function(err, rows) {
-                                if (err) throw err;
-                                if (rows[0].co == 0) {
-                                    alertify.alert("TIdak ada satuan terkecil, silahkan seting di menu Barang Jual");
-                                    //$("#input_nama_barang").val("");
-                                } else {
-                                    $("#input_harga_barang").val(ui.item.harga);
-                                    $("#input_qty_barang").val(1).select();
-                                    $("#input_status").val("t");
-                                    $("#input_id_barang").val(ui.item.idBarang);
-                                    $("#input_multiplier").val(ui.item.multiply);
-                                }
-                            });
-                        }
-                    }).data("ui-autocomplete")._renderItem = function(ul, item) {
-                        return $("<li>")
-                            .data("ui-autocomplete-item", item)
-                            .append("<a>" + item.label + " - " + item.satuan + "</a>")
-                            .appendTo(ul);
-                    }
-                });
-
-                $(document).on("click", "#cancel", function() {
-                    $("#tabel-daftar-belanja").children("tbody").empty();
-                    $("#total").empty().append(0);
-                    $("#dt_total").val(0);
-                    $("#input_id_barang_jual").val("");
-                    $("#input_nama_barang").val("").focus();
-                    $("#input_harga_barang").val("");
-                    $("#input_qty_barang").val("");
-                    $("#input_status").val("f");
-                    $("#input_nama_barang").focus();
-                    $("#input_id_barang").val("");
-                    $("#input_multiplier").val("");
-                });
             })
             </script>
             <div class="container content">

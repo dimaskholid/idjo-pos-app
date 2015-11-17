@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <title>Profil User</title>
+    <!-- Bootstrap -->
+    <link href="assets/css/bootstrap.min.css" rel="stylesheet">
+    <link href="assets/css/style.css" rel="stylesheet">
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="assets/js/html5shiv.min.js"></script>
+      <script src="assets/js/respond.min.js"></script>
+    <![endif]-->
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="assets/js/jquery.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="assets/js/bootstrap.min.js"></script>
+    <script src="assets/js/ajaxcontentloader.js"></script>
+</head>
+
+<body>
+    <!-- header -->
+    <div id="header"></div>
+    <!-- Navigation -->
+    <div id="navigation"></div>
+    <!-- content -->
+    <div id="content-wrapper">
+        <div id="content-loader">
+            <script>
+            $(function() {
+                //get user
+                con.query("SELECT * FROM pengguna JOIN grup_pengguna ON grup_pengguna.id_grup = pengguna.id_grup WHERE id_pengguna = '2'", function(err, rows) {
+                    if (err) throw err;
+                    $("#tabelProfil tbody").empty();
+                    // alertify.alert(rows[0].nama);
+                    $("#tabelProfil tbody").append(
+                        "<tr>" + "<td width='15%'><p class='kiri'>Nama</p></td>" +
+                        "<td width='85%'><p class='kiri'>: " +
+                        "<input type='hidden' id='hdnId' value='" + rows[0].id_pengguna + "'>" +
+                        "<input type='hidden' id='hdnNama' value='" + rows[0].nama + "'>" +
+                        "<input type='hidden' id='hdnUsername' value='" + rows[0].username + "'>" +
+                        rows[0].nama + "</p></td>" +
+                        "</tr>" +
+                        "<tr>" + "<td width='15%'><p class='kiri'>Username</p></td>" +
+                        "<td width='85%'><p class='kiri'>: " + rows[0].username + "</p></td>" +
+                        "</tr>" +
+                        "<tr>" + "<td width='15%'><p class='kiri'>Group</p></td>" +
+                        "<td width='85%'><p class='kiri'>: " + rows[0].grup_pengguna + "</p></td>" +
+                        "</tr>"
+                    );
+                });
+                /*------------------ Edit -----------------*/
+                $(document).on("click", "#btnUpdateProfil", function() {
+                    $('#mdlUpdateProfil').modal("show");
+                    var idp = $(document).find("#hdnId").val();
+                    var nama = $(document).find("#hdnNama").val();
+                    var username = $(document).find("#hdnUsername").val();
+                    $("#inpUpdateName").val(nama);
+                    $("#inpUpdateUsername").val(username);
+                    $("#hdnUpdateId").val(idp);
+                    //alert($("#hdnUpdateId").val() + " " + idp);
+                });
+
+                $("#frmUpdateProfil").validate({
+                    rules: {
+                        inpUpdateName: "required",
+                        inpUpdateUsername: "required"
+                    },
+                    messages: {
+                        inpUpdateName: "Isi Nama Pengguna",
+                        inpUpdateUsername: "Isi username"
+                    },
+                    submitHandler: function(form) {
+                        var name = $("#inpUpdateName").val(),
+                            username = $("#inpUpdateUsername").val(),
+                            id = $("#hdnUpdateId").val();
+
+                        con.query('UPDATE pengguna SET nama = ? , username = ? Where id_pengguna = ?', [name, username, id], function(err, rows) {
+                            if (err) throw err;
+
+                            console.log('Changed ' + rows.changedRows + ' rows');
+                        });
+                        $("#mdlUpdateProfil").modal("toggle");
+                        $("#closeDist").trigger("click");
+                        notifEdit();
+                    }
+                });
+
+                $(document).on("click", "#closeDist, .closeDist", function(e) {
+                    e.stopImmediatePropagation();
+                    setTimeout(function() {
+                        $.ajax({
+                            type: "GET",
+                            url: "user_profile.html",
+                            success: function(data) {
+                                var content = $(data).find("#content-loader");
+                                $("#content-wrapper").fadeOut().empty().fadeIn().append(content);
+                            },
+                            error: function(data) {}
+                        });
+                    }, 200);
+                });
+
+            })
+            </script>
+            <div class="container content">
+                <div class="row">
+                    <div class="panel panel-primary kebawah">
+                        <div class="panel-heading">
+                            <div class="clearfix">
+                                <div class="pull-left">
+                                    <h3 class="panel-title">Profil Pengguna</h3>
+                                </div>
+                                <div class="pull-right">
+                                    <button type="button" class="btn btn-info btn-xs" data-toggle="modal" id="btnUpdateProfil" data-target="#mdlUpdateProfil">Update Profil</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <table id="tabelProfil" class="table table-hover table-bordered table-striped keatas">
+                        <tbody>
+                            <tr>
+                                <td>Nama</td>
+                                <td>administrator</td>
+                            </tr>
+                            <tr>
+                                <td>Username</td>
+                                <td>administrator</td>
+                            </tr>
+                            <tr>
+                                <td>Grup</td>
+                                <td>Admin</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="container">
+                    <div class="modal fade" id="mdlUpdateProfil" tabindex="-1" role="document" data-backdrop="static">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <button type="button" id="closeDist" class="close closeDist" data-dismiss="modal">&times;</button>
+                                    <h4 class="modal-title">Update Profil</h4>
+                                </div>
+                                <div class="modal-body">
+                                    <form id="frmUpdateProfil" class="form-horizontal" action="">
+                                        <fieldset>
+                                            <div class="form-group">
+                                                <label for="inpUpdateName" class="col-lg-2 control-label">Nama</label>
+                                                <div class="col-lg-10">
+                                                    <input type="hidden" id="hdnUpdateId" value="">
+                                                    <input class="form-control input-sm" id="inpUpdateName" name="inpUpdateName" placeholder="Nama Pengguna" type="text">
+                                                    <label style="display: none;" id="inpUpdateName-error-duplicate">Data Sudah Ada</label>
+                                                </div>
+                                            </div>
+                                        </fieldset>
+                                        <fieldset>
+                                            <div class="form-group">
+                                                <label for="inpUpdateUsername" class="col-lg-2 control-label">Username</label>
+                                                <div class="col-lg-10">
+                                                    <input class="form-control input-sm" id="inpUpdateUsername" name="inpUpdateUsername" placeholder="Username" type="text">
+                                                </div>
+                                            </div>
+                                        </fieldset>
+                                    </form>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="submit" form="frmUpdateProfil" class="btn btn-info  btn-xs">Simpan</button>
+                                    <a href="#" class="btn btn-default btn-xs batal closeDist" data-dismiss="modal">Tutup</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- footer -->
+    <div id="footer"></div>
+    <script>
+    $("#navigation").load("navbar.html");
+    $("#footer").load("footer.html");
+    $("#header").load("header.html");
+    </script>
+</body>
+
+</html>

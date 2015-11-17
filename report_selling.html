@@ -32,37 +32,93 @@
     <div id="content-wrapper">
         <div id="content-loader">
             <div class="container content">
+                <iframe id="framePrint" style="display:none;" src="" frameborder="0">
+                </iframe>
                 <script>
-                /*-------------- View all -----------------*/
-                con.query("SELECT * FROM transaksi JOIN transaksi_detail ON transaksi.id_transaksi = transaksi_detail.id_transaksi JOIN barang_jual ON transaksi_detail.id_barang_jual = barang_jual.id_barang_jual JOIN barang ON barang_jual.id_barang = barang.id_barang JOIN satuan ON barang_jual.id_satuan = satuan.id_satuan ORDER BY transaksi.tanggal DESC", function(err, rows) {
-                    if (err)
-                        throw err;
+                $(function() {
+                    setMonth("#selectMonth");
+                    setYear("#selectYear");
+                    var year = $("#selectYear").val();
+                    var month = parseInt($("#selectMonth").val()) + 1;
+                    $("#hdnDate").val(year + "-" + month);
 
-                    console.log('Data received from tabel transaksi\n');
-                    console.log(rows[0]);
-                    $("#tabelLaporanPenjualan tbody").empty();
-                    for (var i = 0; i < rows.length; i++) {
+                    $(document).on("change", "#selectMonth, #selectYear", function(e) {
+                        year = $("#selectYear").val();
+                        month = parseInt($("#selectMonth").val()) + 1;
+                        $("#hdnDate").val(year + "-" + month);
+                    });
 
-                        $("#tabelLaporanPenjualan tbody").append(
-                            "<tr>" +
-                            "<td>" +
-                            "<input type='hidden' name='idstock' id='idstock' value='" + rows[i].id_stock + "'>" +
-                            "<input type='hidden' name='hdnBarang' id='hdnBarang' value='" + rows[i].barang + "'>" +
-                            "<input type='hidden' name='hdnIdBarang' id='hdnIdBarang' value='" + rows[i].id_barang + "'>" +
-                            "<input type='hidden' name='idSatuan' id='idSatuan' value='" + rows[i].id_satuan + "'>" +
-                            "<input type='hidden' name='hdnStock' id='hdnStock' value='" + rows[i].stock + "'>" +
-                            parseInt(i + 1) + "</td>" +
-                            "<td>" + rows[i].tanggal + "</td>" +
-                            "<td>" + rows[i].barang + "</td>" +
-                            "<td>" + rows[i].qty + "</td>" +
-                            "<td>" + rows[i].satuan + "</td>" +
-                            "</tr>"
-                        );
-                    };
-                });
-                /*-------------- end view  -----------------*/
+                    $(document).on("submit", "#frmFilter", function(e) {
+                        e.preventDefault();
+                        viewAll($("#hdnDate").val());
+                    });
+
+                    $(document).on("click", "#btnCetak", function(e) {
+                        get_report();
+                    });
+
+                    function get_report() {
+                        //alert($("#hdn_id_transaksi").val());
+                        $("#framePrint").attr("src", "print_selling.html?date=" + $("#hdnDate").val() + "&month=" + $("#selectMonth option:selected").text() + "&year=" + $("#selectYear option:selected").text());
+
+                        setTimeout(function() {
+                            document.getElementById('framePrint').contentWindow.print_report();
+                        }, 500);
+                    }
+
+                    viewAll($("#hdnDate").val());
+
+                    function viewAll(date) {
+                        /*-------------- View all -----------------*/
+                        con.query("SELECT * FROM transaksi JOIN transaksi_detail ON transaksi.id_transaksi = transaksi_detail.id_transaksi JOIN barang_jual ON transaksi_detail.id_barang_jual = barang_jual.id_barang_jual JOIN barang ON barang_jual.id_barang = barang.id_barang JOIN satuan ON barang_jual.id_satuan = satuan.id_satuan WHERE transaksi.tanggal LIKE '" + date + "%' ORDER BY transaksi.tanggal DESC", function(err, rows) {
+                            if (err) throw err;
+
+                            console.log('Data received from tabel transaksi\n');
+                            console.log(rows[0]);
+                            $("#tabelLaporanPenjualan tbody").empty();
+                            for (var i = 0; i < rows.length; i++) {
+
+                                $("#tabelLaporanPenjualan tbody").append(
+                                    "<tr>" +
+                                    "<td>" +
+                                    "<input type='hidden' name='idstock' id='idstock' value='" + rows[i].id_stock + "'>" +
+                                    "<input type='hidden' name='hdnBarang' id='hdnBarang' value='" + rows[i].barang + "'>" +
+                                    "<input type='hidden' name='hdnIdBarang' id='hdnIdBarang' value='" + rows[i].id_barang + "'>" +
+                                    "<input type='hidden' name='idSatuan' id='idSatuan' value='" + rows[i].id_satuan + "'>" +
+                                    "<input type='hidden' name='hdnStock' id='hdnStock' value='" + rows[i].stock + "'>" +
+                                    parseInt(i + 1) + "</td>" +
+                                    "<td>" + rows[i].tanggal + "</td>" +
+                                    "<td>" + rows[i].barang + "</td>" +
+                                    "<td>" + rows[i].qty + "</td>" +
+                                    "<td>" + rows[i].satuan + "</td>" +
+                                    "</tr>"
+                                );
+                            };
+                        });
+                        /*-------------- end view  -----------------*/
+                    }
+                })
                 </script>
                 <div class="row">
+                    <div class="panel panel-primary">
+                        <div class="panel-body">
+                            <!-- Panel content -->
+                            <form class="form-horizontal" id="frmFilter">
+                                <fieldset>
+                                    <div class="col-xs-2">
+                                        <select class="form-control input-sm" name="selectMonth" id="selectMonth"></select>
+                                    </div>
+                                    <div class="col-xs-2">
+                                        <select class="form-control input-sm" name="selectYear" id="selectYear"></select>
+                                        <input type="hidden" id="hdnDate">
+                                    </div>
+                                    <div class="col-xs-8">
+                                        <button type="submit" form="frmFilter" class="btn btn-info btn-sm">Cari</button>
+                                    </div>
+                                </fieldset>
+                            </form>
+                        </div>
+                    </div>
                     <div class="panel panel-primary kebawah">
                         <div class="panel-heading">
                             <div class="clearfix">
@@ -70,7 +126,7 @@
                                     <h3 class="panel-title">Laporan Hasil Penjualan</h3>
                                 </div>
                                 <div class="pull-right">
-                                    <button type="button" class="btn btn-info btn-xs" id="btnTambahPembelian" data-toggle="modal" data-target="">Cetak</button>
+                                    <button type="button" class="btn btn-info btn-xs" id="btnCetak" data-toggle="modal" data-target="">Cetak</button>
                                 </div>
                             </div>
                         </div>

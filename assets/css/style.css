@@ -150,16 +150,16 @@ footer {
 }
 
 
-/*Capitalize, uppercase etc*/
-
+/*Capitalize, uppercase etc
 input,
 .content {
     text-transform: uppercase;
 }
 
-::-webkit-input-placeholder {
+
+/*::-webkit-input-placeholder {
     text-transform: capitalize;
-}
+}*/
 
 * {
     -webkit-border-radius: 0 !important;
