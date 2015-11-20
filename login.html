@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <title>Toko IDJO - Login</title>
+    <!-- Bootstrap -->
+    <link href="assets/css/bootstrap.min.css" rel="stylesheet">
+    <link href="assets/css/style.css" rel="stylesheet">
+    <link href="assets/css/msgBoxLight.css" rel="stylesheet">
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="assets/js/html5shiv.min.js"></script>
+      <script src="assets/js/respond.min.js"></script>
+    <![endif]-->
+    <script src="assets/js/connect.js"></script>
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="assets/js/jquery.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="assets/js/bootstrap.min.js"></script>
+    <script src="assets/js/jquery.confirm.min.js"></script>
+    <script src="assets/js/jquery.validate.min.js"></script>
+    <!-- Add Jquery UI main JS and CSS files -->
+    <link rel="stylesheet" href="assets/js/autocomplete/jquery-ui.css">
+    <!-- <script src="assets/js/autocomplete/jquery.js"></script> -->
+    <script src="assets/js/autocomplete/jquery-ui.js"></script>
+    <script src="assets/js/jquery.msgBox.js"></script>
+    <script src="assets/js/alertify.js"></script>
+    <script src="assets/js/accounting.min.js"></script>
+    <script src="assets/js/functions.js"></script>
+    <script src="assets/js/auth.js"></script>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/alertify.core.css">
+    <script>
+    //maximize window
+    onload = function() {
+        nwin.show();
+        nwin.maximize();
+    };
+
+    //login();
+    //sessionStorage['nama'] = "";
+    </script>
+    <script>
+    $(function() {
+        //sessionStorage['nama'] = "null";
+        // sessionStorage['username'] = null;
+        // sessionStorage['grup'] = null;
+        //cekSession();
+        $("#frmLogin").validate({
+            rules: {
+                login_username: "required",
+                login_password: "required"
+            },
+            messages: {
+                login_username: "Masukkan username",
+                login_password: "Masukkan password"
+            },
+            submitHandler: function(form) {
+                //alertify.alert("login sukses")
+                con.query("SELECT COUNT(*) AS logCount,id_pengguna AS logId, pengguna.id_grup AS idGrup, nama, username, grup_pengguna.grup_pengguna AS jabatan FROM pengguna JOIN grup_pengguna ON grup_pengguna.id_grup = pengguna.id_grup WHERE username = '" + $("#login_username").val() + "' AND password = '" + md5($("#login_username").val()) + "'", function(err, rows) {
+                    if (err) throw err;
+                    if (rows[0].logCount > 0) {
+                        sessionStorage['id'] = rows[0].logId;
+                        sessionStorage['idGrup'] = rows[0].idGrup;
+                        sessionStorage['nama'] = rows[0].nama;
+                        sessionStorage['username'] = rows[0].username;
+                        sessionStorage['jabatan'] = rows[0].jabatan;
+                        alertify.alert(sessionStorage['nama'] + " " + sessionStorage['jabatan']);
+                        window.location.replace("index.html");
+                    } else {
+                        alertify.alert("Data tidak ada");
+                    }
+                });
+
+                //alertify.alert(sessionStorage['nama'] + " " + sessionStorage['jabatan']);
+                //
+            }
+        });
+        setTimeout(function() {
+            $("#loader").fadeOut();
+        }, 700);
+
+    })
+    </script>
+</head>
+
+<body>
+    <div id="loader" style="width:100%; height:100%;background-color:RGB(255,255,255);position:fixed;z-index:1000;">
+        <div style="width:200px ; height:100px; text-align:center; font-size:18px; margin:300px auto 0 auto;">Loading..</div>
+    </div>
+    <!-- header -->
+    <div id="header">
+    </div>
+    <!-- Navigation -->
+    <div id="navigation">
+        <nav class="navbar navbar-default" role="navigation">
+        </nav>
+        <script>
+        </script>
+    </div>
+    <!-- content -->
+    <div id="content-wrapper">
+        <div id="content-loader">
+            <script>
+            $(function() {
+                //$(".kasir").hide();
+            })
+            </script>
+            <div class="container content">
+                <div id="login" class="row login" style="width: 30%; float: left;">
+                    <div class="panel panel-primary kebawah">
+                        <div class="panel-heading">
+                            <div class="clearfix">
+                                <div class="pull-left">
+                                    <h3 class="panel-title">Log In</h3>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <form id="frmLogin" name="frmLogin" class="form-horizontal" style="padding: 10px 15px;">
+                        <fieldset>
+                            <div class="form-group">
+                                <label for="login_username" class="col-sm-4 control-label">Username</label>
+                                <div class="col-sm-8">
+                                    <input type="text" class="form-control input-sm" id="login_username" autofocus="true" name="login_username" value="admin">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="login_password" class="col-sm-4 control-label">Password</label>
+                                <div class="col-sm-8">
+                                    <input type="password" class="form-control input-sm" id="login_password" name="login_password" value="admin">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-sm-offset-4 col-sm-8">
+                                    <button type="submit" class="btn btn-info btn-sm">Submit</button>
+                                </div>
+                            </div>
+                        </fieldset>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- footer -->
+    <div id="footer"></div>
+    <script>
+    //$("#navigation").load("navbar.html");
+    $("#footer").load("footer.html");
+    $("#header").load("header.html");
+    </script>
+</body>
+
+</html>

@@ -34,7 +34,7 @@
             <script>
             $(function() {
                 //get user
-                con.query("SELECT * FROM pengguna JOIN grup_pengguna ON grup_pengguna.id_grup = pengguna.id_grup WHERE id_pengguna = '2'", function(err, rows) {
+                con.query("SELECT * FROM pengguna JOIN grup_pengguna ON grup_pengguna.id_grup = pengguna.id_grup WHERE id_pengguna = '" + sessionStorage['id'] + "'", function(err, rows) {
                     if (err) throw err;
                     $("#tabelProfil tbody").empty();
                     // alertify.alert(rows[0].nama);
@@ -78,12 +78,27 @@
                     submitHandler: function(form) {
                         var name = $("#inpUpdateName").val(),
                             username = $("#inpUpdateUsername").val(),
-                            id = $("#hdnUpdateId").val();
+                            id = sessionStorage['id'];
 
                         con.query('UPDATE pengguna SET nama = ? , username = ? Where id_pengguna = ?', [name, username, id], function(err, rows) {
                             if (err) throw err;
 
                             console.log('Changed ' + rows.changedRows + ' rows');
+                        });
+
+                        con.query("SELECT COUNT(*) AS logCount,id_pengguna AS logId, pengguna.id_grup AS idGrup, nama, username, grup_pengguna.grup_pengguna AS jabatan FROM pengguna JOIN grup_pengguna ON grup_pengguna.id_grup = pengguna.id_grup WHERE id_pengguna='" + id + "'", function(err, rows) {
+                            if (err) throw err;
+                            if (rows[0].logCount > 0) {
+                                sessionStorage['id'] = rows[0].logId;
+                                sessionStorage['idGrup'] = rows[0].idGrup;
+                                sessionStorage['nama'] = rows[0].nama;
+                                sessionStorage['username'] = rows[0].username;
+                                sessionStorage['jabatan'] = rows[0].jabatan;
+                                //alertify.alert(sessionStorage['nama'] + " " + sessionStorage['jabatan']);
+                                //window.location.replace("index.html");
+                            } else {
+                                alertify.alert("Data tidak ada");
+                            }
                         });
                         $("#mdlUpdateProfil").modal("toggle");
                         $("#closeDist").trigger("click");
@@ -100,6 +115,7 @@
                             success: function(data) {
                                 var content = $(data).find("#content-loader");
                                 $("#content-wrapper").fadeOut().empty().fadeIn().append(content);
+                                updateUser();
                             },
                             error: function(data) {}
                         });

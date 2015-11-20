@@ -151,7 +151,7 @@
                         // alert("hai");
                         $.ajax({
                             type: "GET",
-                            url: "item.html",
+                            url: "setting_item.html",
                             success: function(data) {
                                 var content = $(data).find("#content-loader");
                                 $("#content-wrapper").fadeOut().empty().fadeIn().append(content);
@@ -192,7 +192,15 @@
                         }
                     },
                     submitHandler: function(form) {
-                        con.query("SELECT COUNT(*) AS co FROM barang WHERE barang = '" + $("#inpEditBarang").val() + "'", function(err, res) {
+                        con.query('UPDATE barang SET barang = ?, id_kategori = ? Where id_barang = ?', [$("#inpEditBarang").val(), $("#selectEditKategori").val(), $("input[name=hdnIdBarang]").val()], function(err, result) {
+                            if (err) throw err;
+                        });
+                        /*-----------reload sellingitem------------*/
+                        localStorage['sellingitem'] = 0;
+                        $("#mdlEditBarang").modal("toggle");
+                        $("#closeBarang").trigger("click");
+                        notifEdit();
+                        /*con.query("SELECT COUNT(*) AS co FROM barang WHERE barang = '" + $("#inpEditBarang").val() + "'", function(err, res) {
                             if (err) throw err;
                             cekBarang(res);
                         });
@@ -201,23 +209,11 @@
                             if (res[0].co == 0) {
                                 $("#inpEditDistributor-error-duplicate").hide();
                                 var rowCount = $('#tabelBarang tbody tr').length;
-                                con.query('UPDATE barang SET barang = ?, id_kategori = ? Where id_barang = ?', [$("#inpEditBarang").val(), $("#selectEditKategori").val(),
-                                        $("input[name=hdnIdBarang]").val()
-                                    ],
-                                    function(err, result) {
-                                        if (err) throw err;
-                                        console.log('Changed ' + result.changedRows + ' rows');
-                                    }
-                                );
-                                /*-----------reload sellingitem------------*/
-                                localStorage['sellingitem'] = 0;
-                                $("#mdlEditBarang").modal("toggle");
-                                $("#closeBarang").trigger("click");
-                                notifEdit();
+                                
                             } else {
                                 $("#inpEditBarang-error-duplicate").show();
                             }
-                        }
+                        }*/
                     }
                 });
 
@@ -238,7 +234,7 @@
                             setTimeout(function() {
                                 $.ajax({
                                     type: "GET",
-                                    url: "item.html",
+                                    url: "setting_item.html",
                                     success: function(data) {
                                         var content = $(data).find("#content-loader");
                                         $("#content-wrapper").fadeOut().empty().fadeIn().append(content);

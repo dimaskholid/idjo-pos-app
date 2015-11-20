@@ -72,7 +72,15 @@
                         var dist = {
                             distributor: $("#inpEditDistributor").val()
                         };
-                        con.query("SELECT COUNT(*) AS co FROM distributor WHERE distributor = '" + dist['distributor'] + "'", function(err, res) {
+
+                        con.query('UPDATE distributor SET distributor = ? Where id_distributor = ?', [$("#inpEditDistributor").val(), $("input[name=hdnIdDistributor]").val()], function(err, result) {
+                            if (err) throw err;
+                        });
+                        $("#mdlEditDistributor").modal("toggle");
+                        $("#closeDist").trigger("click");
+                        notifEdit();
+
+                        /*con.query("SELECT COUNT(*) AS co FROM distributor WHERE distributor = '" + dist['distributor'] + "'", function(err, res) {
                             if (err) throw err;
                             cekEditDistributor(res);
                         });
@@ -80,25 +88,12 @@
                         cekEditDistributor = function(res) {
                             if (res[0].co == 0) {
                                 $("#inpEditDistributor-error-duplicate").hide();
-                                var rowCount = $('#tabelDistributor tbody tr').length;
-                                con.query(
-                                    'UPDATE distributor SET distributor = ? Where id_distributor = ?', [$("#inpEditDistributor").val(),
-                                        $("input[name=hdnIdDistributor]").val()
-                                    ],
-                                    function(err, result) {
-                                        if (err) throw err;
-
-                                        console.log('Changed ' + result.changedRows + ' rows');
-                                    }
-                                );
-                                $("#mdlEditDistributor").modal("toggle");
-                                $("#closeDist").trigger("click");
-                                notifEdit();
+                                //var rowCount = $('#tabelDistributor tbody tr').length;
 
                             } else {
                                 $("#inpEditDistributor-error-duplicate").show();
-                            }
-                        }
+                            } 
+                        }*/
 
                     }
                 });
@@ -203,7 +198,7 @@
                             setTimeout(function() {
                                 $.ajax({
                                     type: "GET",
-                                    url: "supplier.html",
+                                    url: "setting_supplier.html",
                                     success: function(data) {
                                         var content = $(data).find("#content-loader");
                                         $("#content-wrapper").fadeOut().empty().fadeIn().append(content);
@@ -221,14 +216,14 @@
                         cancelButtonClass: "btn-default btn-xs"
                     });
                 });
-                //refresh saat close , 
+                //reload close , 
                 $(document).on("click", "#closeDist, .closeDist", function(e) {
                     e.stopImmediatePropagation();
                     setTimeout(function() {
                         // alert("hai");
                         $.ajax({
                             type: "GET",
-                            url: "supplier.html",
+                            url: "setting_supplier.html",
                             success: function(data) {
                                 var content = $(data).find("#content-loader");
                                 $("#content-wrapper").fadeOut().empty().fadeIn().append(content);

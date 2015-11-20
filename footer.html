@@ -2,4 +2,32 @@
     <div class="container">
         <p>© 2015</p>
     </div>
+    <script>
+    //cek pengguna
+    // $(document).on("submit", "#frmLogin", function(e) {
+    //     e.preventDefault();
+    //     //alertify.alert("submit");
+
+    // })
+
+    // $(document).on("click", ".logout", function(e) {
+    //     e.preventDefault();
+    //     //alertify.alert("logut");
+    //     localStorage['nama'] = "";
+    //     window.location.replace("login.html");
+
+    // })
+
+    $(document).on("click", "#logout", function(e) {
+        e.preventDefault();
+        sessionStorage.clear();
+        $("#loader").fadeIn();
+        setTimeout(function() {
+            window.location.href = "login.html";
+        }, 1000);
+
+    })
+
+    //showUser();
+    </script>
 </footer>

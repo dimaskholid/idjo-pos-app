@@ -67,7 +67,13 @@
                         inpEditSatuan: "Isi satuan"
                     },
                     submitHandler: function(form) {
-                        con.query("SELECT COUNT(*) AS co FROM satuan WHERE satuan = '" + $("#inpEditSatuan").val() + "'", function(err, res) {
+                        con.query('UPDATE satuan SET satuan = ? Where id_satuan = ?', [$("#inpEditSatuan").val(), $("input[name=hdnIdSatuan]").val()], function(err, result) {
+                            if (err) throw err;
+                        });
+                        $("#editSatuan").modal("toggle");
+                        $("#closeSatuan").trigger("click");
+                        notifEdit();
+                        /*con.query("SELECT COUNT(*) AS co FROM satuan WHERE satuan = '" + $("#inpEditSatuan").val() + "'", function(err, res) {
                             if (err) throw err;
                             cekSatuan(res);
                         });
@@ -75,23 +81,11 @@
                         cekSatuan = function(res) {
                             if (res[0].co == 0) {
                                 $("#inpEditSatuan-error-duplicate").hide();
-                                con.query(
-                                    'UPDATE satuan SET satuan = ? Where id_satuan = ?', [$("#inpEditSatuan").val(),
-                                        $("input[name=hdnIdSatuan]").val()
-                                    ],
-                                    function(err, result) {
-                                        if (err) throw err;
-
-                                        console.log('Changed ' + result.changedRows + ' rows');
-                                    }
-                                );
-                                $("#editSatuan").modal("toggle");
-                                $("#closeSatuan").trigger("click");
-                                notifEdit();
+                                
                             } else {
                                 $("#inpEditSatuan-error-duplicate").show();
                             }
-                        }
+                        }*/
 
                     }
                 });
@@ -194,7 +188,7 @@
                         setTimeout(function() {
                             $.ajax({
                                 type: "GET",
-                                url: "unit.html",
+                                url: "setting_unit.html",
                                 success: function(data) {
                                     var content = $(data).find("#content-loader");
                                     $("#content-wrapper").fadeOut().empty().fadeIn().append(content);
@@ -220,7 +214,7 @@
                     // alert("hai");
                     $.ajax({
                         type: "GET",
-                        url: "unit.html",
+                        url: "setting_unit.html",
                         success: function(data) {
                             var content = $(data).find("#content-loader");
                             $("#content-wrapper").fadeOut().empty().fadeIn().append(content);

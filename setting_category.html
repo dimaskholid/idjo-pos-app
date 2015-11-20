@@ -64,7 +64,17 @@
                         inpEditKategori: "Isi Kategori"
                     },
                     submitHandler: function(form) {
-                        con.query("SELECT COUNT(*) AS co FROM kategori WHERE kategori = '" + $("#inpEditKategori").val() + "'", function(err, res) {
+                        con.query('UPDATE kategori SET kategori = ? Where id_kategori = ?', [$("#inpEditKategori").val(), $("input[name=hdnIdKategori]").val()],
+                            function(err, result) {
+                                if (err) throw err;
+                                console.log('Changed ' + result.changedRows + ' rows');
+                            }
+                        );
+                        $("#mdlEditKategori").modal("toggle");
+                        $("#closeKategori").trigger("click");
+                        notifEdit();
+
+                        /*con.query("SELECT COUNT(*) AS co FROM kategori WHERE kategori = '" + $("#inpEditKategori").val() + "'", function(err, res) {
                             if (err) throw err;
                             cekEditKategori(res);
                         });
@@ -72,22 +82,12 @@
                         cekEditKategori = function(res) {
                             if (res[0].co == 0) {
                                 $("#inpEditDistributor-error-duplicate").hide();
-                                con.query(
-                                    'UPDATE kategori SET kategori = ? Where id_kategori = ?', [$("#inpEditKategori").val(),
-                                        $("input[name=hdnIdKategori]").val()
-                                    ],
-                                    function(err, result) {
-                                        if (err) throw err;
-                                        console.log('Changed ' + result.changedRows + ' rows');
-                                    }
-                                );
-                                $("#mdlEditKategori").modal("toggle");
-                                $("#closeKategori").trigger("click");
-                                notifEdit();
+                                //update
+
                             } else {
                                 $("#inpEditKategori-error-duplicate").show();
                             }
-                        }
+                        }*/
 
                     }
                 });
@@ -183,7 +183,7 @@
                         setTimeout(function() {
                             $.ajax({
                                 type: "GET",
-                                url: "category.html",
+                                url: "setting_category.html",
                                 success: function(data) {
                                     var content = $(data).find("#content-loader");
                                     $("#content-wrapper").fadeOut().empty().fadeIn().append(content);
@@ -208,7 +208,7 @@
                 setTimeout(function() {
                     $.ajax({
                         type: "GET",
-                        url: "category.html",
+                        url: "setting_category.html",
                         success: function(data) {
                             var content = $(data).find("#content-loader");
                             $("#content-wrapper").fadeOut().empty().fadeIn().append(content);

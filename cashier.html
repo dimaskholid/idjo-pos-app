@@ -113,10 +113,8 @@
                     //cek stock
                     con.query("SELECT COUNT(stock) AS co, stock FROM stock WHERE id_barang = '" + $("#input_id_barang").val() + "'", function(err, rows) {
                         if (err) throw err;
-                        if (rows[0].stock < total_beli) {
-                            alertify.alert("Silahkan cek stock barang");
-                        } else if (rows[0].co === '0') {
-                            alertify.alert("Stock kosong");
+                        if (rows[0].stock < total_beli || rows[0].co == '0') {
+                            alertify.alert("Stock kosong / kurang, cek stock barang");
                         } else {
                             if (input_status == "t") {
                                 var count_input = $("#tabel-daftar-belanja").find(".tr_" + input_id_barang_jual).length;
