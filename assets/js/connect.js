@@ -12,10 +12,10 @@ var con = mysql.createConnection({
 
 con.connect(function(err) {
     if (err) {
-        console.log('Error connecting to Db');
+        console.log("Error connect database");
         return;
     }
-    console.log('Connection established');
+    console.log("Connection established");
 });
 
 

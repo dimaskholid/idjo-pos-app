@@ -13,6 +13,9 @@
     <script src="assets/js/jquery.min.js"></script>
     <script src="assets/js/accounting.min.js"></script>
     <script src="assets/js/functions.js"></script>
+    <link href="assets/css/bootstrap-print.css" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link href="assets/css/style-print.css" rel="stylesheet">
     <script>
     con.query("SELECT pengguna.nama AS pengguna, transaksi.tanggal AS tglTransaksi,transaksi_detail.qty AS qty,transaksi_detail.harga_satuan AS harga_satuan,transaksi_detail.total_harga AS harga_total, transaksi.bayar AS bayar, transaksi.kembalian AS kembalian FROM transaksi JOIN transaksi_detail ON transaksi.id_transaksi = transaksi_detail.id_transaksi JOIN pengguna ON transaksi.id_pengguna = pengguna.id_pengguna JOIN barang_jual ON barang_jual.id_barang_jual = transaksi_detail.id_barang_jual WHERE transaksi.id_transaksi = '" + $.urlParam('id_transaksi') + "'", function(err, rows) {
         if (err) throw err;

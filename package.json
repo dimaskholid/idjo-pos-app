@@ -1,11 +1,11 @@
 {
-    "name": "idjo-demo",
+    "name": "idjoApp",
     "version": "0.0.1",
     "description": "Sistem Informasi Penjualan Toko IDJO Purworejo",
     "main": "login.html",
     "window": {
-        "toolbar": true,
-        "icon": "idjo.png",
+        "toolbar": false,
+        "icon": "assets/img/idjo.png",
         "position": null,
         "fullscreen": false,
         "width": 1200,
