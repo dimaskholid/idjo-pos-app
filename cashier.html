@@ -61,25 +61,25 @@
                 }
                 var dt_cashier = $.parseJSON(localStorage['cashier']);
 
-                $(document).on("keydown", "#input_nama_barang", function() {
-                    $("#input_nama_barang").autocomplete({
+                $(document).on("keydown", "#input_nama_barang_cashier", function() {
+                    $("#input_nama_barang_cashier").autocomplete({
                         source: dt_cashier,
                         select: function(event, ui) {
-                            $("#input_nama_barang").val(ui.item.label);
-                            $("#input_id_barang_jual").val(ui.item.id);
+                            $("#input_nama_barang_cashier").val(ui.item.label);
+                            $("#input_id_barang_jual_cashier").val(ui.item.id);
                             //alert(ui.item.id);
                             //cek satuan terkecil
                             con.query("Select COUNT(*) AS co FROM barang_jual WHERE id_barang ='" + ui.item.idBarang + "' AND multiplier ='1'", function(err, rows) {
                                 if (err) throw err;
                                 if (rows[0].co == 0) {
                                     alertify.alert("TIdak ada satuan terkecil, silahkan seting di menu Barang Jual");
-                                    $("#input_nama_barang").select();
+                                    $("#input_nama_barang_cashier").select();
                                 } else {
-                                    $("#input_harga_barang").val(ui.item.harga);
-                                    $("#input_qty_barang").val(1).select();
-                                    $("#input_status").val("t");
-                                    $("#input_id_barang").val(ui.item.idBarang);
-                                    $("#input_multiplier").val(ui.item.multiply);
+                                    $("#input_harga_barang_cashier").val(ui.item.harga);
+                                    $("#input_qty_barang_cashier").val(1).select();
+                                    $("#input_status_cashier").val("t");
+                                    $("#input_id_barang_cashier").val(ui.item.idBarang);
+                                    $("#input_multiplier_cashier").val(ui.item.multiply);
                                 }
                             });
                         }
@@ -91,38 +91,36 @@
                     }
                 });
 
-                $(document).on("click", "#cancel", function() {
-                    $("#tabel-daftar-belanja").children("tbody").empty();
-                    $("#total").empty().append(0);
-                    $("#dt_total").val(0);
-                    $("#input_id_barang_jual").val("");
-                    $("#input_nama_barang").val("").focus();
-                    $("#input_harga_barang").val("");
-                    $("#input_qty_barang").val("");
-                    $("#input_status").val("f");
-                    $("#input_nama_barang").focus();
-                    $("#input_id_barang").val("");
-                    $("#input_multiplier").val("");
+                $(document).on("click", "#cancelCashier", function() {
+                    $("#tabel-daftar-belanja-cashier").children("tbody").empty();
+                    $("#total_cashier").empty().append(0);
+                    $("#dt_total_cashier").val(0);
+                    $("#input_id_barang_jual_cashier").val("");
+                    $("#input_nama_barang_cashier").val("").focus();
+                    $("#input_harga_barang_cashier").val("");
+                    $("#input_qty_barang_cashier").val("");
+                    $("#input_status_cashier").val("f");
+                    $("#input_nama_barang_cashier").focus();
+                    $("#input_id_barang_cashier").val("");
+                    $("#input_multiplier_cashier").val("");
                 });
-                $(document).on("submit", "#form-input-produk", function(e) {
+                $(document).on("submit", "#form-input-produk-cashier", function(e) {
                     e.preventDefault();
-                    var dt_qty = parseInt($("#input_qty_barang").val());
-                    var dt_multi = parseInt($("#input_multiplier").val());
+                    var dt_qty = parseInt($("#input_qty_barang_cashier").val());
+                    var dt_multi = parseInt($("#input_multiplier_cashier").val());
                     var total_beli = dt_qty * dt_multi;
-                    //alertify.alert($("#input_id_barang").val());
-                    //cek stock
-                    con.query("SELECT COUNT(stock) AS co, stock FROM stock WHERE id_barang = '" + $("#input_id_barang").val() + "'", function(err, rows) {
+                    con.query("SELECT COUNT(stock) AS co, stock FROM stock WHERE id_barang = '" + $("#input_id_barang_cashier").val() + "'", function(err, rows) {
                         if (err) throw err;
                         if (rows[0].stock < total_beli || rows[0].co == '0') {
-                            alertify.alert("Stock kosong / kurang, cek stock barang");
+                            alert("Stock kosong / kurang, cek stock barang");
                         } else {
                             if (input_status == "t") {
-                                var count_input = $("#tabel-daftar-belanja").find(".tr_" + input_id_barang_jual).length;
+                                var count_input = $("#tabel-daftar-belanja-cashier").find(".tr_" + input_id_barang_jual).length;
 
                                 if (count_input > 0) {
-                                    var add_harga_barang = $("#tabel-daftar-belanja").find(".tr_" + input_id_barang_jual).find("#dt_harga_barang").val();
-                                    var add_qty_barang = $("#tabel-daftar-belanja").find(".tr_" + input_id_barang_jual).find("#dt_qty_barang").val();
-                                    var add_jumlah = $("#tabel-daftar-belanja").find(".tr_" + input_id_barang_jual).find("#dt_jumlah").val();
+                                    var add_harga_barang = $("#tabel-daftar-belanja-cashier").find(".tr_" + input_id_barang_jual).find("#dt_harga_barang_cashier").val();
+                                    var add_qty_barang = $("#tabel-daftar-belanja-cashier").find(".tr_" + input_id_barang_jual).find("#dt_qty_barang_cashier").val();
+                                    var add_jumlah = $("#tabel-daftar-belanja-cashier").find(".tr_" + input_id_barang_jual).find("#dt_jumlah_cashier").val();
 
                                     input_qty_barang = parseInt(input_qty_barang) + parseInt(add_qty_barang);
                                     jumlah = parseInt(jumlah) + parseInt(add_jumlah);
@@ -130,66 +128,66 @@
                                     $("#tabel-daftar-belanja").find(".tr_" + input_id_barang_jual).remove();
                                 }
 
-                                $("#tabel-daftar-belanja").children("tbody").append('\
+                                $("#tabel-daftar-belanja-cashier").children("tbody").append('\
                         <tr class="tr_' + input_id_barang_jual + '">\
-                                <td class="kiri ">' + input_nama_barang + ' <input type="hidden" name="dt_id_barang_jual" id="dt_id_barang_jual" value="' + input_id_barang_jual + '" /><input type="hidden" name="dt_id_barang" id="dt_id_barang" value="' + input_id_barang + '" /><input type="hidden" name="dt_multiplier" id="dt_multiplier" value="' + input_multiplier + '" /></td>\
-                                <td width="15% " align="right ">Rp. ' + input_harga_barang + ' <input type="hidden" name="dt_harga_barang" id="dt_harga_barang" value="' + input_harga_barang + '" /></td>\
-                                <td width="10% " align="left ">' + input_qty_barang + ' <input type="hidden" name="dt_qty_barang" id="dt_qty_barang" value="' + input_qty_barang + '" /></td>\
-                                <td width="20% " align="right ">Rp. ' + jumlah + ' <input type="hidden" name="dt_jumlah" id="dt_jumlah" value="' + jumlah + '" /></td>\
-                                <td width="10% " align="right "><button class="btn btn-primary btn-xs " type="button" id="delete"><span class="glyphicon glyphicon-trash "></span></button></td>\
+                                <td class="kiri ">' + input_nama_barang + ' <input type="hidden" name="dt_id_barang_jual_cashier" id="dt_id_barang_jual_cashier" value="' + input_id_barang_jual + '" /><input type="hidden" name="dt_id_barang_cashier" id="dt_id_barang_cashier" value="' + input_id_barang + '" /><input type="hidden" name="dt_multiplier_cashier" id="dt_multiplier_cashier" value="' + input_multiplier + '" /></td>\
+                                <td width="15% " align="right ">Rp. ' + input_harga_barang + ' <input type="hidden" name="dt_harga_barang_cashier" id="dt_harga_barang_cashier" value="' + input_harga_barang + '" /></td>\
+                                <td width="10% " align="left ">' + input_qty_barang + ' <input type="hidden" name="dt_qty_barang_cashier" id="dt_qty_barang_cashier" value="' + input_qty_barang + '" /></td>\
+                                <td width="20% " align="right ">Rp. ' + jumlah + ' <input type="hidden" name="dt_jumlah_cashier" id="dt_jumlah_cashier" value="' + jumlah + '" /></td>\
+                                <td width="10% " align="right "><button class="btn btn-primary btn-xs " type="button" id="delete_cashier"><span class="glyphicon glyphicon-trash "></span></button></td>\
                             </tr>');
 
-                                $("#total").empty().append(dt_total);
-                                $("#dt_total").val(dt_total);
-                                $("#input_id_barang_jual").val("");
-                                $("#input_nama_barang").val("").focus();
-                                $("#input_harga_barang").val("");
-                                $("#input_qty_barang").val("");
-                                $("#input_status").val("f");
-                                $("#input_nama_barang").focus();
+                                $("#total_cashier").empty().append(dt_total);
+                                $("#dt_total_cashier").val(dt_total);
+                                $("#input_id_barang_jual_cashier").val("");
+                                $("#input_nama_barang_cashier").val("").focus();
+                                $("#input_harga_barang_cashier").val("");
+                                $("#input_qty_barang_cashier").val("");
+                                $("#input_status_cashier").val("f");
+                                $("#input_nama_barang_cashier").focus();
                             } else {
-                                $("#bayar").trigger("click");
+                                $("#bayar_cashier").trigger("click");
                             };
                         }
                     });
 
-                    var input_id_barang_jual = $("#input_id_barang_jual").val();
-                    var input_id_barang = $("#input_id_barang").val(); //id_barang
-                    var input_multiplier = $("#input_multiplier").val(); //multiplier
-                    var input_nama_barang = $("#input_nama_barang").val();
-                    var input_harga_barang = $("#input_harga_barang").val();
-                    var input_qty_barang = $("#input_qty_barang").val();
+                    var input_id_barang_jual = $("#input_id_barang_jual_cashier").val();
+                    var input_id_barang = $("#input_id_barang_cashier").val(); //id_barang
+                    var input_multiplier = $("#input_multiplier_cashier").val(); //multiplier
+                    var input_nama_barang = $("#input_nama_barang_cashier").val();
+                    var input_harga_barang = $("#input_harga_barang_cashier").val();
+                    var input_qty_barang = $("#input_qty_barang_cashier").val();
                     var jumlah = parseInt(input_harga_barang * input_qty_barang);
-                    var input_status = $("#input_status").val();
-                    var dt_total = parseInt($("#dt_total").val()) + jumlah;
+                    var input_status = $("#input_status_cashier").val();
+                    var dt_total = parseInt($("#dt_total_cashier").val()) + jumlah;
 
 
                 });
 
-                $(document).on("keyup", "#input_qty_barang", function(e) {
+                $(document).on("keyup", "#input_qty_barang_cashier", function(e) {
                     // cek stok 
                     //alertify.alert("berubah : " + $("#input_qty_barang").val());
 
                 })
 
-                $(document).on("click", "#btn_input_bayar", function(e) {
+                $(document).on("click", "#btn_input_bayar_cashier", function(e) {
                     setTimeout(function() {
-                        var total = $("#dt_total").val();
-                        $("#final_total_bayar").val(total);
-                        $("#final_bayar").val("").focus();
-                        $("#final_kembalian").val("");
+                        var total = $("#dt_total_cashier").val();
+                        $("#final_total_bayar_cashier").val(total);
+                        $("#final_bayar_cashier").val("").focus();
+                        $("#final_kembalian_cashier").val("");
                     }, 500);
                 });
 
-                $(document).on("keyup", "#final_bayar", function(e) {
-                    var total = parseInt($("#dt_total").val());
+                $(document).on("keyup", "#final_bayar_cashier", function(e) {
+                    var total = parseInt($("#dt_total_cashier").val());
                     var bayar = parseInt($(this).val());
                     var kembalian = bayar - total;
-                    $("#final_kembalian").val(kembalian);
+                    $("#final_kembalian_cashier").val(kembalian);
                 });
 
-                $(document).on("keydown", "#final_bayar", function(e) {
-                    // Allow: backspace, delete, tab, escape, enter and .
+                $(document).on("keydown", "#final_bayar_cashier", function(e) {
+                    // Allow: backspace, delete_cashier, tab, escape, enter and .
                     if ($.inArray(e.keyCode, [46, 8, 9, 27, 13, 110, 190]) !== -1 ||
                         // Allow: Ctrl+A
                         (e.keyCode == 65 && e.ctrlKey === true) ||
@@ -208,33 +206,33 @@
                     }
                 });
 
-                $(document).on("submit", "#frm_final_bayar", function(e) {
+                $(document).on("submit", "#frm_final_bayar_cashier", function(e) {
                     e.preventDefault();
-                    var total = parseInt($("#final_total_bayar").val());
-                    var bayar = $("#final_bayar").val();
-                    var kembalian = $("#final_kembalian").val();
+                    var total = parseInt($("#final_total_bayar_cashier").val());
+                    var bayar = $("#final_bayar_cashier").val();
+                    var kembalian = $("#final_kembalian_cashier").val();
                     if (bayar == "") {
                         alertify.alert("Kolom bayar masih kosong");
-                        $("#final_bayar").focus();
+                        $("#final_bayar_cashier").focus();
                     } else if (kembalian < 0) {
                         alertify.alert("Jumlah uang yang dibayarkan masih kurang");
-                        $("#final_bayar").focus();
+                        $("#final_bayar_cashier").focus();
                     } else {
-                        $("#form-daftar-belanja").submit();
+                        $("#form-daftar-belanja-cashier").submit();
                     }
                 });
 
-                $(document).on("click", "#bayar", function(e) {
-                    var dt_total = $("#dt_total").val();
+                $(document).on("click", "#bayar_cashier", function(e) {
+                    var dt_total = $("#dt_total_cashier").val();
                     if (dt_total > 0) {
-                        $("#btn_input_bayar").trigger("click");
+                        $("#btn_input_bayar_cashier").trigger("click");
                     } else {
                         alertify.alert("Daftar belanja masih kosong");
-                        $("#input_nama_barang").focus();
+                        $("#input_nama_barang_cashier").focus();
                     }
                 });
 
-                $(document).on("submit", "#form-daftar-belanja", function(e) {
+                $(document).on("submit", "#form-daftar-belanja-cashier", function(e) {
                     e.preventDefault();
 
                     var data = $(this).serializeArray();
@@ -250,10 +248,10 @@
                     function getNext(data) {
                         var id_transaksi = data[0].Auto_increment;
                         var id_pengguna = "1";
-                        var total_transaksi = parseInt($("#final_total_bayar").val());
-                        var bayar = $("#final_bayar").val();
-                        var kembalian = $("#final_kembalian").val();
-                        $("#hdn_id_transaksi").val(id_transaksi);
+                        var total_transaksi = parseInt($("#final_total_bayar_cashier").val());
+                        var bayar = $("#final_bayar_cashier").val();
+                        var kembalian = $("#final_kembalian_cashier").val();
+                        $("#hdn_id_transaksi_cashier").val(id_transaksi);
 
                         con.query("INSERT INTO transaksi (id_transaksi, id_pengguna, total_transaksi, bayar, kembalian) VALUES('" + id_transaksi + "', '" + id_pengguna + "', '" + total_transaksi + "', '" + bayar + "', '" + kembalian + "')", function(err, rows) {
                             if (err)
@@ -380,17 +378,17 @@
 
                     function finishInsertTransaksiDetail() {
                         //alertify.alert("Transaksi berhasil");
-                        $("#closePmb").trigger("click");
-                        $("#cancel").trigger("click");
+                        $("#closeCashier").trigger("click");
+                        $("#cancelCashier").trigger("click");
                         setTimeout(function() {
-                            $("#input_nama_barang").focus();
+                            $("#input_nama_barang_cashier").focus();
                         }, 500);
                         cetakStruk();
                     }
 
                     function cetakStruk() {
                         //alert($("#hdn_id_transaksi").val());
-                        $("#framePrint").attr("src", "print_cashier.html?id_transaksi=" + $("#hdn_id_transaksi").val());
+                        $("#framePrint").attr("src", "print_cashier.html?id_transaksi=" + $("#hdn_id_transaksi_cashier").val());
 
                         setTimeout(function() {
                             document.getElementById('framePrint').contentWindow.print_payment();
@@ -399,13 +397,13 @@
                     console.log(data);
                 });
 
-                $(document).on("click", "#delete", function() {
-                    var jumlah = parseInt($(this).parents("tr").find("#dt_jumlah").val());
-                    var dt_total = parseInt($("#dt_total").val()) - jumlah;
-                    $("#total").empty().append(dt_total);
-                    $("#dt_total").val(dt_total);
+                $(document).on("click", "#delete_cashier", function() {
+                    var jumlah = parseInt($(this).parents("tr").find("#dt_jumlah_cashier").val());
+                    var dt_total = parseInt($("#dt_total_cashier").val()) - jumlah;
+                    $("#total_cashier").empty().append(dt_total);
+                    $("#dt_total_cashier").val(dt_total);
                     $(this).parents("tr").remove();
-                    $("#input_nama_barang").focus();
+                    $("#input_nama_barang_cashier").focus();
                 });
 
 
@@ -420,13 +418,13 @@
                                     <h3 class="panel-title">Daftar Belanja</h3>
                                 </div>
                                 <div class="pull-right" style="position: absolute; top: -1000px;">
-                                    <button type="button" class="btn btn-info btn-xs" id="btn_input_bayar" data-toggle="modal" data-target="#input_bayar">Input Bayar</button>
+                                    <button type="button" class="btn btn-info btn-xs" id="btn_input_bayar_cashier" data-toggle="modal" data-target="#input_bayar_cashier">Input Bayar</button>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <form name="form-daftar-belanja" id="form-daftar-belanja" action="fda" method="POST" enctype="multipart/form-data">
-                        <table id="tabel-daftar-belanja" class="table table-hover table-bordered table-striped keatas">
+                    <form name="form-daftar-belanja-cashier" id="form-daftar-belanja-cashier" action="fda" method="POST" enctype="multipart/form-data">
+                        <table id="tabel-daftar-belanja-cashier" class="table table-hover table-bordered table-striped keatas">
                             <thead>
                                 <tr class="info">
                                     <th class="center">Nama Barang</th>
@@ -440,55 +438,55 @@
                             </tbody>
                             <tfoot>
                                 <tr>
-                                    <td colspan="3" style="text-align: right; font-size: 20px;"> Total Rp. <span id="total">0</span>
-                                        <input type="hidden" name="dt_total" id="dt_total" value="0" />
+                                    <td colspan="3" style="text-align: right; font-size: 20px;"> Total Rp. <span id="total_cashier">0</span>
+                                        <input type="hidden" name="dt_total_cashier" id="dt_total_cashier" value="0" />
                                     </td>
                                     <td colspan="2">
-                                        <button type="button" class="btn btn-info btn-sm" id="bayar">Bayar</button>
-                                        <button type="button" class="btn btn-sm red" id="cancel">Batal</button>
+                                        <button type="button" class="btn btn-info btn-sm" id="bayar_cashier">Bayar</button>
+                                        <button type="button" class="btn btn-sm red" id="cancelCashier">Batal </button>
                                     </td>
                                 </tr>
                             </tfoot>
                         </table>
                     </form>
                 </div>
-                <div class="row" style="width: 30%; float: right;">
-                    <div class="panel panel-primary kebawah">
-                        <div class="panel-heading">
-                            <div class="clearfix">
-                                <div class="pull-left">
-                                    <h3 class="panel-title">Input Produk</h3>
+                <div class=" row " style="width: 30%; float: right; ">
+                    <div class="panel panel-primary kebawah ">
+                        <div class="panel-heading ">
+                            <div class="clearfix ">
+                                <div class="pull-left ">
+                                    <h3 class="panel-title ">Input Produk</h3>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <form id="form-input-produk" name="form-input-produk" class="form-horizontal" style="padding: 10px 15px;">
+                    <form id="form-input-produk-cashier" name="form-input-produk-cashier" class="form-horizontal" style="padding: 10px 15px; ">
                         <fieldset>
-                            <div class="form-group">
-                                <label for="inputEmail3" class="col-sm-5 control-label">Nama Barang</label>
-                                <div class="col-sm-7">
-                                    <input type="text" class="form-control input-sm" id="input_nama_barang" autofocus="" name="input_nama_barang" value="">
-                                    <input type="hidden" name="input_id_barang_jual" id="input_id_barang_jual" value="" />
-                                    <input type="hidden" name="input_status" id="input_status" value="f" />
-                                    <input type="hidden" name="input_id_barang" id="input_id_barang" />
-                                    <input type="hidden" name="input_multiplier" id="input_multiplier" />
+                            <div class="form-group ">
+                                <label for="input_nama_barang_cashier" class="col-sm-5 control-label">Nama Barang</label>
+                                <div class="col-sm-7 ">
+                                    <input type="text" class="form-control input-sm " id="input_nama_barang_cashier" autofocus="" name="input_nama_barang_cashier" value="">
+                                    <input type="hidden" name="input_id_barang_jual_cashier" id="input_id_barang_jual_cashier" value="" />
+                                    <input type="hidden" name="input_status_cashier" id="input_status_cashier" value="f" />
+                                    <input type="hidden" name="input_id_barang_cashier" id="input_id_barang_cashier" />
+                                    <input type="hidden" name="input_multiplier_cashier" id="input_multiplier_cashier" />
                                 </div>
                             </div>
-                            <div class="form-group">
-                                <label for="input_harga_barang" class="col-sm-5 control-label">Harga Barang</label>
-                                <div class="col-sm-7">
-                                    <input type="text" class="form-control input-sm" id="input_harga_barang" readonly="" value="">
+                            <div class="form-group ">
+                                <label for="input_harga_barang_cashier" class="col-sm-5 control-label ">Harga Barang</label>
+                                <div class="col-sm-7 ">
+                                    <input type="text" class="form-control input-sm " id="input_harga_barang_cashier" readonly="" value="">
                                 </div>
                             </div>
-                            <div class="form-group">
-                                <label for="input_qty_barang" class="col-sm-5 control-label">QTY. Barang</label>
-                                <div class="col-sm-7">
-                                    <input type="text" class="form-control input-sm" id="input_qty_barang" value="">
+                            <div class="form-group ">
+                                <label for="input_qty_barang_cashier" class="col-sm-5 control-label ">QTY. Barang</label>
+                                <div class="col-sm-7 ">
+                                    <input type="text" class="form-control input-sm " id="input_qty_barang_cashier" value="">
                                 </div>
                             </div>
-                            <div class="form-group">
-                                <div class="col-sm-offset-2 col-sm-10">
-                                    <input type="hidden" id="hdn_id_transaksi" value="">
+                            <div class="form-group ">
+                                <div class="col-sm-offset-2 col-sm-10 ">
+                                    <input type="hidden" id="hdn_id_transaksi_cashier" value="">
                                     <button type="submit" class="btn btn-info btn-sm">Masukkan ke Daftar Belanja</button>
                                 </div>
                             </div>
@@ -498,50 +496,50 @@
             </div>
             <!-- Modal  -->
             <div class="container">
-                <div class="modal fade" id="input_bayar" tabindex="-1" role="document" data-backdrop="static">
-                    <div class="modal-dialog">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <button type="button" class="close closePgn" data-dismiss="modal">&times;</button>
+                <div class="modal fade" id="input_bayar_cashier" tabindex="-1" role="document" data-backdrop="static">
+                    <div class="modal-dialog ">
+                        <div class="modal-content ">
+                            <div class="modal-header ">
+                                <button type="button" class="close closeBayarCashier" data-dismiss="modal">&times;</button>
                                 <h4 class="modal-title">Pembayaran</h4>
                             </div>
-                            <div class="modal-body">
-                                <form class="form-horizontal" id="frm_final_bayar" name="frm_final_bayar">
-                                    <table id="tabelPengguna" class="table table-condensed table-hover ">
+                            <div class="modal-body ">
+                                <form class="form-horizontal" id="frm_final_bayar_cashier" name="frm_final_bayar_cashier">
+                                    <table id="tabelFinalBayar" class="table table-condensed table-hover">
                                         <thead>
                                         </thead>
                                         <tbody>
                                             <tr>
                                                 <td class="text-center">
-                                                    <label for="inputNamaBarang" class="control-label">Total Tagihan</label>
+                                                    <label for="final_total_bayar_cashier" class="control-label">Total Tagihan</label>
                                                 </td>
                                                 <td class="text-center">
-                                                    <input class="form-control input-sm" name="final_total_bayar" id="final_total_bayar" type="text" readonly="">
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td class="text-center">
-                                                    <label for="selectSatuan" class="control-label">Bayar</label>
-                                                </td>
-                                                <td class="text-center">
-                                                    <input class="form-control input-sm" name="final_bayar" id="final_bayar" placeholder="Uang yang dibayarkan" type="number" autocomplete="off">
+                                                    <input class="form-control input-sm" name="final_total_bayar_cashier" id="final_total_bayar_cashier" type="text" readonly="">
                                                 </td>
                                             </tr>
                                             <tr>
-                                                <td class="text-center">
-                                                    <label for="selectDistributor" class="control-label">Kembalian</label>
+                                                <td class="text-center ">
+                                                    <label for="final_bayar_cashier" class="control-label">Bayar</label>
                                                 </td>
-                                                <td class="text-center">
-                                                    <input class="form-control input-sm" name="final_kembalian" id="final_kembalian" placeholder="Kembalian" type="number" readonly="">
+                                                <td class="text-center ">
+                                                    <input class="form-control input-sm " name="final_bayar_cashier" id="final_bayar_cashier" placeholder="Uang yang dibayarkan" type="number" autocomplete="off">
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="text-center ">
+                                                    <label for="final_kembalian_cashier" class="control-label ">Kembalian</label>
+                                                </td>
+                                                <td class="text-center ">
+                                                    <input class="form-control input-sm" name="final_kembalian_cashier" id="final_kembalian_cashier" placeholder="Kembalian" type="number" readonly="">
                                                 </td>
                                             </tr>
                                         </tbody>
                                     </table>
                                 </form>
                             </div>
-                            <div class="modal-footer">
-                                <button type="submit" form="frm_final_bayar" class="btn btn-info  btn-xs">Bayar</button>
-                                <a href="#" id="closePmb" class="btn btn-default btn-xs closePmb" data-dismiss="modal">Batal</a>
+                            <div class="modal-footer ">
+                                <button type="submit" form="frm_final_bayar_cashier" class="btn btn-info btn-xs ">Bayar</button>
+                                <a href="#" id="closeCashier" class="btn btn-default btn-xs closeCashier " data-dismiss="modal">Batal</a>
                             </div>
                         </div>
                     </div>

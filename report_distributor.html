@@ -35,23 +35,24 @@
                 <iframe id="framePrint" style="display:none;" src="" frameborder="0">
                 </iframe>
                 <script>
+                viewAll($("#hdnDate").val());
                 setMonth("#selectMonth");
                 setYear("#selectYear");
                 var year = $("#selectYear").val();
                 var month = parseInt($("#selectMonth").val()) + 1;
-                $("#hdnDate").val(year + "-" + month);
+                $("#hdnDate").val(year + "-" + setDigitMonth(String(month)));
                 //alert($("#hdnDate").val());
 
                 $(document).on("change", "#selectMonth, #selectYear", function(e) {
                     year = $("#selectYear").val();
                     month = parseInt($("#selectMonth").val()) + 1;
-                    $("#hdnDate").val(year + "-" + month);
+                    $("#hdnDate").val(year + "-" + setDigitMonth(String(month)));
+                    //alertify.alert(String(month));
                     //alertify.alert($("#hdnDate").val());
-                    //alertify.alert($("#selectMonth option:selected").text());
-
+                    //alertify.alert($("#selectMonth option:selected").text() + " : " + $("#selectMonth").val());
                 });
 
-                $(document).on("submit", "#frmFilter", function(e) {
+                $(document).on("submit", "#frmFilterDist", function(e) {
                     e.preventDefault();
                     viewAll($("#hdnDate").val());
                 });
@@ -70,10 +71,9 @@
                 }
 
                 /*-------------- View all -----------------*/
-                viewAll($("#hdnDate").val());
 
                 function viewAll(date) {
-                    con.query("SELECT pembelian.id_distributor AS id_distributor, distributor.distributor AS nama_distributor FROM pembelian JOIN distributor ON pembelian.id_distributor = distributor.id_distributor WHERE tanggal LIKE '" + date + "%' GROUP BY distributor ORDER BY distributor ASC ", function(err, rows) {
+                    con.query("SELECT pembelian.tanggal AS tanggal, pembelian.id_distributor AS id_distributor, distributor.distributor AS nama_distributor FROM pembelian JOIN distributor ON pembelian.id_distributor = distributor.id_distributor WHERE tanggal LIKE '" + date + "%' GROUP BY distributor ORDER BY distributor ASC ", function(err, rows) {
                         if (err) throw err;
                         console.log('Data pembelian received\n');
                         var dist = [];
@@ -134,7 +134,7 @@
                     <div class="panel panel-primary">
                         <div class="panel-body">
                             <!-- Panel content -->
-                            <form class="form-horizontal" id="frmFilter">
+                            <form class="form-horizontal" id="frmFilterDist">
                                 <fieldset>
                                     <div class="col-xs-2">
                                         <select class="form-control input-sm" name="selectMonth" id="selectMonth"></select>
@@ -144,7 +144,7 @@
                                         <input type="hidden" id="hdnDate">
                                     </div>
                                     <div class="col-xs-8">
-                                        <button type="submit" form="frmFilter" class="btn btn-info btn-sm">Cari</button>
+                                        <button type="submit" form="frmFilterDist" class="btn btn-info btn-sm">Cari</button>
                                     </div>
                                 </fieldset>
                             </form>

@@ -4,7 +4,7 @@
     "description": "Sistem Informasi Penjualan Toko IDJO Purworejo",
     "main": "login.html",
     "window": {
-        "toolbar": false,
+        "toolbar": true,
         "icon": "assets/img/idjo.png",
         "position": null,
         "fullscreen": false,

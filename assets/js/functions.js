@@ -141,6 +141,14 @@ function setYear(selectYear) {
     $(selectYear).val(curYear.getFullYear());
 }
 
+function setDigitMonth(digit) {
+    //jika digit == 1, maka ditambah 0
+    if (digit.length == 1) {
+        digit = '0' + digit;
+    }
+    return digit;
+}
+
 /** accounting setting**/
 accounting.settings = {
     currency: {

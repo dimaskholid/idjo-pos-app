@@ -165,7 +165,7 @@
                             }
                         );
                         $("#mdlEditPengguna").modal("toggle");
-                        $("#closePgn").trigger("click");
+                        $("#closeUser").trigger("click");
                     }
                 });
                 /*------------- validasi password ---------------*/
@@ -226,13 +226,13 @@
                 });
 
                 /*--------------- reload ------------------*/
-                $(document).on("click", "#closePgn, .closePgn", function(e) {
+                $(document).on("click", "#closeUser, .closeUser", function(e) {
                     e.stopImmediatePropagation();
                     setTimeout(function() {
                         // alert("hai");
                         $.ajax({
                             type: "GET",
-                            url: "user.html",
+                            url: "setting_user.html",
                             success: function(data) {
                                 var content = $(data).find("#content-loader");
                                 $("#content-wrapper").fadeOut().empty().fadeIn().append(content);
@@ -370,7 +370,7 @@
                     <div class="modal-dialog">
                         <div class="modal-content">
                             <div class="modal-header">
-                                <button type="button" class="close closePgn" data-dismiss="modal">&times;</button>
+                                <button type="button" class="close closeUser" data-dismiss="modal">&times;</button>
                                 <h4 class="modal-title">Input Informasi Pengguna</h4>
                             </div>
                             <div class="modal-body">
@@ -413,7 +413,7 @@
                             </div>
                             <div class="modal-footer">
                                 <button type="submit" form="frmInputPengguna" class="btn btn-info  btn-xs">Simpan</button>
-                                <a href="#" id="closePgn" class="btn btn-default btn-xs closePgn" data-dismiss="modal">Tutup</a>
+                                <a href="#" id="closeUser" class="btn btn-default btn-xs closeUser" data-dismiss="modal">Tutup</a>
                             </div>
                         </div>
                     </div>
@@ -425,7 +425,7 @@
                     <div class="modal-dialog">
                         <div class="modal-content">
                             <div class="modal-header">
-                                <button type="button" class="close closePgn" data-dismiss="modal">&times;</button>
+                                <button type="button" class="close closeUser" data-dismiss="modal">&times;</button>
                                 <h4 class="modal-title">Edit Informasi Pengguna</h4>
                             </div>
                             <div class="modal-body">
@@ -477,7 +477,7 @@
                             </div>
                             <div class="modal-footer">
                                 <button type="submit" form="frmEditPengguna" class="btn btn-info  btn-xs">Simpan</button>
-                                <a href="#" class="btn btn-default btn-xs closePgn" data-dismiss="modal">Tutup</a>
+                                <a href="#" class="btn btn-default btn-xs closeUser" data-dismiss="modal">Tutup</a>
                             </div>
                         </div>
                     </div>

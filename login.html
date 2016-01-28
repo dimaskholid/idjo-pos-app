@@ -62,7 +62,7 @@
             },
             submitHandler: function(form) {
                 //alertify.alert("login sukses")
-                con.query("SELECT COUNT(*) AS logCount,id_pengguna AS logId, pengguna.id_grup AS idGrup, nama, username, grup_pengguna.grup_pengguna AS jabatan FROM pengguna JOIN grup_pengguna ON grup_pengguna.id_grup = pengguna.id_grup WHERE username = '" + $("#login_username").val() + "' AND password = '" + md5($("#login_username").val()) + "'", function(err, rows) {
+                con.query("SELECT COUNT(*) AS logCount,id_pengguna AS logId, pengguna.id_grup AS idGrup, nama, username, grup_pengguna.grup_pengguna AS jabatan FROM pengguna JOIN grup_pengguna ON grup_pengguna.id_grup = pengguna.id_grup WHERE username = '" + $("#login_username").val() + "' AND password = '" + md5($("#login_password").val()) + "'", function(err, rows) {
                     if (err) {
                         throw err + alertify.alert("Koneksi gagal");
                     }
@@ -73,9 +73,10 @@
                         sessionStorage['username'] = rows[0].username;
                         sessionStorage['jabatan'] = rows[0].jabatan;
                         alertify.alert(sessionStorage['nama'] + " " + sessionStorage['jabatan']);
+                        console.log(md5($("#login_username").val()));
                         window.location.replace("index.html");
                     } else {
-                        alertify.alert("Data tidak ada");
+                        alertify.alert("Data tidak ada : " + rows[0].logCount + " " + md5($("#login_username").val()));
                     }
                 });
 
