@@ -36,16 +36,18 @@
                 </iframe>
                 <script>
                 $(function() {
+
                     setMonth("#selectMonth");
                     setYear("#selectYear");
                     var year = $("#selectYear").val();
                     var month = parseInt($("#selectMonth").val()) + 1;
-                    $("#hdnDate").val(year + "-" + month);
+                    $("#hdnDate").val(year + "-" + setDigitMonth(String(month)));
+                    viewAll($("#hdnDate").val());
 
                     $(document).on("change", "#selectMonth, #selectYear", function(e) {
                         year = $("#selectYear").val();
                         month = parseInt($("#selectMonth").val()) + 1;
-                        $("#hdnDate").val(year + "-" + month);
+                        $("#hdnDate").val(year + "-" + setDigitMonth(String(month)));
                     });
 
                     $(document).on("submit", "#frmFilter", function(e) {
@@ -66,7 +68,7 @@
                         }, 500);
                     }
 
-                    viewAll($("#hdnDate").val());
+
 
                     function viewAll(date) {
                         /*-------------- View all -----------------*/

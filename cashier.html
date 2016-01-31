@@ -80,6 +80,7 @@
                                     $("#input_status_cashier").val("t");
                                     $("#input_id_barang_cashier").val(ui.item.idBarang);
                                     $("#input_multiplier_cashier").val(ui.item.multiply);
+                                    $("#input_satuan_cashier").val(ui.item.satuan);
                                 }
                             });
                         }
@@ -111,8 +112,10 @@
                     var total_beli = dt_qty * dt_multi;
                     con.query("SELECT COUNT(stock) AS co, stock FROM stock WHERE id_barang = '" + $("#input_id_barang_cashier").val() + "'", function(err, rows) {
                         if (err) throw err;
-                        if (rows[0].stock < total_beli || rows[0].co == '0') {
-                            alert("Stock kosong / kurang, cek stock barang");
+                        if (rows[0].co == '0') {
+                            alertify.alert("Stock kosong, cek stock barang");
+                        } else if (rows[0].stock < total_beli) {
+                            alertify.alert("Stock kurang, cek stock barang");
                         } else {
                             if (input_status == "t") {
                                 var count_input = $("#tabel-daftar-belanja-cashier").find(".tr_" + input_id_barang_jual).length;
@@ -121,11 +124,12 @@
                                     var add_harga_barang = $("#tabel-daftar-belanja-cashier").find(".tr_" + input_id_barang_jual).find("#dt_harga_barang_cashier").val();
                                     var add_qty_barang = $("#tabel-daftar-belanja-cashier").find(".tr_" + input_id_barang_jual).find("#dt_qty_barang_cashier").val();
                                     var add_jumlah = $("#tabel-daftar-belanja-cashier").find(".tr_" + input_id_barang_jual).find("#dt_jumlah_cashier").val();
+                                    var add_satuan = $("#tabel-daftar-belanja-cashier").find(".tr_" + input_id_barang_jual).find("#dt_jumlah_cashier").val();
 
                                     input_qty_barang = parseInt(input_qty_barang) + parseInt(add_qty_barang);
                                     jumlah = parseInt(jumlah) + parseInt(add_jumlah);
 
-                                    $("#tabel-daftar-belanja").find(".tr_" + input_id_barang_jual).remove();
+                                    $("#tabel-daftar-belanja-cashier").find(".tr_" + input_id_barang_jual).remove();
                                 }
 
                                 $("#tabel-daftar-belanja-cashier").children("tbody").append('\
@@ -247,7 +251,7 @@
 
                     function getNext(data) {
                         var id_transaksi = data[0].Auto_increment;
-                        var id_pengguna = "1";
+                        var id_pengguna = sessionStorage['id'];
                         var total_transaksi = parseInt($("#final_total_bayar_cashier").val());
                         var bayar = $("#final_bayar_cashier").val();
                         var kembalian = $("#final_kembalian_cashier").val();
@@ -470,6 +474,7 @@
                                     <input type="hidden" name="input_status_cashier" id="input_status_cashier" value="f" />
                                     <input type="hidden" name="input_id_barang_cashier" id="input_id_barang_cashier" />
                                     <input type="hidden" name="input_multiplier_cashier" id="input_multiplier_cashier" />
+                                    <input type="hidden" name="input_satuan_cashier" id="input_satuan_cashier" />
                                 </div>
                             </div>
                             <div class="form-group ">

@@ -50,33 +50,34 @@
                 //$("#dateMonth").text($.urlParam('month'));
 
                 function viewAll(date) {
-                    con.query("SELECT * FROM transaksi JOIN pengguna ON transaksi.id_pengguna = pengguna.id_pengguna WHERE tanggal LIKE '" + date + "%' ORDER BY tanggal DESC", function(err, rows) {
-                        if (err) throw err;
-                        console.log('Data pembelian received\n');
-                        var dist = [];
+                    con.query("SELECT * FROM transaksi JOIN pengguna ON transaksi.id_pengguna = pengguna.id_pengguna WHERE tanggal LIKE '" + date + "%' AND transaksi.id_pengguna ='" + sessionStorage['id'] + "' ORDER BY tanggal DESC",
+                        function(err, rows) {
+                            if (err) throw err;
+                            console.log('Data pembelian received\n');
+                            var dist = [];
 
-                        $("#tabelLaporanStock tbody").empty();
+                            $("#tabelLaporanStock tbody").empty();
 
 
-                        for (var i = 0; i < rows.length; i++) {
-                            dist[i] = {};
-                            dist[i]["id_transaksi"] = rows[i].id_transaksi;
+                            for (var i = 0; i < rows.length; i++) {
+                                dist[i] = {};
+                                dist[i]["id_transaksi"] = rows[i].id_transaksi;
 
-                            $("#tabelLaporanStock tbody").append(
-                                "<tr>" +
-                                "<td>" +
-                                "<input type='hidden' name='hdnBarang' id='hdnBarang' value='" + rows[i].id_transaksi + "'><strong>" +
-                                parseInt(i + 1) + "</strong></td>" +
-                                "<td colspan=2 ><p class='kiri'><strong>" + rows[i].tanggal + " " + rows[i].nama + "</strong></p></td>" +
-                                "<td><p class='kiri'><strong>" + accounting.formatMoney(rows[i].total_transaksi) + "</strong></p></td>" +
-                                "<td><p class='kiri'><strong>" + accounting.formatMoney(rows[i].bayar) + "</strong></p></td>" +
-                                "<td><p class='kiri'><strong>" + accounting.formatMoney(rows[i].kembalian) + "</strong></p></td>" +
-                                "</tr>" +
-                                "<tr ><td id='detail_distributor_" + rows[i].id_transaksi + "' colspan=6 class='padding-0'></td></tr>"
-                            );
-                        }
-                        insertDataDetail(dist);
-                    });
+                                $("#tabelLaporanStock tbody").append(
+                                    "<tr>" +
+                                    "<td>" +
+                                    "<input type='hidden' name='hdnBarang' id='hdnBarang' value='" + rows[i].id_transaksi + "'><strong>" +
+                                    parseInt(i + 1) + "</strong></td>" +
+                                    "<td colspan=2 ><p class='kiri'><strong>" + rows[i].tanggal + " " + rows[i].nama + "</strong></p></td>" +
+                                    "<td><p class='kiri'><strong>" + accounting.formatMoney(rows[i].total_transaksi) + "</strong></p></td>" +
+                                    "<td><p class='kiri'><strong>" + accounting.formatMoney(rows[i].bayar) + "</strong></p></td>" +
+                                    "<td><p class='kiri'><strong>" + accounting.formatMoney(rows[i].kembalian) + "</strong></p></td>" +
+                                    "</tr>" +
+                                    "<tr ><td id='detail_distributor_" + rows[i].id_transaksi + "' colspan=6 class='padding-0'></td></tr>"
+                                );
+                            }
+                            insertDataDetail(dist);
+                        });
                 };
 
 
@@ -113,7 +114,7 @@
                                             $("#dateMonth").append($.urlParam('month') + " " + $.urlParam('year'));
                                         })
                                         </script>
-                                        <h3 class="panel-title">Laporan Transaksi <label id="dateMonth"></label></h3>
+                                        <h3 class="panel-title">Laporan Transaksi Kasir<label id="dateMonth"></label></h3>
                                     </div>
                                 </div>
                             </div>

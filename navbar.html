@@ -7,7 +7,7 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
         </button>
-        <a class="navbar-brand" href="index.html">Home</a>
+        <a class="navbar-brand" href="index.html">Beranda</a>
     </div>
     <!-- Collect the nav links, forms, and other content for toggling -->
     <div class="collapse navbar-collapse navbar-ex1-collapse all-nav">
@@ -27,15 +27,17 @@
                 <ul class="dropdown-menu nav-admin">
                     <li><a href="report_stock.html">Laporan Stok Barang</a></li>
                     <li><a href="report_distributor.html">Laporan Distributor</a></li>
-                    <li><a href="report_transactions.html">Laporan Pembelian</a></li>
-                    <li><a href="report_profit.html">Laporan Keuntungan</a></li>
+                    <li><a href="report_profit.html">Laporan Laba</a></li>
                     <li><a href="report_selling.html">Laporan Hasil Penjualan</a></li>
                     <li><a href="report_transactions.html">Laporan Transaksi</a></li>
+                </ul>
+                <ul class="dropdown-menu nav-kasir">
+                    <li><a href="report_cashier_transactions.html">Laporan Kasir</a></li>
                 </ul>
             </li>
             <!-- User -->
             <li class="dropdown">
-                <a href="#" class="dropdown-toggle" data-toggle="dropdown">User <b class="caret"></b></a>
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown">Profil Pengguna<b class="caret"></b></a>
                 <ul class="dropdown-menu">
                     <li><a href="user_profile.html">Profil</a></li>
                     <li><a href="user_password.html">Ubah Password</a></li>
@@ -56,8 +58,8 @@
         </ul>
         <!-- Menu kanan -->
         <ul class="nav navbar-nav navbar-right all-nav">
-            <li><a href="#">About</a></li>
-            <li><a href="#" id="logout">Log Out</a></li>
+            <li><a href="#" data-toggle="modal" id="btnAbout" data-target="#mdlAbout">Tentang</a></li>
+            <li><a href="#" id="logout">Keluar</a></li>
         </ul>
     </div>
     <!-- /.navbar-collapse -->
@@ -65,5 +67,8 @@
 <script>
 if (sessionStorage['idGrup'] != '1') {
     $(".nav-admin").hide();
+}
+if (sessionStorage['idGrup'] != '2') {
+    $(".nav-kasir").hide();
 }
 </script>

@@ -87,6 +87,10 @@ p {
     background-color: green;
 }
 
+.noborder {
+    border-style: none;
+}
+
 
 /* -------- Navbar ------------*/
 

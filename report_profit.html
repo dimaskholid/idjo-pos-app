@@ -35,20 +35,19 @@
                 <iframe id="framePrint" style="display:none;" src="" frameborder="0">
                 </iframe>
                 <script>
-                viewAll($("#hdnDate").val());
                 setMonth("#selectMonth");
                 setYear("#selectYear");
                 var year = $("#selectYear").val();
                 var month = parseInt($("#selectMonth").val()) + 1;
-                $("#hdnDate").val(year + "-" + month);
+                $("#hdnDate").val(year + "-" + setDigitMonth(String(month)));
+                viewAll($("#hdnDate").val());
 
                 $(document).on("change", "#selectMonth, #selectYear", function(e) {
                     year = $("#selectYear").val();
                     month = parseInt($("#selectMonth").val()) + 1;
-                    $("#hdnDate").val(year + "-" + month);
+                    $("#hdnDate").val(year + "-" + setDigitMonth(String(month)));
                     //alertify.alert($("#hdnDate").val());
                     //alertify.alert($("#selectMonth option:selected").text());
-
                 });
 
                 $(document).on("submit", "#frmFilterLaba", function(e) {
