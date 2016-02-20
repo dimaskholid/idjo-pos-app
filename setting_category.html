@@ -74,21 +74,6 @@
                         $("#closeKategori").trigger("click");
                         notifEdit();
 
-                        /*con.query("SELECT COUNT(*) AS co FROM kategori WHERE kategori = '" + $("#inpEditKategori").val() + "'", function(err, res) {
-                            if (err) throw err;
-                            cekEditKategori(res);
-                        });
-
-                        cekEditKategori = function(res) {
-                            if (res[0].co == 0) {
-                                $("#inpEditDistributor-error-duplicate").hide();
-                                //update
-
-                            } else {
-                                $("#inpEditKategori-error-duplicate").show();
-                            }
-                        }*/
-
                     }
                 });
 

@@ -116,7 +116,7 @@
 
                         cekBarang = function(res) {
                             if (res[0].co == 0) {
-                                $("#inputDistributor-error-duplicate").hide();
+                                $("#inputBarang-error-duplicate").hide();
                                 var rowCount = $('#tabelBarang tbody tr').length;
                                 con.query('INSERT INTO barang SET ?', brg, function(err, res) {
                                     if (err) throw err;
@@ -333,7 +333,7 @@
                             </div>
                             <div class="modal-footer">
                                 <button type="submit" form="frmInputBarang" class="btn btn-info  btn-xs">Simpan</button>
-                                <a href="#" id="closeDist" class="btn btn-default btn-xs closeBarang" data-dismiss="modal">Tutup</a>
+                                <a href="#" id="closeInputBarang" class="btn btn-default btn-xs closeBarang" data-dismiss="modal">Tutup</a>
                             </div>
                         </div>
                     </div>

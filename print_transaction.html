@@ -47,12 +47,12 @@
                 /*-------------- View all -----------------*/
                 viewAll($.urlParam('date'));
                 //alert($.urlParam('month'));
-                //$("#dateMonth").text($.urlParam('month'));
+                //$("#dateMonthTrans").text($.urlParam('month'));
 
                 function viewAll(date) {
                     con.query("SELECT * FROM transaksi JOIN pengguna ON transaksi.id_pengguna = pengguna.id_pengguna WHERE tanggal LIKE '" + date + "%' ORDER BY tanggal DESC", function(err, rows) {
                         if (err) throw err;
-                        console.log('Data pembelian received\n');
+                        console.log('Data transaksi received\n');
                         var dist = [];
 
                         $("#tabelLaporanStock tbody").empty();
@@ -110,10 +110,10 @@
                                     <div class="pull-left">
                                         <script>
                                         $(function() {
-                                            $("#dateMonth").append($.urlParam('month') + " " + $.urlParam('year'));
+                                            $("#dateMonthTrans").append($.urlParam('month') + " " + $.urlParam('year'));
                                         })
                                         </script>
-                                        <h3 class="panel-title">Laporan Transaksi <label id="dateMonth"></label></h3>
+                                        <h3 class="panel-title">Laporan Transaksi <label id="dateMonthTrans"></label></h3>
                                     </div>
                                 </div>
                             </div>

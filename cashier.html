@@ -124,7 +124,7 @@
                                     var add_harga_barang = $("#tabel-daftar-belanja-cashier").find(".tr_" + input_id_barang_jual).find("#dt_harga_barang_cashier").val();
                                     var add_qty_barang = $("#tabel-daftar-belanja-cashier").find(".tr_" + input_id_barang_jual).find("#dt_qty_barang_cashier").val();
                                     var add_jumlah = $("#tabel-daftar-belanja-cashier").find(".tr_" + input_id_barang_jual).find("#dt_jumlah_cashier").val();
-                                    var add_satuan = $("#tabel-daftar-belanja-cashier").find(".tr_" + input_id_barang_jual).find("#dt_jumlah_cashier").val();
+                                    var add_satuan = $("#tabel-daftar-belanja-cashier").find(".tr_" + input_id_barang_jual).find("#dt_satuan").val();
 
                                     input_qty_barang = parseInt(input_qty_barang) + parseInt(add_qty_barang);
                                     jumlah = parseInt(jumlah) + parseInt(add_jumlah);
@@ -171,7 +171,6 @@
                 $(document).on("keyup", "#input_qty_barang_cashier", function(e) {
                     // cek stok 
                     //alertify.alert("berubah : " + $("#input_qty_barang").val());
-
                 })
 
                 $(document).on("click", "#btn_input_bayar_cashier", function(e) {
@@ -388,6 +387,9 @@
                             $("#input_nama_barang_cashier").focus();
                         }, 500);
                         cetakStruk();
+                        setTimeout(function() {
+                            document.title = "Toko IDJO";
+                        }, 500);
                     }
 
                     function cetakStruk() {
@@ -395,6 +397,7 @@
                         $("#framePrint").attr("src", "print_cashier.html?id_transaksi=" + $("#hdn_id_transaksi_cashier").val());
 
                         setTimeout(function() {
+                            document.title = 'NotaPenjualan' + moment().format('YYYYMMDSSSSSS');
                             document.getElementById('framePrint').contentWindow.print_payment();
                         }, 500);
                     }

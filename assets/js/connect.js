@@ -1,7 +1,7 @@
 var mysql = require("mysql");
 var md5 = require('js-md5');
 
-// First you need to create a connection to the db
+// koneksi db
 var con = mysql.createConnection({
     host: "localhost",
     user: "root",

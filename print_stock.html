@@ -69,7 +69,12 @@
                             <div class="panel-heading">
                                 <div class="clearfix">
                                     <div class="pull-left">
-                                        <h3 class="panel-title">Laporan Stock Barang</h3>
+                                        <script>
+                                        $(function() {
+                                            $("#dateMonthStock").append(moment().format('DD-MMM-YYYY'));
+                                        })
+                                        </script>
+                                        <h3 class="panel-title">Laporan Stock Barang <label id="dateMonthStock"></h3>
                                     </div>
                                 </div>
                             </div>

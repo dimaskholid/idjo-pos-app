@@ -149,6 +149,8 @@ function setDigitMonth(digit) {
     return digit;
 }
 
+var tanggal = new Date();
+
 /** accounting setting**/
 accounting.settings = {
     currency: {

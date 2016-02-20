@@ -55,14 +55,19 @@
             });
 
             $(document).on("click", "#btnCetakTrans", function(e) {
-                get_report();
+                get_report_transaction();
+                setTimeout(function() {
+                    document.title = 'Toko IDJO';
+                }, 500);
             });
 
-            function get_report() {
+            function get_report_transaction() {
                 //alert($("#hdn_id_transaksi").val());
+
                 $("#framePrint").attr("src", "print_transaction.html?date=" + $("#hdnDate").val() + "&month=" + $("#selectMonth option:selected").text() + "&year=" + $("#selectYear option:selected").text());
 
                 setTimeout(function() {
+                    document.title = 'Laporan Transaksi ' + moment().format('YYYYMMDSSSSSS');
                     document.getElementById('framePrint').contentWindow.print_report();
                 }, 500);
             }
@@ -74,7 +79,7 @@
             function viewAll(date) {
                 con.query("SELECT * FROM transaksi JOIN pengguna ON transaksi.id_pengguna = pengguna.id_pengguna WHERE tanggal LIKE '%" + date + "%' ORDER BY tanggal DESC", function(err, rows) {
                     if (err) throw err;
-                    console.log('Data pembelian received\n');
+                    console.log('Data transaksi received\n');
                     var dist = [];
 
                     $("#tabelLaporanTrans tbody").empty();

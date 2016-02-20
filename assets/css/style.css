@@ -103,6 +103,11 @@ p {
     border-radius: 0;
 }
 
+.fixed {
+    position: fixed;
+    width: 100%;
+}
+
 
 /* -------- Modal ------------*/
 

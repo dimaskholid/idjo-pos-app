@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 4.2.10
+-- version 4.1.6
 -- http://www.phpmyadmin.net
 --
--- Host: localhost:3306
--- Generation Time: Aug 21, 2015 at 12:06 AM
--- Server version: 5.5.38
--- PHP Version: 5.6.2
+-- Host: 127.0.0.1
+-- Generation Time: 04 Feb 2016 pada 06.08
+-- Versi Server: 5.6.16
+-- PHP Version: 5.5.9
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET time_zone = "+00:00";
@@ -23,182 +23,224 @@ SET time_zone = "+00:00";
 -- --------------------------------------------------------
 
 --
--- Table structure for table `barang`
+-- Struktur dari tabel `barang`
 --
 
-CREATE TABLE `barang` (
-`id_barang` int(10) NOT NULL,
-  `id_kategori` int(10) NOT NULL,
-  `barang` varchar(100) NOT NULL
-) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=latin1;
+CREATE TABLE IF NOT EXISTS `barang` (
+  `id_barang` int(11) NOT NULL AUTO_INCREMENT,
+  `id_kategori` int(11) NOT NULL,
+  `barang` varchar(100) NOT NULL,
+  PRIMARY KEY (`id_barang`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=18 ;
 
 --
--- Dumping data for table `barang`
+-- Dumping data untuk tabel `barang`
 --
 
 INSERT INTO `barang` (`id_barang`, `id_kategori`, `barang`) VALUES
 (1, 1, 'NPK'),
-(2, 4, 'biji bunga matahari'),
-(5, 1, 'Caldilac'),
-(7, 4, 'Benang sari'),
-(8, 0, ''),
-(9, 3, 'Pupuk');
+(2, 4, 'Bisi 2'),
+(5, 1, 'Ponska'),
+(7, 4, 'Kangkung bangkok'),
+(9, 3, 'Plant catalys'),
+(12, 4, 'Kangkung Super'),
+(13, 1, 'Urea'),
+(14, 10, 'Pelet Lele'),
+(15, 10, 'Pur Ayam'),
+(16, 11, 'Petrokum'),
+(17, 1, 'Gandasil B 100gr');
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `barang_jual`
+-- Struktur dari tabel `barang_jual`
 --
 
-CREATE TABLE `barang_jual` (
-`id_barang_jual` int(11) NOT NULL,
+CREATE TABLE IF NOT EXISTS `barang_jual` (
+  `id_barang_jual` int(11) NOT NULL AUTO_INCREMENT,
   `id_barang` int(11) NOT NULL,
   `id_satuan` int(11) NOT NULL,
   `alias` varchar(100) NOT NULL,
   `multiplier` int(11) NOT NULL,
-  `harga` decimal(15,2) NOT NULL
-) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=latin1;
+  `harga` decimal(15,2) NOT NULL,
+  PRIMARY KEY (`id_barang_jual`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=19 ;
 
 --
--- Dumping data for table `barang_jual`
+-- Dumping data untuk tabel `barang_jual`
 --
 
 INSERT INTO `barang_jual` (`id_barang_jual`, `id_barang`, `id_satuan`, `alias`, `multiplier`, `harga`) VALUES
-(1, 1, 17, 'wert', 1, 3000.00),
-(3, 5, 17, 'calc', 1, 12000.00),
-(4, 7, 21, 'benamg sari', 1, 5000.00),
-(7, 2, 17, '1', 1, 1.00),
-(9, 5, 20, '12', 12, 12.00),
-(10, 1, 20, 'NPK 1 karung', 50, 150000.00),
-(11, 1, 22, 'NPK kg', 1, 5000.00);
+(14, 17, 42, 'Gandasil B 100gr', 1, '15000.00'),
+(15, 13, 20, 'Urea karung ', 50, '90000.00'),
+(16, 13, 22, 'Urea 1kg', 1, '1800.00'),
+(17, 1, 22, 'NPK 1kg', 1, '2300.00'),
+(18, 1, 20, 'NPK karung', 50, '115000.00');
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `distributor`
+-- Struktur dari tabel `distributor`
 --
 
-CREATE TABLE `distributor` (
-`id_distributor` int(10) NOT NULL,
-  `distributor` varchar(100) NOT NULL
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=latin1;
+CREATE TABLE IF NOT EXISTS `distributor` (
+  `id_distributor` int(11) NOT NULL AUTO_INCREMENT,
+  `distributor` varchar(100) NOT NULL,
+  PRIMARY KEY (`id_distributor`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=14 ;
 
 --
--- Dumping data for table `distributor`
+-- Dumping data untuk tabel `distributor`
 --
 
 INSERT INTO `distributor` (`id_distributor`, `distributor`) VALUES
-(1, 'HCS Farma'),
-(2, 'Farma Cibitung'),
-(3, 'Kimia Farma'),
-(4, 'Hadi Cemical'),
-(5, 'farma ');
+(1, 'Mulyo Tani'),
+(2, 'CV Sumber Hidup'),
+(3, 'Anugrah Tani'),
+(4, 'Alam Tani'),
+(13, 'KUD Sri Rahayu');
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `grup_pengguna`
+-- Struktur dari tabel `grup_pengguna`
 --
 
-CREATE TABLE `grup_pengguna` (
-`id_grup` int(10) NOT NULL,
-  `grup_pengguna` varchar(100) NOT NULL
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=latin1;
+CREATE TABLE IF NOT EXISTS `grup_pengguna` (
+  `id_grup` int(11) NOT NULL AUTO_INCREMENT,
+  `grup_pengguna` varchar(100) NOT NULL,
+  PRIMARY KEY (`id_grup`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=3 ;
 
 --
--- Dumping data for table `grup_pengguna`
+-- Dumping data untuk tabel `grup_pengguna`
 --
 
 INSERT INTO `grup_pengguna` (`id_grup`, `grup_pengguna`) VALUES
-(1, 'administrator'),
-(2, 'karyawan');
+(1, 'Admin'),
+(2, 'Kasir');
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `kategori`
+-- Struktur dari tabel `kategori`
 --
 
-CREATE TABLE `kategori` (
-`id_kategori` int(10) NOT NULL,
-  `kategori` varchar(35) NOT NULL
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=latin1;
+CREATE TABLE IF NOT EXISTS `kategori` (
+  `id_kategori` int(11) NOT NULL AUTO_INCREMENT,
+  `kategori` varchar(35) NOT NULL,
+  PRIMARY KEY (`id_kategori`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=12 ;
 
 --
--- Dumping data for table `kategori`
+-- Dumping data untuk tabel `kategori`
 --
 
 INSERT INTO `kategori` (`id_kategori`, `kategori`) VALUES
 (1, 'Pupuk'),
-(3, 'Obat'),
-(4, 'Bibit');
+(3, 'Obat tanaman'),
+(4, 'Bibit'),
+(10, 'Pakan '),
+(11, 'Obat tikus');
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `pembelian`
+-- Struktur dari tabel `laba`
 --
 
-CREATE TABLE `pembelian` (
-`id_pembelian` int(10) NOT NULL,
-  `tanggal` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `total` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+CREATE TABLE IF NOT EXISTS `laba` (
+  `id_laba` int(11) NOT NULL AUTO_INCREMENT,
+  `id_transaksi_detail` int(11) DEFAULT NULL,
+  `id_barang` int(11) DEFAULT NULL,
+  `id_satuan` int(11) DEFAULT NULL,
+  `id_barang_jual` int(11) DEFAULT NULL,
+  `tanggal` datetime DEFAULT CURRENT_TIMESTAMP,
+  `qty` int(11) DEFAULT NULL,
+  `harga_beli` decimal(15,2) DEFAULT NULL,
+  `harga_jual` decimal(15,2) DEFAULT NULL,
+  `laba_satuan` decimal(15,2) DEFAULT NULL,
+  `laba_total` decimal(15,2) DEFAULT NULL,
+  PRIMARY KEY (`id_laba`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=48 ;
+
+--
+-- Dumping data untuk tabel `laba`
+--
+
+INSERT INTO `laba` (`id_laba`, `id_transaksi_detail`, `id_barang`, `id_satuan`, `id_barang_jual`, `tanggal`, `qty`, `harga_beli`, `harga_jual`, `laba_satuan`, `laba_total`) VALUES
+(42, 42, 1, 22, 17, '2016-01-29 05:14:03', 10, '1700.00', '2300.00', '600.00', '6000.00'),
+(43, 43, 17, 42, 14, '2016-01-29 05:14:03', 2, '10000.00', '15000.00', '5000.00', '10000.00'),
+(44, 44, 1, 22, 17, '2016-01-29 05:17:21', 5, '1700.00', '2300.00', '600.00', '3000.00'),
+(45, 45, 13, 22, 16, '2016-01-29 05:17:21', 5, '1500.00', '1800.00', '300.00', '1500.00'),
+(46, 46, 1, 22, 17, '2016-02-03 05:21:13', 5, '1700.00', '2300.00', '600.00', '3000.00'),
+(47, 47, 17, 42, 14, '2016-02-03 05:21:26', 1, '10000.00', '15000.00', '5000.00', '5000.00');
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `pembelian_detail`
+-- Struktur dari tabel `pembelian`
 --
 
-CREATE TABLE `pembelian_detail` (
-`id_pembelian_detail` int(10) NOT NULL,
-  `id_pembelian` int(10) NOT NULL,
-  `id_barang` int(10) NOT NULL,
-  `id_distributor` int(10) NOT NULL,
-  `id_satuan` int(10) NOT NULL,
-  `qty` int(12) NOT NULL,
+CREATE TABLE IF NOT EXISTS `pembelian` (
+  `id_pembelian` int(11) NOT NULL AUTO_INCREMENT,
+  `id_barang` int(11) NOT NULL,
+  `id_distributor` int(11) NOT NULL,
+  `id_satuan` int(11) NOT NULL,
+  `tanggal` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `qty` int(11) NOT NULL,
   `harga_satuan` decimal(15,2) NOT NULL,
-  `harga_total` decimal(15,2) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+  `harga_total` decimal(15,2) NOT NULL,
+  PRIMARY KEY (`id_pembelian`),
+  KEY `id_satuan` (`id_satuan`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=123 ;
+
+--
+-- Dumping data untuk tabel `pembelian`
+--
+
+INSERT INTO `pembelian` (`id_pembelian`, `id_barang`, `id_distributor`, `id_satuan`, `tanggal`, `qty`, `harga_satuan`, `harga_total`) VALUES
+(120, 1, 13, 20, '2016-01-29 05:06:00', 10, '1700.00', '850000.00'),
+(121, 13, 13, 20, '2016-01-29 05:06:58', 10, '1500.00', '750000.00'),
+(122, 17, 2, 42, '2016-01-29 05:08:22', 25, '10000.00', '250000.00');
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `pengguna`
+-- Struktur dari tabel `pengguna`
 --
 
-CREATE TABLE `pengguna` (
-`id_pengguna` int(10) NOT NULL,
-  `id_grup` int(10) NOT NULL,
+CREATE TABLE IF NOT EXISTS `pengguna` (
+  `id_pengguna` int(11) NOT NULL AUTO_INCREMENT,
+  `id_grup` int(11) NOT NULL,
   `nama` varchar(100) NOT NULL,
   `username` varchar(100) NOT NULL,
-  `password` varchar(100) NOT NULL
-) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=latin1;
+  `password` varchar(100) NOT NULL,
+  PRIMARY KEY (`id_pengguna`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=3 ;
 
 --
--- Dumping data for table `pengguna`
+-- Dumping data untuk tabel `pengguna`
 --
 
 INSERT INTO `pengguna` (`id_pengguna`, `id_grup`, `nama`, `username`, `password`) VALUES
-(1, 1, 'Administrator', 'Admin', '21232f297a57a5a743894a0e4a801fc3'),
-(2, 2, 'dimas', 'dimas', '7d49e40f4b3d8f68c19406a58303f826'),
-(19, 2, 'idaman', 'idaman', '9682c8b501ac64a28d1833a511ba61b4'),
-(20, 2, 'anandam', 'anandam', '782f82bca258130be976ad18dea6ab3d');
+(1, 1, 'Administrator', 'admin', '21232f297a57a5a743894a0e4a801fc3'),
+(2, 2, 'Dimas Kholid', 'dimas', '7d49e40f4b3d8f68c19406a58303f826');
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `satuan`
+-- Struktur dari tabel `satuan`
 --
 
-CREATE TABLE `satuan` (
-`id_satuan` int(11) NOT NULL,
-  `satuan` varchar(25) NOT NULL
-) ENGINE=InnoDB AUTO_INCREMENT=26 DEFAULT CHARSET=latin1;
+CREATE TABLE IF NOT EXISTS `satuan` (
+  `id_satuan` int(11) NOT NULL AUTO_INCREMENT,
+  `satuan` varchar(25) NOT NULL,
+  PRIMARY KEY (`id_satuan`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=44 ;
 
 --
--- Dumping data for table `satuan`
+-- Dumping data untuk tabel `satuan`
 --
 
 INSERT INTO `satuan` (`id_satuan`, `satuan`) VALUES
@@ -207,247 +249,113 @@ INSERT INTO `satuan` (`id_satuan`, `satuan`) VALUES
 (20, 'karung'),
 (21, 'biji'),
 (22, 'kg'),
-(24, 'Biji');
+(42, 'bungkus'),
+(43, 'gr');
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `stock`
+-- Struktur dari tabel `stock`
 --
 
-CREATE TABLE `stock` (
-`id_stock` int(11) NOT NULL,
-  `id_item` int(11) NOT NULL,
-  `id_unit` int(11) NOT NULL,
+CREATE TABLE IF NOT EXISTS `stock` (
+  `id_stock` int(11) NOT NULL AUTO_INCREMENT,
+  `id_barang` int(11) NOT NULL,
+  `id_satuan` int(11) NOT NULL,
   `stock` int(11) NOT NULL,
-  `harga_jual` decimal(15,2) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+  `harga_jual` decimal(15,2) NOT NULL,
+  PRIMARY KEY (`id_stock`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=41 ;
+
+--
+-- Dumping data untuk tabel `stock`
+--
+
+INSERT INTO `stock` (`id_stock`, `id_barang`, `id_satuan`, `stock`, `harga_jual`) VALUES
+(38, 1, 22, 480, '115000.00'),
+(39, 13, 22, 495, '90000.00'),
+(40, 17, 42, 22, '15000.00');
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `stock_detail`
+-- Struktur dari tabel `stock_detail`
 --
 
-CREATE TABLE `stock_detail` (
-`id_stock_detail` int(11) NOT NULL,
+CREATE TABLE IF NOT EXISTS `stock_detail` (
+  `id_stock_detail` int(11) NOT NULL AUTO_INCREMENT,
   `id_stock` int(11) NOT NULL,
-  `id_pembelian_detail` int(11) NOT NULL,
-  `tanggal` datetime NOT NULL,
+  `id_pembelian` int(11) NOT NULL,
+  `tanggal` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `pembelian_stock` int(11) NOT NULL,
   `stock` int(11) NOT NULL,
-  `harga_beli` decimal(15,2) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+  `harga_beli` decimal(15,2) NOT NULL,
+  PRIMARY KEY (`id_stock_detail`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=56 ;
+
+--
+-- Dumping data untuk tabel `stock_detail`
+--
+
+INSERT INTO `stock_detail` (`id_stock_detail`, `id_stock`, `id_pembelian`, `tanggal`, `pembelian_stock`, `stock`, `harga_beli`) VALUES
+(53, 38, 120, '2016-01-29 05:06:01', 500, 480, '1700.00'),
+(54, 39, 121, '2016-01-29 05:06:59', 500, 495, '1500.00'),
+(55, 40, 122, '2016-01-29 05:08:22', 25, 22, '10000.00');
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `transaksi`
+-- Struktur dari tabel `transaksi`
 --
 
-CREATE TABLE `transaksi` (
-`id_transaksi` int(11) NOT NULL,
-  `id_pengguna` int(11) NOT NULL,
-  `tanggal` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `total_transaksi` decimal(15,2) NOT NULL,
-  `bayar` decimal(15,2) NOT NULL,
-  `kembalian` decimal(15,2) NOT NULL
-) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=latin1;
+CREATE TABLE IF NOT EXISTS `transaksi` (
+  `id_transaksi` int(11) NOT NULL AUTO_INCREMENT,
+  `id_pengguna` int(11) DEFAULT NULL,
+  `tanggal` datetime DEFAULT CURRENT_TIMESTAMP,
+  `total_transaksi` decimal(15,2) DEFAULT NULL,
+  `bayar` decimal(15,2) DEFAULT NULL,
+  `kembalian` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id_transaksi`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=31 ;
 
 --
--- Dumping data for table `transaksi`
+-- Dumping data untuk tabel `transaksi`
 --
 
 INSERT INTO `transaksi` (`id_transaksi`, `id_pengguna`, `tanggal`, `total_transaksi`, `bayar`, `kembalian`) VALUES
-(1, 1, '2015-08-20 16:39:35', 12000.00, 0.00, 0.00),
-(2, 1, '2015-08-20 16:41:07', 12000.00, 20000.00, 8000.00),
-(3, 1, '2015-08-20 16:45:16', 12001.00, 50000.00, 37999.00),
-(4, 1, '2015-08-20 16:48:43', 25200.00, 30000.00, 4800.00),
-(5, 1, '2015-08-20 16:50:13', 12000.00, 15000.00, 3000.00),
-(6, 1, '2015-08-20 16:50:34', 12000.00, 15000.00, 3000.00),
-(7, 1, '2015-08-20 16:51:26', 120000.00, 200000.00, 80000.00),
-(8, 1, '2015-08-20 16:52:41', 12000.00, 20000.00, 8000.00);
+(27, 1, '2016-01-29 05:14:03', '53000.00', '60000.00', 7000),
+(28, 1, '2016-01-29 05:17:20', '20500.00', '25000.00', 4500),
+(29, 1, '2016-02-03 05:21:13', '11500.00', '12000.00', 500),
+(30, 1, '2016-02-03 05:21:26', '15000.00', '15000.00', 0);
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `transaksi_detail`
+-- Struktur dari tabel `transaksi_detail`
 --
 
-CREATE TABLE `transaksi_detail` (
-`id_transaksi_detail` int(11) NOT NULL,
-  `id_transaksi` int(11) NOT NULL,
-  `id_barang_jual` int(11) NOT NULL,
-  `qty` int(11) NOT NULL,
-  `harga_satuan` decimal(15,2) NOT NULL,
-  `jumlah` decimal(15,2) NOT NULL
-) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=latin1;
+CREATE TABLE IF NOT EXISTS `transaksi_detail` (
+  `id_transaksi_detail` int(11) NOT NULL AUTO_INCREMENT,
+  `id_transaksi` int(11) DEFAULT NULL,
+  `id_barang_jual` int(11) DEFAULT NULL,
+  `qty` int(11) DEFAULT NULL,
+  `harga_satuan` decimal(15,2) DEFAULT NULL,
+  `total_harga` decimal(15,2) DEFAULT NULL,
+  PRIMARY KEY (`id_transaksi_detail`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=48 ;
 
 --
--- Dumping data for table `transaksi_detail`
+-- Dumping data untuk tabel `transaksi_detail`
 --
 
-INSERT INTO `transaksi_detail` (`id_transaksi_detail`, `id_transaksi`, `id_barang_jual`, `qty`, `harga_satuan`, `jumlah`) VALUES
-(1, 3, 3, 1, 12000.00, 12000.00),
-(2, 3, 7, 1, 1.00, 1.00),
-(3, 4, 3, 2, 12000.00, 24000.00),
-(4, 4, 9, 100, 12.00, 1200.00),
-(5, 5, 3, 1, 12000.00, 12000.00),
-(6, 6, 3, 1, 12000.00, 12000.00),
-(7, 7, 3, 10, 12000.00, 120000.00),
-(8, 8, 3, 1, 12000.00, 12000.00);
+INSERT INTO `transaksi_detail` (`id_transaksi_detail`, `id_transaksi`, `id_barang_jual`, `qty`, `harga_satuan`, `total_harga`) VALUES
+(42, 27, 17, 10, '2300.00', '23000.00'),
+(43, 27, 14, 2, '15000.00', '30000.00'),
+(44, 28, 17, 5, '2300.00', '11500.00'),
+(45, 28, 16, 5, '1800.00', '9000.00'),
+(46, 29, 17, 5, '2300.00', '11500.00'),
+(47, 30, 14, 1, '15000.00', '15000.00');
 
---
--- Indexes for dumped tables
---
-
---
--- Indexes for table `barang`
---
-ALTER TABLE `barang`
- ADD PRIMARY KEY (`id_barang`);
-
---
--- Indexes for table `barang_jual`
---
-ALTER TABLE `barang_jual`
- ADD PRIMARY KEY (`id_barang_jual`);
-
---
--- Indexes for table `distributor`
---
-ALTER TABLE `distributor`
- ADD PRIMARY KEY (`id_distributor`);
-
---
--- Indexes for table `grup_pengguna`
---
-ALTER TABLE `grup_pengguna`
- ADD PRIMARY KEY (`id_grup`);
-
---
--- Indexes for table `kategori`
---
-ALTER TABLE `kategori`
- ADD PRIMARY KEY (`id_kategori`);
-
---
--- Indexes for table `pembelian`
---
-ALTER TABLE `pembelian`
- ADD PRIMARY KEY (`id_pembelian`);
-
---
--- Indexes for table `pembelian_detail`
---
-ALTER TABLE `pembelian_detail`
- ADD PRIMARY KEY (`id_pembelian_detail`);
-
---
--- Indexes for table `pengguna`
---
-ALTER TABLE `pengguna`
- ADD PRIMARY KEY (`id_pengguna`);
-
---
--- Indexes for table `satuan`
---
-ALTER TABLE `satuan`
- ADD PRIMARY KEY (`id_satuan`);
-
---
--- Indexes for table `stock`
---
-ALTER TABLE `stock`
- ADD PRIMARY KEY (`id_stock`);
-
---
--- Indexes for table `stock_detail`
---
-ALTER TABLE `stock_detail`
- ADD PRIMARY KEY (`id_stock_detail`);
-
---
--- Indexes for table `transaksi`
---
-ALTER TABLE `transaksi`
- ADD PRIMARY KEY (`id_transaksi`);
-
---
--- Indexes for table `transaksi_detail`
---
-ALTER TABLE `transaksi_detail`
- ADD PRIMARY KEY (`id_transaksi_detail`);
-
---
--- AUTO_INCREMENT for dumped tables
---
-
---
--- AUTO_INCREMENT for table `barang`
---
-ALTER TABLE `barang`
-MODIFY `id_barang` int(10) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=10;
---
--- AUTO_INCREMENT for table `barang_jual`
---
-ALTER TABLE `barang_jual`
-MODIFY `id_barang_jual` int(11) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=12;
---
--- AUTO_INCREMENT for table `distributor`
---
-ALTER TABLE `distributor`
-MODIFY `id_distributor` int(10) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=6;
---
--- AUTO_INCREMENT for table `grup_pengguna`
---
-ALTER TABLE `grup_pengguna`
-MODIFY `id_grup` int(10) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=3;
---
--- AUTO_INCREMENT for table `kategori`
---
-ALTER TABLE `kategori`
-MODIFY `id_kategori` int(10) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=6;
---
--- AUTO_INCREMENT for table `pembelian`
---
-ALTER TABLE `pembelian`
-MODIFY `id_pembelian` int(10) NOT NULL AUTO_INCREMENT;
---
--- AUTO_INCREMENT for table `pembelian_detail`
---
-ALTER TABLE `pembelian_detail`
-MODIFY `id_pembelian_detail` int(10) NOT NULL AUTO_INCREMENT;
---
--- AUTO_INCREMENT for table `pengguna`
---
-ALTER TABLE `pengguna`
-MODIFY `id_pengguna` int(10) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=21;
---
--- AUTO_INCREMENT for table `satuan`
---
-ALTER TABLE `satuan`
-MODIFY `id_satuan` int(11) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=26;
---
--- AUTO_INCREMENT for table `stock`
---
-ALTER TABLE `stock`
-MODIFY `id_stock` int(11) NOT NULL AUTO_INCREMENT;
---
--- AUTO_INCREMENT for table `stock_detail`
---
-ALTER TABLE `stock_detail`
-MODIFY `id_stock_detail` int(11) NOT NULL AUTO_INCREMENT;
---
--- AUTO_INCREMENT for table `transaksi`
---
-ALTER TABLE `transaksi`
-MODIFY `id_transaksi` int(11) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=9;
---
--- AUTO_INCREMENT for table `transaksi_detail`
---
-ALTER TABLE `transaksi_detail`
-MODIFY `id_transaksi_detail` int(11) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=9;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;

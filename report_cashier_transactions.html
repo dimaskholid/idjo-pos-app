@@ -55,11 +55,11 @@
             });
 
             $(document).on("click", "#btnCetakKasir", function(e) {
-                get_report();
+                get_report_cashier();
 
             });
 
-            function get_report() {
+            function get_report_cashier() {
                 //alert($("#hdn_id_transaksi").val());
                 $("#framePrint").attr("src", "print_cashier_transaction.html?date=" + $("#hdnDate").val() + "&month=" + $("#selectMonth option:selected").text() + "&year=" + $("#selectYear option:selected").text());
 
